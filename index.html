@@ -11,25 +11,28 @@
             background-attachment: fixed;
             background-repeat: no-repeat;
         }
-        /* Efek transisi untuk buka tutup menu */
-        .submenu { transition: all 0.3s ease; }
     </style>
 </head>
 <body>
 
-    <!-- Navbar (Tetap sama) -->
+    <!-- Navbar -->
     <nav class="bg-blue-800 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <img src="logo-sekolah.png" alt="Logo" class="h-10 w-10 object-contain bg-white rounded-full">
                 <h1 class="font-bold text-2xl">SD Plus Darussalam</h1>
             </div>
+            <div class="space-x-4">
+                <a href="#" class="hover:underline">Beranda</a>
+                <a href="#" class="hover:underline">Profil</a>
+            </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main class="container mx-auto py-8 px-4 flex flex-col md:flex-row gap-6">
         
-        <!-- KOLOM 1: MENU (Dulu Arsip) -->
+        <!-- KOLOM 1: MENU -->
         <aside class="w-full md:w-1/4">
             <h2 class="text-xl font-bold mb-4 border-b-2 border-gray-400 pb-2">MENU</h2>
             <div id="menu-container" class="bg-white/80 p-4 rounded shadow space-y-2">
@@ -37,13 +40,39 @@
             </div>
         </aside>
 
-        <!-- Kolom Berita & Pengumuman (Tetap sama) -->
-        <!-- ... (bagian tengah dan kanan Anda) ... -->
+        <!-- KOLOM 2: BERITA TERBARU (Tengah) -->
+        <section class="w-full md:w-2/4">
+            <h2 class="text-2xl font-bold mb-4 border-b-2 border-blue-800 pb-2">Berita Terbaru</h2>
+            <div class="bg-white/90 p-4 rounded shadow">
+                <img src="Berita-1.jpg" class="w-full h-48 object-cover mb-4 rounded" alt="Berita">
+                <h3 class="text-xl font-bold">Pembangunan SD Plus Darussalam</h3>
+                <p id="konten-pendek" class="text-gray-600 mt-2">SD Plus Darussalam sendiri merupakan lembaga pendidikan dasar swasta yang...</p>
+                <div id="konten-lengkap" class="hidden text-gray-600 mt-2">
+                    SD Plus Darussalam telah berdiri sejak 2009 dan saat ini sedang melakukan pembangunan gedung baru untuk menampung siswa lebih banyak. Kami membuka kesempatan bagi dermawan untuk ikut berdonasi melalui Havidz Fuaddin Al Kolidi (0852-1010-0165).
+                </div>
+                <button onclick="toggleBerita()" id="btn-baca" class="text-blue-600 font-bold mt-4 block">Baca Selengkapnya →</button>
+            </div>
+        </section>
+
+        <!-- KOLOM 3: PENGUMUMAN (Kanan) -->
+        <aside class="w-full md:w-1/4">
+            <h2 class="text-2xl font-bold mb-4 border-b-2 border-yellow-500 pb-2">Pengumuman</h2>
+            <div class="bg-white/80 p-4 rounded shadow space-y-4">
+                <div class="border-l-4 border-blue-500 pl-3">
+                    <p class="font-semibold text-sm">Jadwal Liburan Semester 2</p>
+                    <span class="text-xs text-gray-500">20 Juni - 12 Juli 2026</span>
+                </div>
+                <div class="border-l-4 border-blue-500 pl-3">
+                    <p class="font-semibold text-sm">Awal Tahun Ajaran Baru 2026/2027</p>
+                    <span class="text-xs text-gray-500">13 Juli 2026</span>
+                </div>
+            </div>
+        </aside>
 
     </main>
 
     <script>
-        // Struktur data menu bertingkat
+        // Data Menu Bertingkat
         const menuData = [
             {
                 nama: "Capaian",
@@ -62,7 +91,6 @@
         ];
 
         const container = document.getElementById('menu-container');
-
         menuData.forEach((item, index) => {
             const menuDiv = document.createElement('div');
             menuDiv.innerHTML = `
@@ -77,11 +105,9 @@
         });
 
         function toggleMenu(index) {
-            const sub = document.getElementById(`sub-${index}`);
-            sub.classList.toggle('hidden');
+            document.getElementById(`sub-${index}`).classList.toggle('hidden');
         }
 
-        // Fungsi toggleBerita tetap sama
         function toggleBerita() {
             const lengkap = document.getElementById('konten-lengkap');
             const pendek = document.getElementById('konten-pendek');
