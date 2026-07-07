@@ -7,7 +7,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // Ganti dengan konfigurasi Firebase Anda
+        // Konfigurasi Firebase Anda
         const firebaseConfig = { 
             apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
             authDomain: "tagihan-siswa-1f2df.firebaseapp.com",
@@ -22,32 +22,56 @@
 
         window.cariTagihan = async function() {
             const nisn = document.getElementById('nisn-input').value.trim();
-            const ibu = document.getElementById('ibu-input').value.trim().toUpperCase();
+            const ibuInput = document.getElementById('ibu-input').value.trim().toUpperCase();
             const hasilDiv = document.getElementById('hasil-tagihan');
+            hasilDiv.classList.add('hidden'); // Sembunyikan hasil lama
+
+            if (!nisn) {
+                alert("Masukkan NISN!");
+                return;
+            }
 
             try {
                 const docSnap = await getDoc(doc(db, "siswa", nisn));
-                if (docSnap.exists() && docSnap.data().namaIbu.toUpperCase() === ibu) {
+
+                if (docSnap.exists()) {
                     const d = docSnap.data();
-                    hasilDiv.classList.remove('hidden');
-                    hasilDiv.innerHTML = `<p><strong>Nama:</strong> ${d.nama}</p>
-                                        <p><strong>Status:</strong> ${d.status}</p>
-                                        <p><strong>Jumlah:</strong> ${d.jumlah}</p>`;
+                    // Pengecekan aman: jika namaIbu tidak ada, dianggap string kosong
+                    const namaIbuDiDb = d.namaIbu ? d.namaIbu.toUpperCase() : "";
+
+                    if (namaIbuDiDb === ibuInput) {
+                        hasilDiv.classList.remove('hidden');
+                        hasilDiv.innerHTML = `
+                            <p><strong>Nama:</strong> ${d.nama || '-'}</p>
+                            <p><strong>Status:</strong> ${d.status || '-'}</p>
+                            <p><strong>Keterangan:</strong> ${d.keterangan || '-'}</p>
+                            <p><strong>Jumlah:</strong> ${d.jumlah || '-'}</p>
+                        `;
+                    } else {
+                        alert("Nama Ibu Kandung tidak cocok!");
+                    }
                 } else {
-                    alert("NISN atau Nama Ibu tidak cocok!");
+                    alert("NISN tidak ditemukan di database.");
                 }
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { 
+                console.error(e);
+                alert("Terjadi kesalahan koneksi."); 
+            }
         }
     </script>
 </head>
 <body class="bg-gray-100 p-8">
     <div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-        <h2 class="text-xl font-bold mb-4">Cek Tagihan</h2>
-        <input type="text" id="nisn-input" placeholder="NISN" class="w-full p-2 border rounded mb-3">
+        <h2 class="text-xl font-bold mb-4">Cek Tagihan Siswa</h2>
+        <input type="text" id="nisn-input" placeholder="Masukkan NISN" class="w-full p-2 border rounded mb-3">
         <input type="text" id="ibu-input" placeholder="Nama Ibu Kandung" class="w-full p-2 border rounded mb-4">
-        <button onclick="cariTagihan()" class="w-full bg-blue-800 text-white p-2 rounded">Cari</button>
-        <div id="hasil-tagihan" class="mt-6 hidden p-4 bg-gray-50 border rounded"></div>
-        <a href="index.html" class="block text-center mt-4 text-blue-600 underline">Kembali ke Beranda</a>
+        <button onclick="cariTagihan()" class="w-full bg-blue-800 text-white p-2 rounded font-bold hover:bg-blue-700">Cari Tagihan</button>
+        
+        <div id="hasil-tagihan" class="mt-6 hidden p-4 bg-gray-50 border-l-4 border-blue-800 rounded">
+            <!-- Hasil akan muncul di sini -->
+        </div>
+        
+        <a href="index.html" class="block text-center mt-6 text-blue-600 underline">← Kembali ke Beranda</a>
     </div>
 </body>
 </html>
