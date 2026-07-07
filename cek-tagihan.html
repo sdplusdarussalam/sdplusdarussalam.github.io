@@ -39,21 +39,29 @@
 
                     if (namaIbuDiDb === ibuInput) {
                         hasilDiv.classList.remove('hidden');
-                        // Data ditampilkan beserta informasi rekening dan tombol WA
+                        
+                        // Logika untuk menampilkan rekening hanya jika status BUKAN "Lunas"
+                        let infoRekening = "";
+                        if (d.status.toLowerCase() !== "lunas") {
+                            infoRekening = `
+                                <hr class="my-4 border-gray-300">
+                                <p class="text-sm">Silakan transfer ke rekening berikut:</p>
+                                <p class="font-bold text-lg text-blue-900">Bank BNI: 1234567890 (a.n SD Plus Darussalam)</p>
+                                <br>
+                                <a href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20telah%20melakukan%20pembayaran%20untuk%20siswa%20${d.nama}%20(NISN:%20${nisn}).%20Berikut%20bukti%20transfernya." 
+                                   target="_blank" 
+                                   class="block w-full bg-green-600 text-white text-center p-2 rounded font-bold hover:bg-green-500">
+                                   Kirim Bukti Transfer (WhatsApp)
+                                </a>
+                            `;
+                        }
+
                         hasilDiv.innerHTML = `
                             <p><strong>Nama:</strong> ${d.nama || '-'}</p>
                             <p><strong>Status:</strong> ${d.status || '-'}</p>
                             <p><strong>Keterangan:</strong> ${d.keterangan || '-'}</p>
                             <p><strong>Jumlah:</strong> ${d.jumlah || '-'}</p>
-                            <hr class="my-4 border-gray-300">
-                            <p class="text-sm">Silakan transfer ke rekening berikut:</p>
-                            <p class="font-bold text-lg text-blue-900">Bank BNI: 1234567890 (a.n SD Plus Darussalam)</p>
-                            <br>
-                            <a href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20telah%20melakukan%20pembayaran%20untuk%20siswa%20${d.nama}%20(NISN:%20${nisn}).%20Berikut%20bukti%20transfernya." 
-                               target="_blank" 
-                               class="block w-full bg-green-600 text-white text-center p-2 rounded font-bold hover:bg-green-500">
-                               Kirim Bukti Transfer (WhatsApp)
-                            </a>
+                            ${infoRekening}
                         `;
                     } else {
                         alert("Nama Ibu Kandung tidak cocok!");
