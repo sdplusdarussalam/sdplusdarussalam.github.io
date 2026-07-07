@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            /* Menggunakan overlay putih transparan (0.8) agar teks tetap terbaca di atas foto bangunan */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('bangunan-sekolah.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="bg-blue-800 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="logo-sekolah.png" alt="Logo SD Plus Darussalam" class="h-10 w-10 object-contain bg-white rounded-full">
+                <h1 class="font-bold text-2xl">SD Plus Darussalam</h1>
+            </div>
+            
+            <div class="space-x-4">
+                <a href="#" class="hover:underline">Beranda</a>
+                <a href="#" class="hover:underline">Profil</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content: Layout 3 Kolom -->
+    <main class="container mx-auto py-8 px-4 flex flex-col md:flex-row gap-6">
+        
+        <!-- KOLOM 1: ARSIP (Kiri) -->
+        <aside class="w-full md:w-1/4">
+            <h2 class="text-xl font-bold mb-4 border-b-2 border-gray-400 pb-2">Arsip</h2>
+            <input type="text" placeholder="Cari..." class="w-full p-2 mb-4 border rounded shadow-sm">
+            <ul id="list-arsip" class="space-y-2 text-gray-700 bg-white/80 p-4 rounded shadow">
+                <!-- Link arsip muncul otomatis -->
+            </ul>
+        </aside>
+
+        <!-- KOLOM 2: BERITA TERBARU (Tengah) -->
+        <section class="w-full md:w-2/4">
+            <h2 class="text-2xl font-bold mb-4 border-b-2 border-blue-800 pb-2">Berita Terbaru</h2>
+            <div class="bg-white/90 p-4 rounded shadow">
+                <img src="Berita-1.jpg" class="w-full h-48 object-cover mb-4 rounded" alt="Berita">
+                <h3 class="text-xl font-bold">Pembangunan SD Plus Darussalam</h3>
+                
+                <p id="konten-pendek" class="text-gray-600 mt-2">SD Plus Darussalam sendiri merupakan lembaga pendidikan dasar swasta yang...</p>
+                <div id="konten-lengkap" class="hidden text-gray-600 mt-2">
+                    SD Plus Darussalam sendiri merupakan lembaga pendidikan dasar swasta yang telah berdiri sejak tahun 2009 dan berada di bawah naungan Yayasan Darussalam. Sekolah ini dikenal memiliki akreditasi A serta berkomitmen dalam mencetak siswa yang unggul baik dalam bidang akademik maupun karakter.
+
+Seiring dengan meningkatnya jumlah peserta didik dan kebutuhan ruang belajar yang lebih representatif, pembangunan gedung baru menjadi prioritas utama. Saat ini, proses pembangunan masih berada pada tahap awal yaitu pengerjaan pondasi sebagai dasar utama berdirinya bangunan yang kokoh dan aman.
+
+Ketua pelaksana pembangunan menyampaikan bahwa proses ini dilakukan secara bertahap sesuai dengan ketersediaan dana. Oleh karena itu, pihak sekolah dan yayasan masih membuka kesempatan bagi para dermawan, wali murid, maupun masyarakat umum untuk turut berpartisipasi dalam bentuk donasi.
+
+“Pembangunan ini adalah investasi jangka panjang untuk pendidikan anak-anak kita. Dukungan dari semua pihak sangat kami harapkan agar pembangunan dapat segera selesai dan dimanfaatkan,” ujarnya.
+
+Bagi masyarakat yang ingin berkontribusi dalam pembangunan SD Plus Darussalam, donasi dapat disalurkan dengan menghubungi nomor WhatsApp berikut:
+
+📱 0852-1010-0165
+a.n. Havidz Fuaddin Al Kolidi
+
+Dengan adanya dukungan dan kepedulian bersama, diharapkan pembangunan ini dapat segera rampung sehingga mampu memberikan fasilitas pendidikan yang lebih layak, nyaman, dan berkualitas bagi siswa-siswi di SD Plus Darussalam Tepas Geneng Ngawi.
+
+Pembangunan ini bukan hanya tentang mendirikan bangunan, tetapi juga tentang membangun masa depan generasi yang lebih baik.
+                </div>
+
+                <button onclick="toggleBerita()" id="btn-baca" class="text-blue-600 font-bold mt-4 block">Baca Selengkapnya →</button>
+            </div>
+        </section>
+
+        <!-- KOLOM 3: PENGUMUMAN (Kanan) -->
+        <aside class="w-full md:w-1/4">
+            <h2 class="text-2xl font-bold mb-4 border-b-2 border-yellow-500 pb-2">Pengumuman</h2>
+            <div class="bg-white/80 p-4 rounded shadow space-y-4">
+                <div class="border-l-4 border-blue-500 pl-3">
+                    <p class="font-semibold text-sm">Jadwal Liburan Semester 2</p>
+                    <span class="text-xs text-gray-500">20 Juni - 12 Juli 2026</span>
+                </div>
+                <div class="border-l-4 border-blue-500 pl-3">
+                    <p class="font-semibold text-sm">Awal Tahun Ajaran Baru 2026/2027</p>
+                    <span class="text-xs text-gray-500">13 Juli 2026</span>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <script>
+        // Data Arsip
+        const dataArsip = [
+            { nama: "Tilawah Jiharka", link: "https://drive.google.com/drive/folders/1AEqkx60NGPykSeLQMIHwu15eQmu1qkrb" },
+            { nama: "Poin Kedisiplinan", link: "https://bit.ly/BUKU-BK-SDPD" },
+            { nama: "Agenda Sekolah",link: "https://bit.ly/kegiatan-1tahun" },
+			{ nama: "Jadwal Extra", link: "https://bit.ly/m/sdpd-ekstra" },
+			{ nama: "Buku Tahsin", link: "https://bit.ly/BUKUANNUR" },
+			{ nama: "Video Tahsin Jilid 1", link: "https://youtube.com/playlist?list=PLu6HscRiyP5Cba7L3r1lWyrFyHun5yGRs&si=QYVw3ACwtDtE2VzE" },
+			{ nama: "Video Tahsin Jilid 2", link: "https://youtube.com/playlist?list=PLu6HscRiyP5B90-8hhIFB_vvaBLohinNR&si=j23TdLR_ZCsJjUlB" },
+			{ nama: "Vidio Tahsin Jilid 3", link: "https://youtube.com/playlist?list=PLu6HscRiyP5CD-BnGZrCgKZDmupk2MU9I&si=3svqYDy9Q0XZOPBN" },
+			{ nama: "Video Juz 30", link: "https://youtube.com/playlist?list=PLu6HscRiyP5BH_HbhVWfwQar9KARhwwz5&si=pFOrbB5Itlo2u91z" },
+			{ nama: "Video Juz 29", link: "youtube.com/playlist?list=PLu6HscRiyP5CfjhSGfetEBMTGfFlgw3xS&si=apY6yq1xwkJqGQLq" },
+			{ nama: "Dzikir pagi & Asmaul Husna", link: "https://www.youtube.com/playlist?list=PLu6HscRiyP5DeyRanoURKD0bx22BPeUxu" },
+			{ nama: "Capaian Hafalan", link: "https://bit.ly/hafalan-siswa" },
+			{ nama: "Prestasi", link: "https://bit.ly/capaian-prestasi" },
+			{ nama: "Worksheet", link: "https://bit.ly/worksheet-sdpd" },
+			{ nama: "Soal Harian", link: "https://bit.ly/soal-harian" },
+			{ nama: "Tengah Semester", link: "https://bit.ly/sts-sdpd" },
+			{ nama: "Tinggi badan", link: "https://bit.ly/tinggi-siswa" }
+        ];
+
+        const listArsip = document.getElementById('list-arsip');
+        dataArsip.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${item.link}" class="flex justify-between hover:text-blue-800 transition"><span>${item.nama}</span><span class="bg-gray-200 text-xs px-2 py-0.5 rounded-full">${item.jumlah}</span></a>`;
+            listArsip.appendChild(li);
+        });
+
+        // Fungsi Expand Berita
+        function toggleBerita() {
+            const kontenLengkap = document.getElementById('konten-lengkap');
+            const kontenPendek = document.getElementById('konten-pendek');
+            const btn = document.getElementById('btn-baca');
+
+            if (kontenLengkap.classList.contains('hidden')) {
+                kontenLengkap.classList.remove('hidden');
+                kontenPendek.classList.add('hidden');
+                btn.innerText = "← Sembunyikan";
+            } else {
+                kontenLengkap.classList.add('hidden');
+                kontenPendek.classList.remove('hidden');
+                btn.innerText = "Baca Selengkapnya →";
+            }
+        }
+    </script>
+</body>
+</html>
