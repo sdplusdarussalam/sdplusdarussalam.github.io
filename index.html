@@ -180,62 +180,59 @@ const menuData = [
 ];
 
 // ==========================================
-// KONFIGURASI GOOGLE SHEETS ANDA
+// KONFIGURASI GOOGLE SHEETS (FORMAT JSON - JAUH LEBIH STABIL)
 // ==========================================
 const SPREADSHEET_ID = '1pR3W50Z24fD__v_Qds6MFsv5LR_BON0N6JceerOm86E';
 
-// Mengubah format string CSV dari Google Sheets menjadi Objek Javascript
-function csvToObjects(csvText) {
-    const lines = csvText.split("\n").map(line => line.trim()).filter(line => line.length > 0);
-    if (lines.length === 0) return [];
+// Fungsi baru untuk mengambil data Google Sheet menggunakan Google Visualization JSON API
+async function fetchSheetData(sheetName) {
+    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+    const response = await fetch(url);
+    const text = await response.text();
     
-    const headers = lines[0].split(",").map(h => h.replace(/^"|"$/g, '').trim());
+    // Google Sheets mengembalikan data dengan bungkus "google.visualization.Query.setResponse(...)"
+    const jsonLeft = text.indexOf('{');
+    const jsonRight = text.lastIndexOf('}') + 1;
+    const cleanJson = JSON.parse(text.substring(jsonLeft, jsonRight));
     
-    return lines.slice(1).map(line => {
-        // Pemecahan baris dengan regex agar koma di dalam kalimat terbungkus kutip tidak merusak kolom
-        const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
+    const rows = cleanJson.table.rows;
+    const cols = cleanJson.table.cols.map(col => col.label.trim());
+    
+    return rows.map(row => {
         const obj = {};
-        headers.forEach((header, index) => {
-            let val = matches[index] ? matches[index].replace(/^"|"$/g, '').trim() : "";
-            // Menghormati baris baru di sel Google Sheets
-            obj[header] = val.replaceAll('\\n', '<br>'); 
+        cols.forEach((colName, index) => {
+            if (colName) {
+                const cellValue = row.c[index] ? row.c[index].v : '';
+                obj[colName] = cellValue !== null && cellValue !== undefined ? String(cellValue).replaceAll('\n', '<br>') : '';
+            }
         });
         return obj;
-    });
+    }).filter(item => item.judul && item.judul.trim() !== ""); // Filter baris kosong
 }
 
 // LOAD DATA UTAMA
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     // 1. Render Menu Navigasi
     renderMenu();
 
-    // 2. Fetch Data Berita (dari Tab 'Berita')
-    const urlBerita = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Berita`;
-    fetch(urlBerita)
-        .then(res => res.text())
-        .then(csvText => {
-            const listBerita = csvToObjects(csvText);
-            renderBerita(listBerita);
-        })
-        .catch(err => {
-            console.error("Gagal memuat berita:", err);
-            document.getElementById('loading-berita').innerHTML = "Gagal memuat berita terbaru.";
-        });
+    // 2. Ambil Data Berita
+    try {
+        const listBerita = await fetchSheetData('Berita');
+        renderBerita(listBerita);
+    } catch (err) {
+        console.error("Gagal memuat berita:", err);
+        document.getElementById('loading-berita').innerHTML = "Gagal memuat berita terbaru.";
+    }
 
-    // 3. Fetch Data Pengumuman (dari Tab 'Pengumuman')
-    const urlPengumuman = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Pengumuman`;
-    fetch(urlPengumuman)
-        .then(res => res.text())
-        .then(csvText => {
-            const listPengumuman = csvToObjects(csvText);
-            renderPengumuman(listPengumuman);
-        })
-        .catch(err => {
-            console.error("Gagal memuat pengumuman:", err);
-            document.getElementById('loading-pengumuman').innerHTML = "Gagal memuat pengumuman.";
-        });
+    // 3. Ambil Data Pengumuman
+    try {
+        const listPengumuman = await fetchSheetData('Pengumuman');
+        renderPengumuman(listPengumuman);
+    } catch (err) {
+        console.error("Gagal memuat pengumuman:", err);
+        document.getElementById('loading-pengumuman').innerHTML = "Gagal memuat pengumuman.";
+    }
 });
-
 // ==========================================
 // PROSES RENDERING ELEMEN
 // ==========================================
