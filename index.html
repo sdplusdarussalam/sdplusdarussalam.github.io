@@ -126,7 +126,7 @@ Selamat dan sukses untuk seluruh siswa-siswi Angkatan XII. Semoga langkah ke dep
     <script>
      <script>
 <script>
-// 1. DATA MENU LENGKAP DENGAN SUB-KATEGORI AN-NUR & JIHARKA
+// 1. DATA MENU DENGAN STRUKTUR BERTINGKAT YANG DIINGINKAN
 const menuData = [
     {
         nama: "PROFIL",
@@ -165,7 +165,7 @@ const menuData = [
             },
             {
                 nama: "Tahsin & Tahfidz",
-                hasDeepNested: true, // Flag khusus untuk menandakan ada cabang An-Nur & Jiharka
+                hasDeepNested: true, // Flag penanda bahwa ini bercabang lagi ke An-Nur & Jiharka
                 categories: [
                     {
                         nama: "An-Nur",
@@ -190,8 +190,8 @@ const menuData = [
             {
                 nama: "Do'a & Hadits",
                 items: [
-                    { nama: "Do'a Yaumiyah (On Going)", link: "#", eksternal: false },
-                    { nama: "Hadits Pilihan (On Going)", link: "#", eksternal: false }
+                    { nama: "Do'a Yaumiyah (Menyusul)", link: "#", eksternal: false },
+                    { nama: "Hadits Pilihan (Menyusul)", link: "#", eksternal: false }
                 ]
             }
         ]
@@ -238,7 +238,7 @@ const menuData = [
     }
 ];
 
-// 2. LOGIKA MERENDER MENU KE HTML
+// 2. PROSES MERENDER KE CONTAINER HTML
 const container = document.getElementById('menu-container');
 
 if (container) {
@@ -249,6 +249,7 @@ if (container) {
         menuDiv.className = "border-b border-gray-200 last:border-none pb-2 last:pb-0";
 
         if (item.isNested) {
+            // Khusus menu MEDIA (Tingkat 1)
             menuDiv.innerHTML = `
                 <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
                     <span>${item.nama}</span> 
@@ -256,7 +257,7 @@ if (container) {
                 </button>
                 <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-2 border-l border-gray-300">
                     ${item.sub.map((nestedItem, nestedIndex) => {
-                        // JIKA TAMPILANNYA BERCABANG LAGI (Tahsin & Tahfidz -> An-Nur / Jiharka)
+                        // Jika bertingkat dalam lagi (Tahsin & Tahfidz -> Tingkat 2)
                         if (nestedItem.hasDeepNested) {
                             return `
                                 <li class="space-y-1">
@@ -287,8 +288,8 @@ if (container) {
                                     </ul>
                                 </li>
                             `;
-                        // JIKA TAMPILAN STANDAR (Ibadah Yaumiyah langsung memunculkan konten)
                         } else {
+                            // Untuk kategori langsung isi seperti Ibadah Yaumiyah
                             return `
                                 <li class="space-y-1">
                                     <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
@@ -313,7 +314,7 @@ if (container) {
                 </ul>
             `;
         } else {
-            // Render untuk menu standar (PROFIL, LAYANAN, PROGRAM, dll.)
+            // Menu Standar Lainnya
             menuDiv.innerHTML = `
                 <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
                     <span>${item.nama}</span> 
@@ -337,7 +338,7 @@ if (container) {
     });
 }
 
-// 3. FUNGSI KLIK DROPDOWN (TINGKAT 1, 2, DAN 3)
+// 3. FUNGSI TOGGLE KLIK UNTUK TIAP TINGKATAN
 function toggleMenu(index) {
     const subMenu = document.getElementById(`sub-${index}`);
     const arrow = document.getElementById(`arrow-${index}`);
@@ -365,7 +366,7 @@ function toggleDeepNestedMenu(parentIndex, nestedIndex, catIndex) {
     }
 }
 
-// 4. FUNGSI BACA SELENGKAPNYA BERITA
+// 4. FUNGSI ARTIKEL BERITA
 function toggleBerita(id) {
     const lengkap = document.getElementById(`konten-lengkap-${id}`);
     const pendek = document.getElementById(`konten-pendek-${id}`);
