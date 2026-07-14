@@ -124,36 +124,67 @@ Selamat dan sukses untuk seluruh siswa-siswi Angkatan XII. Semoga langkah ke dep
     </div>
 
     <script>
-        const menuData = [
+      const menuData = [
+    {
+        nama: "PROFIL",
+        sub: [
+            { nama: "Sejarah (Menyusul)", link: "#", eksternal: false },
+            { nama: "Kurikulum", link: "https://bit.ly/profil-sdpd-2025", eksternal: true }
+        ]
+    },
+    {
+        nama: "LAYANAN SISWA",
+        sub: [
+            { nama: "Cek Tagihan", link: "cek-tagihan.html", eksternal: false }
+        ]
+    },
+    {
+        nama: "PROGRAM",
+        sub: [
+            { nama: "Jadwal Pelajaran (Menyusul)", link: "#", eksternal: false },
+            { nama: "Ekstrakurikuler", link: "https://bit.ly/m/sdpd-ekstra", eksternal: true },
+            { nama: "Kalender Kegiatan", link: "https://bit.ly/kegiatan-1tahun", eksternal: true }
+        ]
+    },
+          const menuData = [
+    {
+        nama: "PROFIL",
+        sub: [
+            { nama: "Sejarah (On Going)", link: "#", eksternal: false },
+            { nama: "Kurikulum", link: "https://bit.ly/profil-sdpd-2025", eksternal: true }
+        ]
+    },
+    {
+        nama: "LAYANAN SISWA",
+        sub: [
+            { nama: "Cek Tagihan", link: "cek-tagihan.html", eksternal: false }
+        ]
+    },
+    {
+        nama: "PROGRAM",
+        sub: [
+            { nama: "Jadwal Pelajaran (On Going)", link: "#", eksternal: false },
+            { nama: "Ekstrakurikuler", link: "https://bit.ly/m/sdpd-ekstra", eksternal: true },
+            { nama: "Kalender Kegiatan", link: "https://bit.ly/kegiatan-1tahun", eksternal: true }
+        ]
+    },
+    {
+        nama: "MEDIA",
+        isNested: true,
+        sub: [
             {
-                nama: "PROFIL",
-                sub: [
-                    { nama: "Sejarah (Menyusul)", link: "#", eksternal: false },
-                    { nama: "Kurikulum", link: "https://bit.ly/profil-sdpd-2025", eksternal: true }
+                nama: "Ibadah Yaumiyah",
+                items: [
+                    { nama: "Wudhu (On Going)", link: "#", eksternal: false },
+                    { nama: "Sholat (On Going)", link: "#", eksternal: false },
+                    { nama: "Dzikir Ba'da Salam (On Going)", link: "#", eksternal: false },
+                    { nama: "Dzikir Pagi", link: "https://youtube.com/playlist?list=PLu6HscRiyP5DeyRanoURKD0bx22BPeUxu&si=VG1a7H4xzjtl_Y7y", eksternal: true },
+                    { nama: "Asmaul Husna (On Going)", link: "#", eksternal: false }
                 ]
             },
             {
-                nama: "LAYANAN SISWA",
-                sub: [
-                    { nama: "Cek Tagihan", link: "cek-tagihan.html", eksternal: false }
-                ]
-            },
-            {
-                nama: "PROGRAM",
-                sub: [
-                    { nama: "Jadwal Pelajaran (Menyusul)", link: "#", eksternal: false },
-                    { nama: "Ekstrakurikuler", link: "https://bit.ly/m/sdpd-ekstra", eksternal: true },
-                    { nama: "Kalender Kegiatan", link: "https://bit.ly/kegiatan-1tahun", eksternal: true }
-                ]
-            },
-            {
-                nama: "MEDIA",
-                sub: [
-                    { nama: "Ibadah Yaumiyah - Wudhu (On Going)", link: "#", eksternal: false },
-                    { nama: "Ibadah Yaumiyah - Sholat (On Going)", link: "#", eksternal: false },
-                    { nama: "Ibadah Yaumiyah - Dzikir Ba'da Salam (On Going)", link: "#", eksternal: false },
-                    { nama: "Ibadah Yaumiyah - Dzikir Pagi", link: "https://youtube.com/playlist?list=PLu6HscRiyP5DeyRanoURKD0bx22BPeUxu&si=VG1a7H4xzjtl_Y7y", eksternal: true },
-                    { nama: "Ibadah Yaumiyah - Asmaul Husna (On Going)", link: "#", eksternal: false },
+                nama: "Tahsin & Tahfidz",
+                items: [
                     { nama: "Tahsin An Nuur - Buku Jilid", link: "https://bit.ly/BUKUANNUR", eksternal: true },
                     { nama: "Tahsin An Nuur - Video Jilid 1", link: "https://youtube.com/playlist?list=PLu6HscRiyP5Cba7L3r1WyrfyHun5yGRs&si=QYVw3ACwtDtE2vzE", eksternal: true },
                     { nama: "Tahsin An Nuur - Video Jilid 2", link: "https://youtube.com/playlist?list=PLu6HscRiyP5B90-8hhIFB_vvaBLohinNR&si=j23TdL_ZCsJjUlB", eksternal: true },
@@ -161,11 +192,55 @@ Selamat dan sukses untuk seluruh siswa-siswi Angkatan XII. Semoga langkah ke dep
                     { nama: "Tahfidz An Nuur - Juz 30", link: "https://youtube.com/playlist?list=PLu6HscRiyP5BH_HbhVWfWqar9KARhwwz5&si=pOrbB5ItIo2u91z", eksternal: true },
                     { nama: "Tahfidz An Nuur - Juz 29", link: "https://youtube.com/playlist?list=PLu6HscRiyP5CfjhsGFEtBMTGffIgw3xS&si=apY6yq1xwkJqGQLq", eksternal: true },
                     { nama: "Tahsin Jiharka (On Going)", link: "#", eksternal: false },
-                    { nama: "Tahfidz Jiharka", link: "https://drive.google.com/drive/folders/1RciYtS8kQx8rm0ws0_iNZqi4mXRyzqqZ?usp=sharing", eksternal: true },
-                    { nama: "Do'a Yaumiyah (Menyusul)", link: "#", eksternal: false },
-                    { nama: "Hadits Pilihan (Menyusul)", link: "#", eksternal: false }
+                    { nama: "Tahfidz Jiharka", link: "https://drive.google.com/drive/folders/1RciYtS8kQx8rm0ws0_iNZqi4mXRyzqqZ?usp=sharing", eksternal: true }
                 ]
             },
+            { nama: "Do'a Yaumiyah (On Going)", link: "#", ekvarnal: false },
+            { nama: "Hadits Pilihan (On Going)", link: "#", eksternal: false }
+        ]
+    },
+    {
+        nama: "PERPUSTAKAAN",
+        sub: [
+            { nama: "Perpustakaan (Diva)", link: "#", eksternal: false }
+        ]
+    },
+    {
+        nama: "CAPAIAN",
+        sub: [
+            { nama: "Tahfidz", link: "https://bit.ly/hafalan-siswa", eksternal: true },
+            { nama: "Prestasi", link: "https://bit.ly/capaian-prestasi", eksternal: true },
+            { nama: "Tinggi Badan", link: "https://bit.ly/tinggi-siswa", eksternal: true },
+            { nama: "Poin Kedisiplinan", link: "https://bit.ly/BUKU-BK-SDPD", eksternal: true }
+        ]
+    },
+    {
+        nama: "ARSIP",
+        sub: [
+            { nama: "Worksheet", link: "https://bit.ly/worksheet-sdpd", eksternal: true },
+            { nama: "Ulhar", link: "https://bit.ly/soal-harian", eksternal: true },
+            { nama: "STS", link: "https://bit.ly/sts-sdpd", eksternal: true },
+            { nama: "SAS (Menyusul)", link: "#", eksternal: false }
+        ]
+    },
+    {
+        nama: "ADMINISTRASI",
+        sub: [
+            { nama: "WA Autorespon: 085210100175", link: "https://wa.me/6285210100175", eksternal: true },
+            { nama: "Transfer BRI: 6440 0103 6276 532", link: "#", eksternal: false },
+            { nama: "Transfer Jatim: 180 2000 908", link: "#", eksternal: false }
+        ]
+    },
+    {
+        nama: "MEDSOS",
+        sub: [
+            { nama: "YouTube: Darussalamberkah", link: "#", eksternal: false },
+            { nama: "Facebook", link: "#", eksternal: false },
+            { nama: "Instagram", link: "#", eksternal: false }
+        ]
+    }
+];
+    {
             {
                 nama: "PERPUSTAKAAN",
                 sub: [
@@ -209,37 +284,134 @@ Selamat dan sukses untuk seluruh siswa-siswi Angkatan XII. Semoga langkah ke dep
         ];
 
         const container = document.getElementById('menu-container');
-        
-        menuData.forEach((item, index) => {
-            const menuDiv = document.createElement('div');
-            menuDiv.className = "border-b border-gray-200 last:border-none pb-2 last:pb-0";
-            menuDiv.innerHTML = `
-                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
-                    <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
-                </button>
-                <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-1 border-l border-gray-300">
-                    ${item.sub.map(sub => `
-                        <li>
-                            <a href="${sub.link}" 
-                               ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                               class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
-                               • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
-                            </a>
-                        </li>
-                    `).join('')}
-                </ul>
-            `;
-            container.appendChild(menuDiv);
-        });
 
-        function toggleMenu(index) {
-            const subMenu = document.getElementById(`sub-${index}`);
-            const arrow = document.getElementById(`arrow-${index}`);
-            const isHidden = subMenu.classList.toggle('hidden');
-            arrow.textContent = isHidden ? '▼' : '▲';
-        }
+menuData.forEach((item, index) => {
+    const menuDiv = document.createElement('div');
+    menuDiv.className = "border-b border-gray-200 last:border-none pb-2 last:pb-0";
 
-        function toggleBerita(id) {
+    if (item.isNested) {
+        menuDiv.innerHTML = `
+            <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
+                <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
+            </button>
+            <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-2 border-l border-gray-300">
+                ${item.sub.map((nestedItem, nestedIndex) => {
+                    if (nestedItem.hasDoubleNested) {
+                        // Kategori 3 Tingkat (Tahsin & Tahfidz -> An-Nur / Jiharka)
+                        return `
+                            <li class="space-y-1">
+                                <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
+                                    <span>• ${nestedItem.nama}</span> 
+                                    <span id="nested-arrow-${index}-${nestedIndex}" class="text-[9px] text-gray-400 transition-transform duration-200">▼</span>
+                                </button>
+                                <ul id="nested-sub-${index}-${nestedIndex}" class="hidden pl-3 space-y-2 border-l border-dashed border-gray-300">
+                                    ${nestedItem.categories.map((cat, catIndex) => `
+                                        <li class="space-y-1">
+                                            <button onclick="toggleDeepNestedMenu(${index}, ${nestedIndex}, ${catIndex})" class="w-full text-left font-medium text-gray-500 hover:text-blue-700 flex justify-between items-center py-0.5 text-[11px] transition-colors">
+                                                <span>› ${cat.nama}</span>
+                                                <span id="deep-arrow-${index}-${nestedIndex}-${catIndex}" class="text-[8px] text-gray-400 transition-transform duration-200">▼</span>
+                                            </button>
+                                            <ul id="deep-sub-${index}-${nestedIndex}-${catIndex}" class="hidden pl-3 space-y-0.5 border-l border-dotted border-gray-300">
+                                                ${cat.items.map(subItem => `
+                                                    <li>
+                                                        <a href="${subItem.link}" 
+                                                           ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                                           class="text-gray-400 hover:text-blue-800 text-[10.5px] block py-0.5 break-words transition-colors">
+                                                            - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
+                                                        </a>
+                                                    </li>
+                                                `).join('')}
+                                            </ul>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </li>
+                        `;
+                    } else if (nestedItem.items) {
+                        // Kategori 2 Tingkat Biasa (Ibadah Yaumiyah)
+                        return `
+                            <li class="space-y-1">
+                                <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
+                                    <span>• ${nestedItem.nama}</span> 
+                                    <span id="nested-arrow-${index}-${nestedIndex}" class="text-[9px] text-gray-400 transition-transform duration-200">▼</span>
+                                </button>
+                                <ul id="nested-sub-${index}-${nestedIndex}" class="hidden pl-3 space-y-1 border-l border-dashed border-gray-300">
+                                    ${nestedItem.items.map(subItem => `
+                                        <li>
+                                            <a href="${subItem.link}" 
+                                               ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                               class="text-gray-500 hover:text-blue-800 text-[11px] block py-0.5 break-words transition-colors">
+                                                - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
+                                            </a>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </li>
+                        `;
+                    } else {
+                        // Menu link biasa tanpa anak (Do'a Yaumiyah, Hadits Pilihan)
+                        return `
+                            <li>
+                                <a href="${nestedItem.link}" 
+                                   ${nestedItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                   class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
+                                   • ${nestedItem.nama} ${nestedItem.eksternal && nestedItem.link !== '#' ? '↗' : ''}
+                                </a>
+                            </li>
+                        `;
+                    }
+                }).join('')}
+            </ul>
+        `;
+    } else {
+        // Render menu utama standar lainnya
+        menuDiv.innerHTML = `
+            <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
+                <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
+            </button>
+            <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-1 border-l border-gray-300">
+                ${item.sub.map(sub => `
+                    <li>
+                        <a href="${sub.link}" 
+                           ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                           class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
+                           • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
+                        </a>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+    }
+    
+    container.appendChild(menuDiv);
+});
+
+// Fungsi Level 1 (Klik MEDIA)
+function toggleMenu(index) {
+    const subMenu = document.getElementById(`sub-${index}`);
+    const arrow = document.getElementById(`arrow-${index}`);
+    const isHidden = subMenu.classList.toggle('hidden');
+    arrow.textContent = isHidden ? '▼' : '▲';
+}
+
+// Fungsi Level 2 (Klik Tahsin & Tahfidz)
+function toggleNestedMenu(parentIndex, nestedIndex) {
+    const nestedSubMenu = document.getElementById(`nested-sub-${parentIndex}-${nestedIndex}`);
+    const nestedArrow = document.getElementById(`nested-arrow-${parentIndex}-${nestedIndex}`);
+    const isHidden = nestedSubMenu.classList.toggle('hidden');
+    nestedArrow.textContent = isHidden ? '▼' : '▲';
+}
+
+// Fungsi Level 3 Baru (Klik An-Nur / Jiharka)
+function toggleDeepNestedMenu(parentIndex, nestedIndex, catIndex) {
+    const deepSubMenu = document.getElementById(`deep-sub-${parentIndex}-${nestedIndex}-${catIndex}`);
+    const deepArrow = document.getElementById(`deep-arrow-${parentIndex}-${nestedIndex}-${catIndex}`);
+    const isHidden = deepSubMenu.classList.toggle('hidden');
+    deepArrow.textContent = isHidden ? '▼' : '▲';
+}
+
+// Fungsi Konten Berita Selengkapnya
+function toggleBerita(id) {
     const lengkap = document.getElementById(`konten-lengkap-${id}`);
     const pendek = document.getElementById(`konten-pendek-${id}`);
     const btn = document.getElementById(`btn-baca-${id}`);
