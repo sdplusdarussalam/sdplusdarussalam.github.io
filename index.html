@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url('bangunan-sekolah.jpg');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('bangunan-sekolah.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -15,30 +15,39 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
-    <nav class="bg-blue-800 text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <img src="logo-sekolah.png" alt="Logo SD Plus Darussalam" class="h-10 w-10 object-contain bg-white rounded-full">
-                <h1 class="font-bold text-2xl">SD Plus Darussalam</h1>
+<body class="min-h-screen py-0 md:py-8 px-0 md:px-4 flex justify-center items-start">
+
+    <div class="w-full max-w-6xl bg-white shadow-2xl min-h-screen md:min-h-0 md:rounded-lg overflow-hidden flex flex-col">
+        
+        <nav class="bg-blue-900 text-white p-6 border-b-4 border-yellow-500">
+            <div class="flex items-center gap-4">
+                <img src="logo-sekolah.png" alt="Logo SD Plus Darussalam" class="h-14 w-14 object-contain bg-white rounded-full p-1 shadow">
+                <div>
+                    <h1 class="font-bold text-2xl md:text-3xl tracking-wide">SD PLUS DARUSSALAM</h1>
+                    <p class="text-xs text-blue-200 mt-0.5 font-medium tracking-widest uppercase">Cerdas, Berakhlak, Berprestasi</p>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <main class="container mx-auto py-8 px-4 flex flex-col md:flex-row gap-6 flex-grow">
-        <aside class="w-full md:w-1/4">
-            <h2 class="text-xl font-bold mb-4 border-b-2 border-gray-400 pb-2">MENU</h2>
-            <div id="menu-container" class="bg-white/80 p-4 rounded shadow space-y-2 max-h-[75vh] overflow-y-auto"></div>
-        </aside>
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8 p-6 flex-grow">
+            
+            <aside class="lg:col-span-1 order-2 lg:order-1">
+                <h2 class="text-lg font-bold mb-4 text-gray-800 border-b-2 border-gray-300 pb-2 uppercase tracking-wider">Navigasi Utama</h2>
+                <div id="menu-container" class="bg-gray-50 border border-gray-200 p-4 rounded-md space-y-2 max-h-[70vh] overflow-y-auto shadow-inner"></div>
+            </aside>
 
-        <section class="w-full md:w-2/4">
-            <h2 class="text-2xl font-bold mb-4 border-b-2 border-blue-800 pb-2">Berita Terbaru</h2>
-            <div class="bg-white/90 p-4 rounded shadow">
-                <img src="Berita-1.jpg" alt="Foto Berita" class="w-full h-48 object-cover rounded mb-4">
+            <section class="lg:col-span-2 order-1 lg:order-2 border-b lg:border-b-0 lg:border-r lg:border-l lg:px-4 border-gray-200 pb-6 lg:pb-0">
+                <h2 class="text-xl font-bold mb-4 text-blue-900 border-b-2 border-blue-900 pb-2 uppercase tracking-wider">Berita Terbaru</h2>
                 
-                <h3 class="text-xl font-bold">Pembangunan SD Plus Darussalam kampus 2</h3>
-                <p id="konten-pendek" class="text-gray-600 mt-2">SD Plus Darussalam sedang melakukan pembangunan kampus 2</p>
-                <div id="konten-lengkap" class="hidden text-gray-600 mt-2">**Pembangunan SD Plus Darussalam Kampus 2 Masuki Tahap Pondasi, Donasi Masih Dibuka untuk Umum**
+                <div class="space-y-4">
+                    <img src="Berita-1.jpg" alt="Foto Berita" class="w-full h-64 object-cover rounded shadow border border-gray-200">
+                    
+                    <h3 class="text-2xl font-bold text-gray-800 leading-tight hover:text-blue-800 cursor-pointer">Pembangunan Gedung Fasilitas Baru SD Plus Darussalam</h3>
+                    
+                    <p id="konten-pendek" class="text-gray-600 leading-relaxed text-justify">SD Plus Darussalam sedang melakukan pengembangan kampus 2...</p>
+                    
+                    <div id="konten-lengkap" class="hidden text-gray-600 leading-relaxed text-justify space-y-2">
+                        <p>**Pembangunan SD Plus Darussalam Kampus 2 Masuki Tahap Pondasi, Donasi Masih Dibuka untuk Umum**
 
 Ngawi – Pembangunan **SD Plus Darussalam Kampus 2** terus menunjukkan progres yang positif. Saat ini, proses pembangunan telah memasuki tahap pondasi, yang menjadi langkah awal penting dalam mewujudkan fasilitas pendidikan yang representatif dan berkualitas bagi masyarakat.
 
@@ -56,24 +65,40 @@ Bagi yang ingin berpartisipasi dalam pembangunan SD Plus Darussalam Kampus 2, do
 **a/n:** Havidz Fuaddin Al Kolidi
 
 Mari bersama-sama berkontribusi dalam membangun generasi masa depan melalui pendidikan yang lebih baik. Semoga setiap langkah kebaikan ini membawa manfaat yang luas bagi umat.
-</div>
-                
-                <button onclick="toggleBerita()" id="btn-baca" class="text-blue-600 font-bold mt-4 block hover:text-blue-800 transition-colors">
-                    Baca Selengkapnya →
-                </button>
-            </div>
-        </section>
-
-        <aside class="w-full md:w-1/4">
-            <h2 class="text-2xl font-bold mb-4 border-b-2 border-yellow-500 pb-2">Pengumuman</h2>
-            <div class="bg-white/80 p-4 rounded shadow space-y-4">
-                <div class="border-l-4 border-blue-500 pl-3">
-                    <p class="font-semibold text-sm">Jadwal Liburan Semester 2</p>
-                    <span class="text-xs text-gray-500">20 Juni - 12 Juli 2026</span>
+</p>
+                    </div>
+                    
+                    <button onclick="toggleBerita()" id="btn-baca" class="inline-block bg-blue-800 hover:bg-blue-900 text-white text-sm font-bold px-4 py-2 rounded shadow transition-all duration-200">
+                        Baca Selengkapnya →
+                    </button>
                 </div>
-            </div>
-        </aside>
-    </main>
+            </section>
+
+            <aside class="lg:col-span-1 order-3 space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold mb-3 text-gray-800 border-b-2 border-gray-300 pb-2 uppercase tracking-wider">Profil Sekolah</h2>
+                    <div class="bg-gray-100 p-2 rounded border border-gray-200 shadow-sm flex items-center justify-center text-center h-36 text-sm text-gray-500 italic">
+                        [Tempat Sematan Video Profil / YouTube Widget]
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-bold mb-3 text-gray-800 border-b-2 border-yellow-500 pb-2 uppercase tracking-wider">Pengumuman</h2>
+                    <div class="bg-yellow-50/50 border border-yellow-200 p-4 rounded shadow-sm">
+                        <div class="border-l-4 border-yellow-500 pl-3">
+                            <p class="font-bold text-gray-800 text-sm">Jadwal Liburan Semester 2</p>
+                            <span class="text-xs font-semibold text-blue-800 block mt-1">20 Juni - 12 Juli 2026</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+        </main>
+
+        <footer class="bg-gray-100 border-t border-gray-200 text-center py-4 text-xs text-gray-500 font-medium">
+            &copy; 2026 SD Plus Darussalam. Semua Hak Cipta Dilindungi.
+        </footer>
+    </div>
 
     <script>
         const menuData = [
@@ -164,18 +189,18 @@ Mari bersama-sama berkontribusi dalam membangun generasi masa depan melalui pend
         
         menuData.forEach((item, index) => {
             const menuDiv = document.createElement('div');
-            menuDiv.className = "border-b border-gray-100 last:border-none pb-2 last:pb-0";
+            menuDiv.className = "border-b border-gray-200 last:border-none pb-2 last:pb-0";
             menuDiv.innerHTML = `
-                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-blue-800 hover:text-blue-600 flex justify-between items-center py-1 text-sm tracking-wide">
-                    <span>${item.nama}</span> <span id="arrow-${index}" class="text-xs transition-transform duration-200">▼</span>
+                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
+                    <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
                 </button>
-                <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-1 border-l-2 border-blue-200">
+                <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-1 border-l border-gray-300">
                     ${item.sub.map(sub => `
                         <li>
                             <a href="${sub.link}" 
                                ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                               class="text-gray-700 hover:text-blue-700 text-xs block py-1 break-words">
-                               ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
+                               class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
+                               • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
                             </a>
                         </li>
                     `).join('')}
