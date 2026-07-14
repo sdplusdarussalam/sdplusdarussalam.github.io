@@ -125,7 +125,8 @@ Selamat dan sukses untuk seluruh siswa-siswi Angkatan XII. Semoga langkah ke dep
 
     <script>
      <script>
-// 1. DATA MENU YANG SUDAH DIPERBAIKI & MENDUKUNG 3 TINGKAT
+<script>
+// 1. DATA MENU LENGKAP & STRUKTUR 3 TINGKAT YANG BENAR
 const menuData = [
     {
         nama: "PROFIL",
@@ -164,7 +165,7 @@ const menuData = [
             },
             {
                 nama: "Tahsin & Tahfidz",
-                hasDoubleNested: true, // Indikator struktur 3 tingkat
+                hasDoubleNested: true, // Flag untuk menandakan 3 tingkat
                 categories: [
                     {
                         nama: "An-Nur",
@@ -232,140 +233,159 @@ const menuData = [
     }
 ];
 
-// 2. LOGIKA GENERATE HTML MENU
+// 2. PROSES GENERATE MENU KE HTML
 const container = document.getElementById('menu-container');
 
-menuData.forEach((item, index) => {
-    const menuDiv = document.createElement('div');
-    menuDiv.className = "border-b border-gray-200 last:border-none pb-2 last:pb-0";
+// Bersihkan container terlebih dahulu untuk menghindari penumpukan
+if (container) {
+    container.innerHTML = '';
 
-    if (item.isNested) {
-        menuDiv.innerHTML = `
-            <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
-                <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
-            </button>
-            <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-2 border-l border-gray-300">
-                ${item.sub.map((nestedItem, nestedIndex) => {
-                    if (nestedItem.hasDoubleNested) {
-                        return `
-                            <li class="space-y-1">
-                                <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
-                                    <span>• ${nestedItem.nama}</span> 
-                                    <span id="nested-arrow-${index}-${nestedIndex}" class="text-[9px] text-gray-400 transition-transform duration-200">▼</span>
-                                </button>
-                                <ul id="nested-sub-${index}-${nestedIndex}" class="hidden pl-3 space-y-2 border-l border-dashed border-gray-300">
-                                    ${nestedItem.categories.map((cat, catIndex) => `
-                                        <li class="space-y-1">
-                                            <button onclick="toggleDeepNestedMenu(${index}, ${nestedIndex}, ${catIndex})" class="w-full text-left font-medium text-gray-500 hover:text-blue-700 flex justify-between items-center py-0.5 text-[11px] transition-colors">
-                                                <span>› ${cat.nama}</span>
-                                                <span id="deep-arrow-${index}-${nestedIndex}-${catIndex}" class="text-[8px] text-gray-400 transition-transform duration-200">▼</span>
-                                            </button>
-                                            <ul id="deep-sub-${index}-${nestedIndex}-${catIndex}" class="hidden pl-3 space-y-0.5 border-l border-dotted border-gray-300">
-                                                ${cat.items.map(subItem => `
-                                                    <li>
-                                                        <a href="${subItem.link}" 
-                                                           ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                                                           class="text-gray-400 hover:text-blue-800 text-[10.5px] block py-0.5 break-words transition-colors">
-                                                            - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
-                                                        </a>
-                                                    </li>
-                                                `).join('')}
-                                            </ul>
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            </li>
-                        `;
-                    } else if (nestedItem.items) {
-                        return `
-                            <li class="space-y-1">
-                                <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
-                                    <span>• ${nestedItem.nama}</span> 
-                                    <span id="nested-arrow-${index}-${nestedIndex}" class="text-[9px] text-gray-400 transition-transform duration-200">▼</span>
-                                </button>
-                                <ul id="nested-sub-${index}-${nestedIndex}" class="hidden pl-3 space-y-1 border-l border-dashed border-gray-300">
-                                    ${nestedItem.items.map(subItem => `
-                                        <li>
-                                            <a href="${subItem.link}" 
-                                               ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                                               class="text-gray-500 hover:text-blue-800 text-[11px] block py-0.5 break-words transition-colors">
-                                                - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
-                                            </a>
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            </li>
-                        `;
-                    } else {
-                        return `
-                            <li>
-                                <a href="${nestedItem.link}" 
-                                   ${nestedItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                                   class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
-                                   • ${nestedItem.nama} ${nestedItem.eksternal && nestedItem.link !== '#' ? '↗' : ''}
-                                </a>
-                            </li>
-                        `;
-                    }
-                }).join('')}
-            </ul>
-        `;
-    } else {
-        menuDiv.innerHTML = `
-            <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
-                <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
-            </button>
-            <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-1 border-l border-gray-300">
-                ${item.sub.map(sub => `
-                    <li>
-                        <a href="${sub.link}" 
-                           ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                           class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
-                           • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
-                        </a>
-                    </li>
-                `).join('')}
-            </ul>
-        `;
-    }
-    
-    container.appendChild(menuDiv);
-});
+    menuData.forEach((item, index) => {
+        const menuDiv = document.createElement('div');
+        menuDiv.className = "border-b border-gray-200 last:border-none pb-2 last:pb-0";
 
-// 3. FUNGSI KLIK TOGGLE DROPDOWN
+        if (item.isNested) {
+            menuDiv.innerHTML = `
+                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
+                    <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
+                </button>
+                <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-2 border-l border-gray-300">
+                    ${item.sub.map((nestedItem, nestedIndex) => {
+                        // Jika memiliki menu 3 tingkat (Tahsin & Tahfidz)
+                        if (nestedItem.hasDoubleNested) {
+                            return `
+                                <li class="space-y-1">
+                                    <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
+                                        <span>• ${nestedItem.nama}</span> 
+                                        <span id="nested-arrow-${index}-${nestedIndex}" class="text-[9px] text-gray-400 transition-transform duration-200">▼</span>
+                                    </button>
+                                    <ul id="nested-sub-${index}-${nestedIndex}" class="hidden pl-3 space-y-2 border-l border-dashed border-gray-300">
+                                        ${nestedItem.categories.map((cat, catIndex) => `
+                                            <li class="space-y-1">
+                                                <button onclick="toggleDeepNestedMenu(${index}, ${nestedIndex}, ${catIndex})" class="w-full text-left font-medium text-gray-500 hover:text-blue-700 flex justify-between items-center py-0.5 text-[11px] transition-colors">
+                                                    <span>› ${cat.nama}</span>
+                                                    <span id="deep-arrow-${index}-${nestedIndex}-${catIndex}" class="text-[8px] text-gray-400 transition-transform duration-200">▼</span>
+                                                </button>
+                                                <ul id="deep-sub-${index}-${nestedIndex}-${catIndex}" class="hidden pl-3 space-y-0.5 border-l border-dotted border-gray-300">
+                                                    ${cat.items.map(subItem => `
+                                                        <li>
+                                                            <a href="${subItem.link}" 
+                                                               ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                                               class="text-gray-500 hover:text-blue-800 text-[10.5px] block py-0.5 break-words transition-colors">
+                                                                - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
+                                                            </a>
+                                                        </li>
+                                                    `).join('')}
+                                                </ul>
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </li>
+                            `;
+                        // Jika menu bersarang biasa (Ibadah Yaumiyah)
+                        } else if (nestedItem.items) {
+                            return `
+                                <li class="space-y-1">
+                                    <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-gray-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors">
+                                        <span>• ${nestedItem.nama}</span> 
+                                        <span id="nested-arrow-${index}-${nestedIndex}" class="text-[9px] text-gray-400 transition-transform duration-200">▼</span>
+                                    </button>
+                                    <ul id="nested-sub-${index}-${nestedIndex}" class="hidden pl-3 space-y-1 border-l border-dashed border-gray-300">
+                                        ${nestedItem.items.map(subItem => `
+                                            <li>
+                                                <a href="${subItem.link}" 
+                                                   ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                                   class="text-gray-500 hover:text-blue-800 text-[11px] block py-0.5 break-words transition-colors">
+                                                    - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
+                                                </a>
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </li>
+                            `;
+                        // Menu biasa tanpa anak menu (Do'a Yaumiyah dkk)
+                        } else {
+                            return `
+                                <li>
+                                    <a href="${nestedItem.link}" 
+                                       ${nestedItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                       class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
+                                       • ${nestedItem.nama} ${nestedItem.eksternal && nestedItem.link !== '#' ? '↗' : ''}
+                                    </a>
+                                </li>
+                            `;
+                        }
+                    }).join('')}
+                </ul>
+            `;
+        } else {
+            // Menu utama biasa (PROFIL, LAYANAN, dll.)
+            menuDiv.innerHTML = `
+                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-gray-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors">
+                    <span>${item.nama}</span> <span id="arrow-${index}" class="text-[10px] text-gray-400 transition-transform duration-200">▼</span>
+                </button>
+                <ul id="sub-${index}" class="hidden pl-3 mt-1 space-y-1 border-l border-gray-300">
+                    ${item.sub.map(sub => `
+                        <li>
+                            <a href="${sub.link}" 
+                               ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                               class="text-gray-600 hover:text-blue-800 text-xs block py-1 break-words transition-colors">
+                               • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
+                            </a>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+        
+        container.appendChild(menuDiv);
+    });
+}
+
+// 3. FUNGSI INTERAKSI KLIK DROPDOWN
 function toggleMenu(index) {
     const subMenu = document.getElementById(`sub-${index}`);
     const arrow = document.getElementById(`arrow-${index}`);
-    const isHidden = subMenu.classList.toggle('hidden');
-    arrow.textContent = isHidden ? '▼' : '▲';
+    if (subMenu && arrow) {
+        const isHidden = subMenu.classList.toggle('hidden');
+        arrow.textContent = isHidden ? '▼' : '▲';
+    }
 }
 
 function toggleNestedMenu(parentIndex, nestedIndex) {
     const nestedSubMenu = document.getElementById(`nested-sub-${parentIndex}-${nestedIndex}`);
     const nestedArrow = document.getElementById(`nested-arrow-${parentIndex}-${nestedIndex}`);
-    const isHidden = nestedSubMenu.classList.toggle('hidden');
-    nestedArrow.textContent = isHidden ? '▼' : '▲';
+    if (nestedSubMenu && nestedArrow) {
+        const isHidden = nestedSubMenu.classList.toggle('hidden');
+        nestedArrow.textContent = isHidden ? '▼' : '▲';
+    }
 }
 
 function toggleDeepNestedMenu(parentIndex, nestedIndex, catIndex) {
     const deepSubMenu = document.getElementById(`deep-sub-${parentIndex}-${nestedIndex}-${catIndex}`);
     const deepArrow = document.getElementById(`deep-arrow-${parentIndex}-${nestedIndex}-${catIndex}`);
-    const isHidden = deepSubMenu.classList.toggle('hidden');
-    deepArrow.textContent = isHidden ? '▼' : '▲';
+    if (deepSubMenu && deepArrow) {
+        const isHidden = deepSubMenu.classList.toggle('hidden');
+        deepArrow.textContent = isHidden ? '▼' : '▲';
+    }
 }
 
+// 4. FUNGSI BACA SELENGKAPNYA DI ARTIKEL
 function toggleBerita(id) {
     const lengkap = document.getElementById(`konten-lengkap-${id}`);
     const pendek = document.getElementById(`konten-pendek-${id}`);
     const btn = document.getElementById(`btn-baca-${id}`);
     
-    lengkap.classList.toggle('hidden');
-    pendek.classList.toggle('hidden');
-    
-    if (lengkap.classList.contains('hidden')) {
-        btn.innerHTML = "Baca Selengkapnya →";
-    } else {
-        btn.innerHTML = "Sembunyikan ←";
+    if (lengkap && pendek && btn) {
+        lengkap.classList.toggle('hidden');
+        pendek.classList.toggle('hidden');
+        
+        if (lengkap.classList.contains('hidden')) {
+            btn.innerHTML = "Baca Selengkapnya →";
+        } else {
+            btn.innerHTML = "Sembunyikan ←";
+        }
     }
 }
+</script>
 </script>
