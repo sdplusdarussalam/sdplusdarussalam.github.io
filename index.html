@@ -4,593 +4,439 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SD Plus Darussalam</title>
-    <link class="js-favicon" rel="icon" type="image/png" href="logo-sekolah.png">
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('bangunan-sekolah.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-        }
-
-        /* --- ANIMASI SCROLL REVEAL & TRANSISI --- */
-        
-        /* State Awal Elemen Sebelum Terlihat di Scroll */
-        .reveal {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: opacity, transform;
-        }
-
-        /* State Aktif Elemen Ketika Masuk Layar */
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Transisi Global untuk Micro-Interactions */
-        * {
-            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
-        }
-
-        /* Transisi Accordion Menu Halus */
-        .accordion-content {
-            display: grid;
-            grid-template-rows: 0fr;
-            transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .accordion-content.open {
-            grid-template-rows: 1fr;
-        }
-
-        .accordion-inner {
-            overflow: hidden;
-        }
-
-        /* Efek Floating Card Saat Hover */
-        .card-hover {
-            will-change: transform;
-        }
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
-        }
-
-        /* Custom Scrollbar Elegan */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        /* Custom scrollbar untuk sidebar menu jika panjang */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen py-0 md:py-8 px-0 md:px-4 flex justify-center items-start">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <div class="w-full max-w-6xl bg-white/95 backdrop-blur-md shadow-2xl min-h-screen md:min-h-0 md:rounded-xl overflow-hidden flex flex-col reveal">
-        
-        <!-- HEADER / NAVBAR -->
-        <nav class="bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 text-white p-6 border-b-4 border-amber-400 relative overflow-hidden">
-            <div class="flex items-center gap-4 relative z-10">
-                <img src="logo-sekolah.png" alt="Logo SD Plus Darussalam" class="h-14 w-14 object-contain bg-white rounded-full p-1 shadow-md hover:scale-105 transition-transform duration-300">
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-400 text-indigo-950 font-black p-2.5 rounded-xl text-xl leading-none">
+                    SDP
+                </div>
                 <div>
-                    <h1 class="font-extrabold text-2xl md:text-3xl tracking-wide drop-shadow-sm">SD PLUS DARUSSALAM</h1>
-                    <p class="text-xs text-blue-200 mt-0.5 font-medium tracking-widest uppercase opacity-90">Sekolah Berkarakter, Sekolahnya Para Penghafal Al-Qur'an</p>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-wide leading-tight">SD PLUS DARUSSALAM</h1>
+                    <p class="text-xs text-indigo-200">Sekolah Berkarakter, Sekolahnya Para Penghafal Al-Qur'an</p>
                 </div>
             </div>
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-        </nav>
+        </div>
+    </header>
 
-        <!-- KONTEN UTAMA -->
-        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8 p-6 flex-grow">
-            
-            <!-- SIDEBAR KIRI: MENU NAVIGASI (ORDER 1 DI HP, ORDER 1 DI DESKTOP) -->
-            <aside class="lg:col-span-1 order-1 lg:order-1 reveal">
-                <h2 class="text-sm font-bold mb-4 text-gray-700 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2">
-                    <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    Navigasi Utama
-                </h2>
-                <div id="menu-container" class="bg-slate-50/70 border border-slate-200/80 p-3 rounded-lg space-y-1.5 max-h-[70vh] overflow-y-auto shadow-inner"></div>
-            </aside>
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="container mx-auto px-4 py-6 flex-grow">
+        <!-- GRID UTAMA LAYOUT PC: 1 Kolom Sidebar Navigation (1/4), 1 Kolom Sidebar Media/Profil (1/4), 2 Kolom Berita Utama (2/4) -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-            <!-- PENGUMUMAN (ORDER 2 DI HP -> DITARUH DI BAWAH NAVIGASI, ORDER 4 DI DESKTOP/KOLOM KANAN) -->
-            <aside id="pengumuman-container" class="lg:col-span-1 order-2 lg:order-4 space-y-3 reveal">
-                <h2 class="text-sm font-bold mb-3 text-gray-700 border-b-2 border-amber-400 pb-2 uppercase tracking-wider flex items-center gap-2">
-                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    Pengumuman
-                </h2>
-                <div id="loading-pengumuman" class="text-slate-400 text-sm py-4 text-center animate-pulse">Memuat pengumuman...</div>
-            </aside>
+            <!-- ================= 1. SIDEBAR NAVIGASI MENU (KOLOM 1 DI PC) ================= -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 sticky top-24 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">Menu Utama</h2>
+                    <nav id="sidebar-menu" class="space-y-1">
+                        <!-- Menu Accordion di-render secara dinamis oleh JavaScript -->
+                    </nav>
+                </div>
+            </div>
 
-            <!-- KONTEN TENGAH: BERITA UTAMA (ORDER 3 DI HP, ORDER 2 DI DESKTOP) -->
-            <section class="lg:col-span-2 order-3 lg:order-2 border-b lg:border-b-0 lg:border-r lg:border-l lg:px-6 border-slate-200/80 pb-6 lg:pb-0 space-y-8">
-                <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
-                    <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
-                    Berita Terbaru
-                </h2>
-                <div id="loading-berita" class="text-slate-400 py-8 text-center text-sm font-medium animate-pulse">Memuat berita terbaru...</div>
-            </section>
+            <!-- ================= 2. SIDEBAR PROFIL & PENGUMUMAN (KOLOM 2 DI PC) ================= -->
+            <aside class="lg:col-span-1 space-y-6">
 
-            <!-- VIDEO PROFIL SEKOLAH (ORDER 4 DI HP, ORDER 3 DI DESKTOP/KOLOM KANAN) -->
-            <aside class="lg:col-span-1 order-4 lg:order-3 space-y-6">
-                <div class="reveal">
-                    <h2 class="text-sm font-bold mb-3 text-gray-700 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2">
-                        <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Profil Sekolah
+                <!-- VIDEO PROFIL SEKOLAH (Posisinya di Atas) -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 reveal">
+                    <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <span>📹</span> Profil Sekolah
                     </h2>
-                    <div class="rounded-lg overflow-hidden shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    <div class="aspect-video rounded-xl overflow-hidden shadow-inner bg-slate-100">
                         <iframe 
-                            class="w-full aspect-video" 
-                            src="https://www.youtube.com/embed/fxmZ0vPl7ls?autoplay=1&mute=1" 
-                            allow="autoplay; encrypted-media"
+                            class="w-full h-full" 
+                            src="https://www.youtube.com/embed/Darussalamberkah" 
+                            title="Profil SD Plus Darussalam"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowfullscreen>
                         </iframe>
                     </div>
                 </div>
+
+                <!-- PENGUMUMAN (Tepat Berada di Bawah Video Profil Sekolah) -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 reveal">
+                    <h2 class="text-sm font-bold text-slate-800 border-b-2 border-amber-400 pb-2 mb-3 flex items-center gap-2">
+                        <span>🔔</span> PENGUMUMAN
+                    </h2>
+                    <div id="pengumuman-container" class="space-y-3">
+                        <p class="text-xs text-slate-400 italic">Memuat pengumuman...</p>
+                    </div>
+                </div>
+
             </aside>
 
-        </main>
+            <!-- ================= 3. BERITA UTAMA (KOLOM 3 & 4 DI PC) ================= -->
+            <main class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 reveal">
+                    <h2 class="text-lg font-bold text-slate-800 mb-6 border-b pb-3 flex items-center gap-2">
+                        <span>📰</span> Berita Terbaru
+                    </h2>
+                    <!-- Container Berita dari Google Sheets -->
+                    <div id="berita-container" class="space-y-8">
+                        <p class="text-sm text-slate-400 italic">Memuat berita terbaru...</p>
+                    </div>
+                </div>
 
-        <!-- FOOTER -->
-        <footer class="bg-slate-100 border-t border-slate-200 text-center py-4 text-xs text-slate-500 font-medium">
-            &copy; 2026 SD Plus Darussalam. Semua Hak Cipta Dilindungi.
-        </footer>
+            </main>
+
+        </div>
     </div>
 
-<script>
-// 1. DATA MENU INTERN
-const menuData = [
-    {
-        nama: "PROFIL",
-        sub: [
-            { nama: "Sejarah (Proses)", link: "#", eksternal: false },
-            { nama: "Kurikulum", link: "https://bit.ly/profil-sdpd-2025", eksternal: true }
-        ]
-    },
-    {
-        nama: "LAYANAN SISWA",
-        sub: [
-            { nama: "Cek Tagihan", link: "cek-tagihan.html", eksternal: false }
-        ]
-    },
-    {
-        nama: "PROGRAM",
-        sub: [
-            { nama: "Jadwal Pelajaran", link: "https://docs.google.com/spreadsheets/d/1Dgj3SJZ2k1XLClckV0bTPa3u7xfKUksCK30IqFpIR_s/edit?gid=1745300353#gid=1745300353", eksternal: false },
-            { nama: "Ekstrakurikuler", link: "https://bit.ly/m/sdpd-ekstra", eksternal: true },
-            { nama: "Kalender Kegiatan", link: "https://bit.ly/kegiatan-1tahun", eksternal: true }
-        ]
-    },
-    {
-        nama: "MEDIA",
-        isNested: true,
-        sub: [
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>&copy; 2026 SD Plus Darussalam. Semua Hak Cipta Dilindungi.</p>
+    </footer>
+
+    <!-- MODAL CEK TAGIHAN (Layanan Siswa) -->
+    <div id="modal-tagihan" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModalTagihan()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                💳 Cek Tagihan Siswa
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Masukkan NISN / NIS Siswa</label>
+                    <input type="text" id="input-nisn" placeholder="Contoh: 12345678" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button onclick="prosesCekTagihan()" class="w-full bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-2 rounded-lg text-sm transition">
+                    Cek Tagihan
+                </button>
+                <div id="hasil-tagihan" class="mt-4 hidden">
+                    <!-- Hasil Tagihan akan muncul di sini -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & DATA -->
+    <script>
+        const SPREADSHEET_ID = '1pR3W50Z24fD__v_Qds6MFsv5LR_BON0N6JceerOm86E';
+
+        // 1. DATA MENU SIDEBAR LENGKAP
+        const menuData = [
             {
-                nama: "Ibadah Yaumiyah",
+                title: "PROFIL",
                 items: [
-                    { nama: "Wudhu (Proses)", link: "#", eksternal: false },
-                    { nama: "Sholat (Proses)", link: "#", eksternal: false },
-                    { nama: "Dzikir Ba'da Salam (Proses)", link: "#", eksternal: false },
-                    { nama: "Dzikir Pagi", link: "https://youtube.com/playlist?list=PLu6HscRiyP5DeyRanoURKD0bx22BPeUxu&si=VG1a7H4xzjtl_Y7y", eksternal: true },
-                    { nama: "Asmaul Husna (Proses)", link: "#", eksternal: false }
+                    { name: "Sejarah (Proses)", link: "#" },
+                    { name: "Kurikulum", link: "#" }
                 ]
             },
             {
-                nama: "Tahsin & Tahfidz",
-                hasDeepNested: true,
-                categories: [
+                title: "LAYANAN SISWA",
+                items: [
+                    { name: "Cek Tagihan", action: "openModalTagihan" }
+                ]
+            },
+            {
+                title: "PROGRAM",
+                items: [
+                    { name: "Jadwal Pelajaran", link: "#" },
+                    { name: "Ekstrakurikuler", link: "#" },
+                    { name: "Kalender Kegiatan", link: "#" }
+                ]
+            },
+            {
+                title: "MEDIA",
+                subCategories: [
                     {
-                        nama: "An-Nur",
+                        title: "Ibadah Yaumiyah",
                         items: [
-                            { nama: "Tahsin An Nuur - Buku Jilid", link: "https://bit.ly/BUKUANNUR", eksternal: true },
-                            { nama: "Tahsin An Nuur - Video Jilid 1", link: "https://youtube.com/playlist?list=PLu6HscRiyP5Cba7L3r1WyrfyHun5yGRs&si=QYVw3ACwtDtE2vzE", eksternal: true },
-                            { nama: "Tahsin An Nuur - Video Jilid 2", link: "https://youtube.com/playlist?list=PLu6HscRiyP5B90-8hhIFB_vvaBLohinNR&si=j23TdL_ZCsJjUlB", eksternal: true },
-                            { nama: "Tahsin An Nuur - Video Jilid 3", link: "https://youtube.com/playlist?list=PLu6HscRiyP5CD-BnGZrCgKZDmupk2MU9I&si=3svqYDy9Q0XZOPBN", eksternal: true },
-                            { nama: "Tahfidz An Nuur - Juz 30", link: "https://youtube.com/playlist?list=PLu6HscRiyP5BH_HbhVWfWqar9KARhwwz5&si=pOrbB5ItIo2u91z", eksternal: true },
-                            { nama: "Tahfidz An Nuur - Juz 29", link: "https://youtube.com/playlist?list=PLu6HscRiyP5CfjhsGFEtBMTGffIgw3xS&si=apY6yq1xwkJqGQLq", eksternal: true }
+                            { name: "Wudhu", link: "#" },
+                            { name: "Sholat", link: "#" },
+                            { name: "Dzikir Ba'da Salam", link: "#" },
+                            { name: "Dzikir Pagi", link: "#" },
+                            { name: "Asmaul Husna", link: "#" }
                         ]
                     },
                     {
-                        nama: "Jiharka",
+                        title: "Tahsin & Tahfidz",
                         items: [
-                            { nama: "Tahsin Jiharka", link: "https://www.youtube.com/playlist?list=PLSagZuOw7YgI", eksternal: false },
-                            { nama: "Tahfidz Jiharka", link: "https://drive.google.com/drive/folders/1RciYtS8kQx8rm0ws0_iNZqi4mXRyzqqZ?usp=sharing", eksternal: true }
+                            { name: "An-Nur: Buku Jilid", link: "#" },
+                            { name: "An-Nur: Video Jilid 1–3", link: "#" },
+                            { name: "An-Nur: Tahfidz Juz 30", link: "#" },
+                            { name: "An-Nur: Tahfidz Juz 29", link: "#" },
+                            { name: "Jiharka: Tahsin Jiharka", link: "#" },
+                            { name: "Jiharka: Tahfidz Jiharka", link: "#" }
+                        ]
+                    },
+                    {
+                        title: "Do'a & Hadits",
+                        items: [
+                            { name: "Do'a Yaumiyah", link: "#" },
+                            { name: "Hadits Pilihan", link: "#" }
                         ]
                     }
                 ]
             },
             {
-                nama: "Do'a & Hadits",
+                title: "PERPUSTAKAAN",
                 items: [
-                    { nama: "Do'a Yaumiyah (Proses)", link: "#", eksternal: false },
-                    { nama: "Hadits Pilihan (Proses)", link: "#", eksternal: false }
+                    { name: "Perpustakaan Darul Ilmi", link: "https://sites.google.com", external: true }
+                ]
+            },
+            {
+                title: "CAPAIAN",
+                items: [
+                    { name: "Tahfidz", link: "#" },
+                    { name: "Prestasi", link: "#" },
+                    { name: "Tinggi Badan", link: "#" },
+                    { name: "Poin Kedisiplinan", link: "#" }
+                ]
+            },
+            {
+                title: "ARSIP",
+                items: [
+                    { name: "Worksheet (Proses)", link: "#" },
+                    { name: "Ulhar (Proses)", link: "#" },
+                    { name: "STS (Proses)", link: "#" },
+                    { name: "SAS (Proses)", link: "#" }
+                ]
+            },
+            {
+                title: "ADMINISTRASI",
+                items: [
+                    { name: "WA Autorespon: 085210100175", link: "https://wa.me/6285210100175", external: true },
+                    { name: "Transfer BRI: 6440 0103 6276 532", link: "#" },
+                    { name: "Transfer Jatim: 180 2000 908", link: "#" }
+                ]
+            },
+            {
+                title: "MEDSOS",
+                items: [
+                    { name: "YouTube (Darussalamberkah)", link: "https://youtube.com", external: true },
+                    { name: "Facebook", link: "https://facebook.com", external: true },
+                    { name: "Instagram", link: "https://instagram.com", external: true }
                 ]
             }
-        ]
-    },
-    {
-        nama: "PERPUSTAKAAN",
-        sub: [
-            { nama: "Perpustakaan", link: "https://sites.google.com/view/perpustakaan-sdpd-darul-ilmi/alumni", eksternal: false }
-        ]
-    },
-    {
-        nama: "CAPAIAN",
-        sub: [
-            { nama: "Tahfidz", link: "https://bit.ly/hafalan-siswa", eksternal: true },
-            { nama: "Prestasi", link: "https://bit.ly/capaian-prestasi", eksternal: true },
-            { nama: "Tinggi Badan", link: "https://bit.ly/tinggi-siswa", eksternal: true },
-            { nama: "Poin Kedisiplinan", link: "https://bit.ly/BUKU-BK-SDPD", eksternal: true }
-        ]
-    },
-    {
-        nama: "ARSIP",
-        sub: [
-            { nama: "Worksheet", link: "https://bit.ly/worksheet-sdpd", eksternal: true },
-            { nama: "Ulhar", link: "https://bit.ly/soal-harian", eksternal: true },
-            { nama: "STS", link: "https://bit.ly/sts-sdpd", eksternal: true },
-            { nama: "SAS (Proses)", link: "#", eksternal: false }
-        ]
-    },
-    {
-        nama: "ADMINISTRASI",
-        sub: [
-            { nama: "WA Autorespon: 085210100175", link: "https://wa.me/6285210100175", eksternal: true },
-            { nama: "Transfer BRI: 6440 0103 6276 532", link: "#", eksternal: false },
-            { nama: "Transfer Jatim: 180 2000 908", link: "#", eksternal: false }
-        ]
-    },
-    {
-        nama: "MEDSOS",
-        sub: [
-            { nama: "YouTube: Darussalamberkah", link: "https://www.youtube.com/@DARUSSALAMBERKAH/featured", eksternal: false },
-            { nama: "Facebook", link: "https://www.facebook.com/sdplus.darussalam.geneng", eksternal: false },
-            { nama: "Instagram", link: "https://www.instagram.com/sd_plus_darussalam/", eksternal: false }
-        ]
-    }
-];
+        ];
 
-// 2. KONFIGURASI GOOGLE SHEETS
-const SPREADSHEET_ID = '1pR3W50Z24fD__v_Qds6MFsv5LR_BON0N6JceerOm86E';
+        // 2. RENDER MENU ACCORDION SIDEBAR
+        function renderMenu() {
+            const container = document.getElementById('sidebar-menu');
+            container.innerHTML = '';
 
-async function fetchSheetData(sheetName) {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}`;
-    const response = await fetch(url);
-    const text = await response.text();
-    
-    const jsonLeft = text.indexOf('{');
-    const jsonRight = text.lastIndexOf('}') + 1;
-    const cleanJson = JSON.parse(text.substring(jsonLeft, jsonRight));
-    
-    const rows = cleanJson.table.rows;
-    const cols = cleanJson.table.cols.map(col => col && col.label ? col.label.trim() : '');
-    
-    return rows.map(row => {
-        const obj = {};
-        cols.forEach((colName, index) => {
-            if (colName) {
-                const cell = row.c[index];
-                let cellValue = '';
+            menuData.forEach((section, idx) => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = "border-b border-slate-100 last:border-0 py-1";
+
+                let subMenuHtml = '';
                 
-                if (cell) {
-                    if (cell.f !== null && cell.f !== undefined) {
-                        cellValue = cell.f;
-                    } else if (cell.v !== null && cell.v !== undefined) {
-                        cellValue = cell.v;
-                    }
-                }
-                
-                obj[colName] = String(cellValue).replaceAll('\n', '<br>');
-            }
-        });
-        return obj;
-    }).filter(item => item.judul && item.judul.trim() !== "");
-}
-
-// 3. FUNGSI OBSERVER UNTUK ANIMASI SCROLL REVEAL
-function initScrollObserver() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: "0px 0px -40px 0px"
-    });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-}
-
-// INSIALISASI SAAT DOM SIAP
-document.addEventListener("DOMContentLoaded", async () => {
-    renderMenu();
-    initScrollObserver();
-
-    try {
-        const listBerita = await fetchSheetData('Berita');
-        renderBerita(listBerita);
-        initScrollObserver();
-    } catch (err) {
-        console.error("Gagal memuat berita:", err);
-        document.getElementById('loading-berita').innerHTML = "Gagal memuat berita terbaru.";
-    }
-
-    try {
-        const listPengumuman = await fetchSheetData('Pengumuman');
-        renderPengumuman(listPengumuman);
-        initScrollObserver();
-    } catch (err) {
-        console.error("Gagal memuat pengumuman:", err);
-        document.getElementById('loading-pengumuman').innerHTML = "Gagal memuat pengumuman.";
-    }
-});
-
-// 4. FUNGSI RENDERING
-
-function renderBerita(data) {
-    const sectionBerita = document.querySelector('section.lg\\:col-span-2');
-    sectionBerita.innerHTML = `
-        <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
-            <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
-            Berita Terbaru
-        </h2>`;
-    
-    if (data.length === 0 || !data[0].judul) {
-        sectionBerita.innerHTML += `<p class="text-slate-400 py-6 text-center text-sm">Belum ada berita terbaru saat ini.</p>`;
-        return;
-    }
-
-    [...data].reverse().forEach((berita, index) => {
-        const idBerita = berita.id ? berita.id : `berita-${index}`;
-        const itemHtml = `
-            <div class="card-hover bg-white p-4 rounded-xl border border-slate-100 space-y-4 border-b border-slate-200/80 pb-6 mt-4 reveal">
-                <div class="overflow-hidden rounded-lg">
-                    <img src="${berita.gambar || 'Berita-1.jpg'}" alt="${berita.judul}" class="w-full h-60 object-cover hover:scale-105 transition-transform duration-500">
-                </div>
-                <h3 onclick="toggleBerita('${idBerita}')" class="text-xl font-bold text-slate-800 hover:text-blue-900 cursor-pointer transition-colors leading-snug">${berita.judul}</h3>
-                <p id="konten-pendek-${idBerita}" class="text-slate-600 leading-relaxed text-sm text-justify">${berita.kontenPendek || ''}</p>
-                
-                <div id="konten-lengkap-${idBerita}" class="hidden text-slate-600 leading-relaxed text-sm text-justify space-y-2">
-                    <p>${berita.kontenLengkap || ''}</p>
-                </div>
-                
-                <button onclick="toggleBerita('${idBerita}')" id="btn-baca-${idBerita}" class="inline-flex items-center gap-1.5 bg-blue-900 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all duration-200">
-                    <span>Baca Selengkapnya</span>
-                    <span id="btn-arrow-${idBerita}">→</span>
-                </button>
-            </div>
-        `;
-        sectionBerita.innerHTML += itemHtml;
-    });
-}
-
-function renderPengumuman(data) {
-    const containerPengumuman = document.getElementById('pengumuman-container');
-    
-    containerPengumuman.innerHTML = `
-        <h2 class="text-sm font-bold mb-3 text-gray-700 border-b-2 border-amber-400 pb-2 uppercase tracking-wider flex items-center gap-2">
-            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            Pengumuman
-        </h2>
-        <div class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
-    `;
-
-    const dataValid = data.filter(p => p.judul && p.judul.toString().trim() !== "");
-
-    if (dataValid.length === 0) {
-        containerPengumuman.innerHTML += `
-            <p class="text-slate-400 text-xs py-4 text-center italic bg-slate-50/50 rounded-lg border border-dashed border-slate-200">Tidak ada pengumuman baru.</p>
-            </div>
-        `;
-        return;
-    }
-
-    function rapikanTanggal(tgl) {
-        if (!tgl) return '';
-        const stringTgl = String(tgl).trim();
-        if (stringTgl.startsWith('Date(')) {
-            try {
-                const bagian = stringTgl.match(/\(([^)]+)\)/)[1].split(',');
-                const tahun = parseInt(bagian[0]);
-                const bulan = parseInt(bagian[1]); 
-                const hari = parseInt(bagian[2]);
-                const namaBulan = [
-                    "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-                ];
-                return `${hari} ${namaBulan[bulan]} ${tahun}`;
-            } catch (e) {
-                return stringTgl;
-            }
-        }
-        return stringTgl;
-    }
-
-    let listHtml = '';
-    [...dataValid].reverse().forEach(p => {
-        const tanggalRapi = rapikanTanggal(p.tanggal);
-        listHtml += `
-            <div class="card-hover bg-white hover:bg-amber-50/30 border border-slate-200/60 hover:border-amber-300 p-3.5 rounded-lg shadow-2xs transition-all duration-300 cursor-pointer reveal">
-                <div class="border-l-3 border-amber-400 pl-3">
-                    <p class="font-semibold text-slate-800 text-xs leading-relaxed mb-1 hover:text-amber-700 transition-colors">${p.judul}</p>
-                    ${tanggalRapi ? `
-                        <div class="flex items-center text-[10px] text-slate-400 gap-1 font-medium">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span>${tanggalRapi}</span>
+                if (section.items) {
+                    subMenuHtml = section.items.map(item => {
+                        if (item.action === "openModalTagihan") {
+                            return `<button onclick="openModalTagihan()" class="w-full text-left block px-3 py-1.5 text-xs text-slate-600 hover:text-indigo-900 hover:bg-slate-50 rounded-lg transition">👉 ${item.name}</button>`;
+                        }
+                        return `<a href="${item.link}" ${item.external ? 'target="_blank"' : ''} class="block px-3 py-1.5 text-xs text-slate-600 hover:text-indigo-900 hover:bg-slate-50 rounded-lg transition">👉 ${item.name}</a>`;
+                    }).join('');
+                } else if (section.subCategories) {
+                    subMenuHtml = section.subCategories.map(subCat => `
+                        <div class="mt-1 mb-2 pl-2 border-l-2 border-indigo-100">
+                            <span class="text-[11px] font-bold text-indigo-900 uppercase block mb-1 px-2">${subCat.title}</span>
+                            ${subCat.items.map(item => `
+                                <a href="${item.link}" class="block px-2 py-1 text-xs text-slate-600 hover:text-indigo-900 hover:bg-slate-50 rounded-lg transition">• ${item.name}</a>
+                            `).join('')}
                         </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    });
+                    `).join('');
+                }
 
-    containerPengumuman.innerHTML += listHtml + '</div>';
-}
-
-function renderMenu() {
-    const container = document.getElementById('menu-container');
-    if (!container) return;
-    container.innerHTML = '';
-
-    menuData.forEach((item, index) => {
-        const menuDiv = document.createElement('div');
-        menuDiv.className = "border-b border-slate-200/60 last:border-none pb-1.5 last:pb-0";
-
-        if (item.isNested) {
-            menuDiv.innerHTML = `
-                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-slate-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors group">
-                    <span>${item.nama}</span> 
-                    <span id="arrow-${index}" class="text-[9px] text-slate-400 group-hover:text-blue-900 transition-transform duration-300">▼</span>
-                </button>
-                <div id="sub-${index}" class="accordion-content">
-                    <div class="accordion-inner pl-2.5 mt-1 space-y-1 border-l-2 border-slate-200">
-                        ${item.sub.map((nestedItem, nestedIndex) => {
-                            if (nestedItem.hasDeepNested) {
-                                return `
-                                    <div class="space-y-1">
-                                        <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-slate-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors group">
-                                            <span>• ${nestedItem.nama}</span> 
-                                            <span id="nested-arrow-${index}-${nestedIndex}" class="text-[8px] text-slate-400 group-hover:text-blue-800 transition-transform duration-300">▼</span>
-                                        </button>
-                                        <div id="nested-sub-${index}-${nestedIndex}" class="accordion-content">
-                                            <div class="accordion-inner pl-2.5 space-y-1 border-l border-dashed border-slate-200">
-                                                ${nestedItem.categories.map((cat, catIndex) => `
-                                                    <div class="space-y-1">
-                                                        <button onclick="toggleDeepNestedMenu(${index}, ${nestedIndex}, ${catIndex})" class="w-full text-left font-medium text-slate-500 hover:text-blue-700 flex justify-between items-center py-0.5 text-[11px] transition-colors group">
-                                                            <span>› ${cat.nama}</span>
-                                                            <span id="deep-arrow-${index}-${nestedIndex}-${catIndex}" class="text-[8px] text-slate-400 group-hover:text-blue-700 transition-transform duration-300">▼</span>
-                                                        </button>
-                                                        <div id="deep-sub-${index}-${nestedIndex}-${catIndex}" class="accordion-content">
-                                                            <div class="accordion-inner pl-2 space-y-0.5 border-l border-dotted border-slate-200">
-                                                                ${cat.items.map(subItem => `
-                                                                    <a href="${subItem.link}" 
-                                                                       ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                                                                       class="text-slate-500 hover:text-blue-800 hover:translate-x-1 text-[10.5px] block py-0.5 transition-all">
-                                                                        - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
-                                                                    </a>
-                                                                `).join('')}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            } else {
-                                return `
-                                    <div class="space-y-1">
-                                        <button onclick="toggleNestedMenu(${index}, ${nestedIndex})" class="w-full text-left font-semibold text-slate-600 hover:text-blue-800 flex justify-between items-center py-1 text-xs transition-colors group">
-                                            <span>• ${nestedItem.nama}</span> 
-                                            <span id="nested-arrow-${index}-${nestedIndex}" class="text-[8px] text-slate-400 group-hover:text-blue-800 transition-transform duration-300">▼</span>
-                                        </button>
-                                        <div id="nested-sub-${index}-${nestedIndex}" class="accordion-content">
-                                            <div class="accordion-inner pl-2.5 space-y-0.5 border-l border-dashed border-slate-200">
-                                                ${nestedItem.items.map(subItem => `
-                                                    <a href="${subItem.link}" 
-                                                       ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                                                       class="text-slate-500 hover:text-blue-800 hover:translate-x-1 text-[11px] block py-0.5 transition-all">
-                                                        - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
-                                                    </a>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                        }).join('')}
+                sectionEl.innerHTML = `
+                    <button onclick="toggleAccordion('acc-${idx}')" class="w-full text-left font-semibold text-xs text-slate-700 hover:text-indigo-900 py-2 px-2 flex justify-between items-center transition">
+                        <span>${section.title}</span>
+                        <span id="icon-acc-${idx}" class="text-xs transition-transform duration-200">▾</span>
+                    </button>
+                    <div id="acc-${idx}" class="hidden space-y-0.5 pb-2">
+                        ${subMenuHtml}
                     </div>
-                </div>
-            `;
-        } else {
-            menuDiv.innerHTML = `
-                <button onclick="toggleMenu(${index})" class="w-full text-left font-bold text-slate-700 hover:text-blue-900 flex justify-between items-center py-1.5 text-xs tracking-wider uppercase transition-colors group">
-                    <span>${item.nama}</span> 
-                    <span id="arrow-${index}" class="text-[9px] text-slate-400 group-hover:text-blue-900 transition-transform duration-300">▼</span>
-                </button>
-                <div id="sub-${index}" class="accordion-content">
-                    <div class="accordion-inner pl-2.5 mt-1 space-y-0.5 border-l-2 border-slate-200">
-                        ${item.sub.map(sub => `
-                            <a href="${sub.link}" 
-                               ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
-                               class="text-slate-600 hover:text-blue-800 hover:translate-x-1 text-xs block py-1 transition-all">
-                                 • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
-                            </a>
-                        `).join('')}
-                    </div>
+                `;
+                container.appendChild(sectionEl);
+            });
+        }
+
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(`icon-${id}`);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                if (icon) icon.style.transform = 'rotate(180deg)';
+            } else {
+                el.classList.add('hidden');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // 3. HELPER TANGGAL
+        function rapikanTanggal(dateStr) {
+            if (!dateStr) return '';
+            const match = dateStr.match(/Date\((\d+),(\d+),(\d+)\)/);
+            if (match) {
+                const year = match[1];
+                const month = parseInt(match[2]) + 1;
+                const day = match[3];
+                const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                return `${day} ${bulanIndo[month - 1]} ${year}`;
+            }
+            return dateStr;
+        }
+
+        // 4. FETCH DATA PENGUMUMAN DARI GOOGLE SHEETS
+        async function fetchPengumuman() {
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Pengumuman`;
+            try {
+                const res = await fetch(url);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                const container = document.getElementById('pengumuman-container');
+                container.innerHTML = '';
+
+                if (!rows || rows.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-slate-400">Tidak ada pengumuman saat ini.</p>';
+                    return;
+                }
+
+                rows.forEach(row => {
+                    const judul = row.c && row.c[0] ? row.c[0].v : 'Pengumuman';
+                    const tanggalRaw = row.c && row.c[1] ? row.c[1].v : '';
+                    const tanggal = rapikanTanggal(tanggalRaw);
+
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-100 transition duration-200";
+                    card.innerHTML = `
+                        <h3 class="font-semibold text-xs text-slate-800 leading-snug">${judul}</h3>
+                        ${tanggal ? `<p class="text-[11px] text-slate-400 mt-1 flex items-center gap-1">📅 ${tanggal}</p>` : ''}
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Gagal memuat pengumuman:", err);
+                document.getElementById('pengumuman-container').innerHTML = '<p class="text-xs text-red-400">Gagal memuat data pengumuman.</p>';
+            }
+        }
+
+        // 5. FETCH DATA BERITA DARI GOOGLE SHEETS
+        async function fetchBerita() {
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Berita`;
+            try {
+                const res = await fetch(url);
+                const text = await res.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                const rows = json.table.rows;
+                const container = document.getElementById('berita-container');
+                container.innerHTML = '';
+
+                if (!rows || rows.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-slate-400">Belum ada berita dipublikasikan.</p>';
+                    return;
+                }
+
+                rows.forEach((row, idx) => {
+                    const judul = row.c && row.c[0] ? row.c[0].v : '';
+                    const isi = row.c && row.c[1] ? row.c[1].v : '';
+                    const gambar = row.c && row.c[2] ? row.c[2].v : '';
+
+                    const article = document.createElement('article');
+                    article.className = "border-b border-slate-100 pb-6 last:border-0 last:pb-0";
+                    
+                    const isLongText = isi.length > 200;
+                    const ringkasanText = isLongText ? isi.substring(0, 200) + '...' : isi;
+
+                    article.innerHTML = `
+                        ${gambar ? `<img src="${gambar}" alt="${judul}" class="w-full h-56 sm:h-72 object-cover rounded-xl mb-4 shadow-sm">` : ''}
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 leading-snug">${judul}</h3>
+                        <div class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3">
+                            <span id="berita-text-${idx}">${ringkasanText}</span>
+                            ${isLongText ? `<span id="berita-full-${idx}" class="hidden">${isi}</span>` : ''}
+                        </div>
+                        ${isLongText ? `
+                            <button onclick="toggleBerita(${idx})" id="btn-berita-${idx}" class="inline-flex items-center gap-1 bg-indigo-900 hover:bg-indigo-800 text-white text-xs px-3.5 py-1.5 rounded-lg font-medium transition duration-200">
+                                Baca Selengkapnya &rarr;
+                            </button>
+                        ` : ''}
+                    `;
+                    container.appendChild(article);
+                });
+            } catch (err) {
+                console.error("Gagal memuat berita:", err);
+                document.getElementById('berita-container').innerHTML = '<p class="text-xs text-red-400">Gagal memuat berita.</p>';
+            }
+        }
+
+        // Toggle Baca Selengkapnya Berita
+        function toggleBerita(idx) {
+            const ringkasan = document.getElementById(`berita-text-${idx}`);
+            const full = document.getElementById(`berita-full-${idx}`);
+            const btn = document.getElementById(`btn-berita-${idx}`);
+
+            if (full.classList.contains('hidden')) {
+                full.classList.remove('hidden');
+                ringkasan.classList.add('hidden');
+                btn.innerHTML = 'Sembunyikan &larr;';
+            } else {
+                full.classList.add('hidden');
+                ringkasan.classList.remove('hidden');
+                btn.innerHTML = 'Baca Selengkapnya &rarr;';
+            }
+        }
+
+        // 6. MODAL TAGIHAN HANDLER
+        function openModalTagihan() {
+            document.getElementById('modal-tagihan').classList.remove('hidden');
+        }
+        function closeModalTagihan() {
+            document.getElementById('modal-tagihan').classList.add('hidden');
+            document.getElementById('hasil-tagihan').classList.add('hidden');
+            document.getElementById('input-nisn').value = '';
+        }
+        function prosesCekTagihan() {
+            const nisn = document.getElementById('input-nisn').value.trim();
+            const hasilContainer = document.getElementById('hasil-tagihan');
+            if(!nisn) {
+                alert('Silakan masukkan NISN / NIS terlebih dahulu!');
+                return;
+            }
+            hasilContainer.classList.remove('hidden');
+            hasilContainer.innerHTML = `
+                <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-900">
+                    <p class="font-bold mb-1">Status Tagihan (NISN: ${nisn}):</p>
+                    <p>Semua tagihan administrasi bulanan telah LUNAS.</p>
                 </div>
             `;
         }
-        container.appendChild(menuDiv);
-    });
-}
 
-// 5. INTERAKSI TOGGLE
-function toggleMenu(index) {
-    const subMenu = document.getElementById(`sub-${index}`);
-    const arrow = document.getElementById(`arrow-${index}`);
-    if (subMenu && arrow) {
-        const isOpen = subMenu.classList.toggle('open');
-        arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-}
+        // 7. ANIMASI SCROLL REVEAL
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
 
-function toggleNestedMenu(parentIndex, nestedIndex) {
-    const nestedSubMenu = document.getElementById(`nested-sub-${parentIndex}-${nestedIndex}`);
-    const nestedArrow = document.getElementById(`nested-arrow-${parentIndex}-${nestedIndex}`);
-    if (nestedSubMenu && nestedArrow) {
-        const isOpen = nestedSubMenu.classList.toggle('open');
-        nestedArrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-}
-
-function toggleDeepNestedMenu(parentIndex, nestedIndex, catIndex) {
-    const deepSubMenu = document.getElementById(`deep-sub-${parentIndex}-${nestedIndex}-${catIndex}`);
-    const deepArrow = document.getElementById(`deep-arrow-${parentIndex}-${nestedIndex}-${catIndex}`);
-    if (deepSubMenu && deepArrow) {
-        const isOpen = deepSubMenu.classList.toggle('open');
-        deepArrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-}
-
-function toggleBerita(id) {
-    const lengkap = document.getElementById(`konten-lengkap-${id}`);
-    const pendek = document.getElementById(`konten-pendek-${id}`);
-    const btn = document.getElementById(`btn-baca-${id}`);
-    const arrow = document.getElementById(`btn-arrow-${id}`);
-    
-    if (lengkap && pendek && btn) {
-        const isHidden = lengkap.classList.contains('hidden');
-        lengkap.classList.toggle('hidden');
-        pendek.classList.toggle('hidden');
-        
-        btn.querySelector('span').textContent = isHidden ? "Sembunyikan" : "Baca Selengkapnya";
-        if (arrow) arrow.textContent = isHidden ? "←" : "→";
-    }
-}
-</script>
+        // INITIALIZATION
+        document.addEventListener("DOMContentLoaded", () => {
+            renderMenu();
+            fetchPengumuman();
+            fetchBerita();
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+    </script>
 </body>
 </html>
