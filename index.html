@@ -18,24 +18,28 @@
             background-repeat: no-repeat;
         }
 
-        /* --- KEYFRAMES & ANIMASI ELEGAN --- */
+        /* --- ANIMASI SCROLL REVEAL & TRANSISI --- */
         
-        /* Smooth Fade In untuk elemen saat dimuat */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* State Awal Elemen Sebelum Terlihat di Scroll (Tersembunyi & Agak Turun) */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        /* State Aktif Elemen Ketika Masuk Layar (Tampak & Kembali ke Posisi Asli) */
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        /* Micro-interaction transition untuk semua elemen interaktif */
+        /* Transisi Global untuk Micro-Interactions */
         * {
             transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
         }
 
-        /* Transisi Accordion Halus */
+        /* Transisi Accordion Menu Halus */
         .accordion-content {
             display: grid;
             grid-template-rows: 0fr;
@@ -50,13 +54,13 @@
             overflow: hidden;
         }
 
-        /* Efek Hover Card Berita & Pengumuman */
+        /* Efek Floating Card Saat Hover */
         .card-hover {
             will-change: transform;
         }
         .card-hover:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
         }
 
         /* Custom Scrollbar Elegan */
@@ -78,7 +82,7 @@
 </head>
 <body class="min-h-screen py-0 md:py-8 px-0 md:px-4 flex justify-center items-start">
 
-    <div class="w-full max-w-6xl bg-white/95 backdrop-blur-md shadow-2xl min-h-screen md:min-h-0 md:rounded-xl overflow-hidden flex flex-col animate-fade-in">
+    <div class="w-full max-w-6xl bg-white/95 backdrop-blur-md shadow-2xl min-h-screen md:min-h-0 md:rounded-xl overflow-hidden flex flex-col reveal">
         
         <!-- HEADER / NAVBAR -->
         <nav class="bg-gradient-to-r from-blue-950 via-blue-900 to-blue-800 text-white p-6 border-b-4 border-amber-400 relative overflow-hidden">
@@ -89,7 +93,6 @@
                     <p class="text-xs text-blue-200 mt-0.5 font-medium tracking-widest uppercase opacity-90">Sekolah Berkarakter, Sekolahnya Para Penghafal Al-Qur'an</p>
                 </div>
             </div>
-            <!-- Glow Effect Decorative Background -->
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
         </nav>
 
@@ -97,7 +100,7 @@
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8 p-6 flex-grow">
             
             <!-- SIDEBAR KIRI: MENU NAVIGASI -->
-            <aside class="lg:col-span-1 lg:order-1">
+            <aside class="lg:col-span-1 lg:order-1 reveal">
                 <h2 class="text-sm font-bold mb-4 text-gray-700 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2">
                     <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     Navigasi Utama
@@ -107,7 +110,7 @@
 
             <!-- KONTEN TENGAH: BERITA UTAMA -->
             <section class="lg:col-span-2 order-1 lg:order-2 border-b lg:border-b-0 lg:border-r lg:border-l lg:px-6 border-slate-200/80 pb-6 lg:pb-0 space-y-8">
-                <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2">
+                <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
                     <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
                     Berita Terbaru
                 </h2>
@@ -116,7 +119,7 @@
 
             <!-- SIDEBAR KANAN: VIDEO & PENGUMUMAN -->
             <aside class="lg:col-span-1 order-3 lg:order-3 space-y-6">
-                <div>
+                <div class="reveal">
                     <h2 class="text-sm font-bold mb-3 text-gray-700 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2">
                         <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Profil Sekolah
@@ -131,7 +134,7 @@
                     </div>
                 </div>
 
-                <div id="pengumuman-container">
+                <div id="pengumuman-container" class="reveal">
                     <h2 class="text-sm font-bold mb-3 text-gray-700 border-b-2 border-amber-400 pb-2 uppercase tracking-wider flex items-center gap-2">
                         <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -300,13 +303,31 @@ async function fetchSheetData(sheetName) {
     }).filter(item => item.judul && item.judul.trim() !== "");
 }
 
+// 3. FUNGSI OBSERVER UNTUK ANIMASI SCROLL REVEAL
+function initScrollObserver() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, {
+        threshold: 0.1, // Elemen aktif jika 10% bagian sudah muncul di layar
+        rootMargin: "0px 0px -40px 0px"
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+}
+
 // INSIALISASI SAAT DOM SIAP
 document.addEventListener("DOMContentLoaded", async () => {
     renderMenu();
+    initScrollObserver(); // Jalankan observer awal
 
     try {
         const listBerita = await fetchSheetData('Berita');
         renderBerita(listBerita);
+        initScrollObserver(); // Re-observe berita baru
     } catch (err) {
         console.error("Gagal memuat berita:", err);
         document.getElementById('loading-berita').innerHTML = "Gagal memuat berita terbaru.";
@@ -315,18 +336,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const listPengumuman = await fetchSheetData('Pengumuman');
         renderPengumuman(listPengumuman);
+        initScrollObserver(); // Re-observe pengumuman baru
     } catch (err) {
         console.error("Gagal memuat pengumuman:", err);
         document.getElementById('loading-pengumuman').innerHTML = "Gagal memuat pengumuman.";
     }
 });
 
-// 3. FUNGSI RENDERING DENGAN ANIMASI ELEGAN
+// 4. FUNGSI RENDERING DENGAN CLASS .reveal
 
 function renderBerita(data) {
     const sectionBerita = document.querySelector('section.lg\\:col-span-2');
     sectionBerita.innerHTML = `
-        <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2">
+        <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
             <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
             Berita Terbaru
         </h2>`;
@@ -339,14 +361,14 @@ function renderBerita(data) {
     [...data].reverse().forEach((berita, index) => {
         const idBerita = berita.id ? berita.id : `berita-${index}`;
         const itemHtml = `
-            <div class="card-hover bg-white p-4 rounded-xl border border-slate-100 space-y-4 border-b border-slate-200/80 pb-6 mt-4 animate-fade-in" style="animation-delay: ${index * 0.1}s;">
+            <div class="card-hover bg-white p-4 rounded-xl border border-slate-100 space-y-4 border-b border-slate-200/80 pb-6 mt-4 reveal">
                 <div class="overflow-hidden rounded-lg">
                     <img src="${berita.gambar || 'Berita-1.jpg'}" alt="${berita.judul}" class="w-full h-60 object-cover hover:scale-105 transition-transform duration-500">
                 </div>
                 <h3 onclick="toggleBerita('${idBerita}')" class="text-xl font-bold text-slate-800 hover:text-blue-900 cursor-pointer transition-colors leading-snug">${berita.judul}</h3>
                 <p id="konten-pendek-${idBerita}" class="text-slate-600 leading-relaxed text-sm text-justify">${berita.kontenPendek || ''}</p>
                 
-                <div id="konten-lengkap-${idBerita}" class="hidden text-slate-600 leading-relaxed text-sm text-justify space-y-2 animate-fade-in">
+                <div id="konten-lengkap-${idBerita}" class="hidden text-slate-600 leading-relaxed text-sm text-justify space-y-2">
                     <p>${berita.kontenLengkap || ''}</p>
                 </div>
                 
@@ -405,10 +427,10 @@ function renderPengumuman(data) {
     }
 
     let listHtml = '';
-    [...dataValid].reverse().forEach((p, idx) => {
+    [...dataValid].reverse().forEach(p => {
         const tanggalRapi = rapikanTanggal(p.tanggal);
         listHtml += `
-            <div class="card-hover bg-white hover:bg-amber-50/30 border border-slate-200/60 hover:border-amber-300 p-3.5 rounded-lg shadow-2xs transition-all duration-300 cursor-pointer animate-fade-in" style="animation-delay: ${idx * 0.08}s;">
+            <div class="card-hover bg-white hover:bg-amber-50/30 border border-slate-200/60 hover:border-amber-300 p-3.5 rounded-lg shadow-2xs transition-all duration-300 cursor-pointer reveal">
                 <div class="border-l-3 border-amber-400 pl-3">
                     <p class="font-semibold text-slate-800 text-xs leading-relaxed mb-1 hover:text-amber-700 transition-colors">${p.judul}</p>
                     ${tanggalRapi ? `
@@ -525,7 +547,7 @@ function renderMenu() {
     });
 }
 
-// 4. INTERAKSI TOGGLE & ACCORDION SMOOTH
+// 5. INTERAKSI TOGGLE
 function toggleMenu(index) {
     const subMenu = document.getElementById(`sub-${index}`);
     const arrow = document.getElementById(`arrow-${index}`);
