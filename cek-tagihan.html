@@ -43,7 +43,7 @@
             hasilDiv.classList.add('hidden');
 
             if (!nisn || !namaIbu) {
-                alert("Mohon isi NISN dan Nama Ibu Kandung!");
+                alert("Mohon isi NIS dan Nama Ibu Kandung!");
                 return;
             }
 
@@ -66,8 +66,8 @@
                         const rTerakhir = d.rekapTerakhir || {};
 
                         const namaSiswa = d.nama || '-';
-                        const pesanWA = `Halo Admin SDPD, saya telah melakukan pembayaran untuk siswa ${namaSiswa} (NISN: ${nisn}). Berikut bukti transfernya.`;
-                        const waUrl = `https://wa.me/6285210100175?text=${encodeURIComponent(pesanWA)}`;
+                        const pesanWA = `Halo Admin SDPD, saya telah melakukan pembayaran untuk siswa ${namaSiswa} (NIS: ${nisn}). Berikut bukti transfernya.`;
+                        const waUrl = `https://wa.me/628998465724?text=${encodeURIComponent(pesanWA)}`;
 
                         hasilDiv.innerHTML = `
                             <!-- HEADER REKAP -->
@@ -214,14 +214,14 @@
             <div>
                 <h2 class="text-lg font-bold text-gray-800 text-center">Cek Tagihan Siswa</h2>
                 <p class="text-xs text-gray-500 text-center mt-1">
-                    Silakan masukkan kombinasi 10 digit NISN aktif siswa beserta Nama Ibu Kandung sesuai data Dapodik sekolah.
+                    Silakan masukkan kombinasi 3 digit NIS aktif siswa beserta Nama Ibu Kandung sesuai data Dapodik sekolah.
                 </p>
             </div>
 
             <div class="space-y-4">
                 <div>
-                    <label for="nisn-input" class="block text-[11px] font-bold text-gray-600 uppercase mb-1 tracking-wider">Nomor NISN Siswa</label>
-                    <input type="text" id="nisn-input" placeholder="Contoh: 0123456789" class="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 font-mono tracking-widest">
+                    <label for="nisn-input" class="block text-[11px] font-bold text-gray-600 uppercase mb-1 tracking-wider">Nomor NIS Siswa</label>
+                    <input type="text" id="nisn-input" placeholder="Contoh: 123" class="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 font-mono tracking-widest">
                 </div>
                 <div>
                     <label for="ibu-input" class="block text-[11px] font-bold text-gray-600 uppercase mb-1 tracking-wider">Nama Ibu Kandung</label>
