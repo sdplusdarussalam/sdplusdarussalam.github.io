@@ -5,10 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cek Tagihan Siswa - SD Plus Darussalam</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // =============================================================
+        // SAKELAR MAINTENANCE (Ubah ke false jika ingin mengaktifkan web)
+        // =============================================================
+        const isMaintenance = true; 
+
+        if (isMaintenance) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.className = "bg-slate-100 min-h-screen flex items-center justify-center p-4";
+                document.body.innerHTML = `
+                    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-200">
+                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner animate-pulse">
+                            <i class="fa-solid fa-wrench text-3xl"></i>
+                        </div>
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">
+                            Sistem Maintenance
+                        </span>
+                        <h1 class="text-xl font-bold text-slate-800 mb-2">
+                            Layanan Cek Tagihan Sedang Pemeliharaan
+                        </h1>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">
+                            Mohon maaf atas ketidaknyamanannya. Halaman pengecekan tagihan siswa saat ini sedang dalam proses pembaruan data dan pemeliharaan sistem.
+                        </p>
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-left mb-6 space-y-2">
+                            <div class="flex items-start space-x-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
+                                <span>Data tagihan sedang diperbarui oleh pihak tata usaha.</span>
+                            </div>
+                            <div class="flex items-start space-x-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-clock text-amber-600 mt-0.5"></i>
+                                <span>Silakan coba kembali dalam beberapa saat lagi.</span>
+                            </div>
+                        </div>
+                        <a href="https://wa.me/628998465724" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            <span>Hubungi Admin / Tata Usaha</span>
+                        </a>
+                        <div class="mt-6 pt-4 border-t border-slate-100">
+                            <p class="text-[10px] text-slate-400">
+                                &copy; SD Plus Darussalam. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         const firebaseConfig = { 
             apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
@@ -59,7 +106,6 @@
                     const namaIbuDiDb = d.namaIbu ? d.namaIbu.trim().toUpperCase() : "";
 
                     if (namaIbuDiDb === namaIbu) {
-                        // Ambil objek nested atau default jika belum ada di database
                         const rLama = d.rekapLama || {};
                         const tBaru = d.tagihanBaru || {};
                         const rTerbaru = d.rekapTerbaru || {};
@@ -170,7 +216,7 @@
                                     
                                     <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
                                        class="block w-full mt-3 bg-green-600 text-white text-center py-2.5 rounded-lg font-bold text-xs hover:bg-green-500 transition-colors shadow">
-                                       Konfirmasi Pembayaran via WhatsApp
+                                        Konfirmasi Pembayaran via WhatsApp
                                     </a>
                                 </div>
                             </div>
