@@ -14,49 +14,9 @@
         // =============================================================
         // SAKELAR MAINTENANCE (Ubah ke false jika ingin mengaktifkan web)
         // =============================================================
-        const isMaintenance = true;         
+        const isMaintenance = false; // [Diperbaiki] Diubah ke false agar form aktif secara default        
 
-        if (isMaintenance) {
-            document.addEventListener('DOMContentLoaded', () => {
-                document.body.className = "bg-slate-100 min-h-screen flex items-center justify-center p-4";
-                document.body.innerHTML = `
-                    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-200">
-                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner animate-pulse">
-                            <i class="fa-solid fa-wrench text-3xl"></i>
-                        </div>
-                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">
-                            Sistem Maintenance
-                        </span>
-                        <h1 class="text-xl font-bold text-slate-800 mb-2">
-                            Layanan Cek Tagihan Sedang Pemeliharaan
-                        </h1>
-                        <p class="text-xs text-slate-500 leading-relaxed mb-6">
-                            Mohon maaf atas ketidaknyamanannya. Halaman pengecekan tagihan siswa saat ini sedang dalam proses pembaruan data dan pemeliharaan sistem.
-                        </p>
-                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-left mb-6 space-y-2">
-                            <div class="flex items-start space-x-3 text-xs text-slate-600">
-                                <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
-                                <span>Data tagihan sedang diperbarui oleh pihak tata usaha.</span>
-                            </div>
-                            <div class="flex items-start space-x-3 text-xs text-slate-600">
-                                <i class="fa-solid fa-clock text-amber-600 mt-0.5"></i>
-                                <span>Silakan coba kembali dalam beberapa saat lagi.</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/628998465724" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg">
-                            <i class="fa-brands fa-whatsapp text-base"></i>
-                            <span>Hubungi Admin / Tata Usaha</span>
-                        </a>
-                        <div class="mt-6 pt-4 border-t border-slate-100">
-                            <p class="text-[10px] text-slate-400">
-                                &copy; SD Plus Darussalam. All rights reserved.
-                            </p>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
+        // Konfigurasi Firebase
         const firebaseConfig = { 
             apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
             authDomain: "tagihan-siswa-1f2df.firebaseapp.com",
@@ -78,11 +38,24 @@
             return val;
         }
 
+        // [Diperbaiki] Sanitisasi teks HTML untuk mencegah serangan XSS
+        function sanitizeHTML(str) {
+            if (typeof str !== 'string') return str;
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         async function cariTagihan() {
             const nisnInput = document.getElementById('nisn-input');
             const ibuInput = document.getElementById('ibu-input');
             const btnCari = document.getElementById('btn-cari');
             const hasilDiv = document.getElementById('hasil-tagihan');
+
+            if (!nisnInput || !ibuInput || !btnCari || !hasilDiv) return;
 
             const nisn = nisnInput.value.trim();
             const namaIbu = ibuInput.value.trim().toUpperCase();
@@ -111,8 +84,12 @@
                         const rTerbaru = d.rekapTerbaru || {};
                         const rTerakhir = d.rekapTerakhir || {};
 
-                        const namaSiswa = d.nama || '-';
-                        const pesanWA = `Halo Admin SDPD, saya telah melakukan pembayaran untuk siswa ${namaSiswa} (NIS: ${nisn}). Berikut bukti transfernya.`;
+                        const namaSiswa = sanitizeHTML(d.nama || '-');
+                        const nisSiswa = sanitizeHTML(d.nis || nisn);
+                        const kelasSiswa = sanitizeHTML(d.kelas || '-');
+                        const tahunPelajaran = sanitizeHTML(d.tahunPelajaran || '2026/2027 SMT 1');
+
+                        const pesanWA = `Halo Admin SDPD, saya telah melakukan pembayaran untuk siswa ${namaSiswa} (NIS: ${nisSiswa}). Berikut bukti transfernya.`;
                         const waUrl = `https://wa.me/628998465724?text=${encodeURIComponent(pesanWA)}`;
 
                         hasilDiv.innerHTML = `
@@ -120,14 +97,14 @@
                             <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-3 mb-3">
                                 <h3 class="text-sm">Rekap Tagihan Siswa</h3>
                                 <h2 class="text-base text-blue-900">SD PLUS DARUSSALAM</h2>
-                                <p class="text-[11px] text-gray-500 font-normal">Tahun Pelajaran ${d.tahunPelajaran || '2026/2027 SMT 1'}</p>
+                                <p class="text-[11px] text-gray-500 font-normal">Tahun Pelajaran ${tahunPelajaran}</p>
                             </div>
 
                             <!-- IDENTITAS SISWA -->
                             <div class="bg-gray-50 p-3 rounded border text-xs font-mono space-y-1 mb-4">
-                                <div class="flex"><span class="w-20 font-semibold text-gray-600">NIS</span>: <span>${d.nis || '-'}</span></div>
+                                <div class="flex"><span class="w-20 font-semibold text-gray-600">NIS</span>: <span>${nisSiswa}</span></div>
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">NAMA</span>: <span class="font-bold text-gray-800">${namaSiswa}</span></div>
-                                <div class="flex"><span class="w-20 font-semibold text-gray-600">KLS</span>: <span>${d.kelas || '-'}</span></div>
+                                <div class="flex"><span class="w-20 font-semibold text-gray-600">KLS</span>: <span>${kelasSiswa}</span></div>
                             </div>
 
                             <div class="space-y-4 text-xs">
@@ -200,7 +177,7 @@
                                 <!-- PROGRES PEMBAYARAN -->
                                 <div class="bg-gray-100 p-3 rounded font-bold flex justify-between items-center text-sm">
                                     <span>Progres Pembayaran</span>
-                                    <span class="text-blue-900">${d.progres || '0%'}</span>
+                                    <span class="text-blue-900">${sanitizeHTML(d.progres || '0%')}</span>
                                 </div>
 
                                 <!-- METODE PEMBAYARAN & WHATSAPP -->
@@ -237,11 +214,65 @@
             }
         }
 
+        // [Diperbaiki] Inisialisasi Event Listener dan Handling Maintenance
         document.addEventListener('DOMContentLoaded', () => {
+            if (isMaintenance) {
+                document.body.className = "bg-slate-100 min-h-screen flex items-center justify-center p-4";
+                document.body.innerHTML = `
+                    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-200">
+                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner animate-pulse">
+                            <i class="fa-solid fa-wrench text-3xl"></i>
+                        </div>
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">
+                            Sistem Maintenance
+                        </span>
+                        <h1 class="text-xl font-bold text-slate-800 mb-2">
+                            Layanan Cek Tagihan Sedang Pemeliharaan
+                        </h1>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">
+                            Mohon maaf atas ketidaknyamanannya. Halaman pengecekan tagihan siswa saat ini sedang dalam proses pembaruan data dan pemeliharaan sistem.
+                        </p>
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-left mb-6 space-y-2">
+                            <div class="flex items-start space-x-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
+                                <span>Data tagihan sedang diperbarui oleh pihak tata usaha.</span>
+                            </div>
+                            <div class="flex items-start space-x-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-clock text-amber-600 mt-0.5"></i>
+                                <span>Silakan coba kembali dalam beberapa saat lagi.</span>
+                            </div>
+                        </div>
+                        <a href="https://wa.me/628998465724" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            <span>Hubungi Admin / Tata Usaha</span>
+                        </a>
+                        <div class="mt-6 pt-4 border-t border-slate-100">
+                            <p class="text-[10px] text-slate-400">
+                                &copy; SD Plus Darussalam. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Bind Form Submission & Keypress
             const btnCari = document.getElementById('btn-cari');
+            const formInputs = document.querySelectorAll('#nisn-input, #ibu-input');
+
             if (btnCari) {
                 btnCari.addEventListener('click', cariTagihan);
             }
+
+            // [Diperbaiki] Pencarian bisa dilakukan dengan menekan Enter pada keyboard
+            formInputs.forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        cariTagihan();
+                    }
+                });
+            });
         });
     </script>
 </head>
