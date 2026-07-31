@@ -4,8 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cek Tagihan Siswa - SD Plus Darussalam</title>
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- html2pdf.js Library (Untuk Unduh PDF Otomatis Direct Download) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- CSS ANIMASI PROGRESS BAR -->
     <style>
@@ -103,51 +110,33 @@
             `;
         }
 
-        // FUNGSI CETAK / DOWNLOAD PDF MENGGUNAKAN NATIVE PRINT (PASTI JALAN & RAPAT)
+        // FUNGSI UNDUH PDF LANGSUNG OTOMATIS (html2pdf)
         window.downloadPDF = function(nis, nama) {
-            const originalElement = document.getElementById('hasil-tagihan');
-            if (!originalElement) return;
+            const element = document.getElementById('hasil-tagihan');
+            if (!element) return;
 
-            // Kloning elemen hasil tagihan
-            const printContent = originalElement.cloneNode(true);
-            
-            // Hapus tombol aksi di dalam versi cetak
-            const actionBtns = printContent.querySelector('#action-buttons');
+            // Kloning elemen agar tidak merusak tampilan utama
+            const clone = element.cloneNode(true);
+
+            // Hapus tombol aksi (WA & PDF) dari file PDF yang diunduh
+            const actionBtns = clone.querySelector('#action-buttons');
             if (actionBtns) actionBtns.remove();
 
-            // Buat jendela cetak baru
-            const printWindow = window.open('', '_blank', 'width=800,height=900');
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Tagihan_${nis}_${nama.replace(/\s+/g, '_')}</title>
-                    <script src="https://cdn.tailwindcss.com"><\/script>
-                    <style>
-                        @page { size: A4 portrait; margin: 10mm; }
-                        body { background: #ffffff !important; color: #000; font-family: sans-serif; }
-                        .no-print { display: none !important; }
-                    </style>
-                </head>
-                <body class="p-4 bg-white">
-                    <div class="max-w-xl mx-auto border p-6 rounded-xl shadow-none">
-                        ${printContent.innerHTML}
-                    </div>
-                    <script>
-                        // Otomatis panggil dialog Simpan sebagai PDF setelah Tailwind dimuat
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                                window.close();
-                            }, 600);
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
+            // Ubah background clone menjadi putih bersih untuk PDF
+            clone.style.backgroundColor = '#ffffff';
+            clone.style.padding = '20px';
 
-            printWindow.document.close();
+            // Konfigurasi html2pdf
+            const opt = {
+                margin:       [8, 8, 8, 8],
+                filename:     `Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Proses generate dan unduh file
+            html2pdf().set(opt).from(clone).save();
         };
 
         async function cariTagihan() {
