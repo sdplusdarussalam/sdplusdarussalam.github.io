@@ -110,31 +110,37 @@
             `;
         }
 
-        // FUNGSI UNDUH PDF (ANTI BLANK & RAPI DI HP DAN PC)
+        // FUNGSI UNDUH PDF FIX (ANTI BLANK DI HP & LAPTOP)
         window.downloadPDF = function(nis, nama) {
             const element = document.getElementById('hasil-tagihan');
             if (!element) return;
 
-            // 1. Kloning elemen asli
+            // 1. Kloning elemen hasil tagihan
             const clone = element.cloneNode(true);
 
             // 2. Hapus tombol aksi (WA & PDF) dari file PDF
             const actionBtns = clone.querySelector('#action-buttons');
             if (actionBtns) actionBtns.remove();
 
-            // 3. Buat wrapper tersembunyi berukuran standar desktop (650px)
-            // Ini mencegah PDF menjadi blank atau terpotong jika dibuka dari layar HP yang kecil
+            // 3. Matikan animasi pada progress bar agar tidak mengganggu rendering kanvas
+            const progressBar = clone.querySelector('#progress-bar-fill');
+            if (progressBar) {
+                progressBar.classList.remove('animate-progress-stripe');
+            }
+
+            // 4. Buat wrapper khusus di koordinat (0,0) tetapi di belakang layar (z-index minus)
             const wrapper = document.createElement('div');
-            wrapper.style.position = 'absolute';
-            wrapper.style.left = '-9999px';
+            wrapper.style.position = 'fixed';
             wrapper.style.top = '0';
-            wrapper.style.width = '650px'; 
+            wrapper.style.left = '0';
+            wrapper.style.zIndex = '-9999';
+            wrapper.style.width = '650px'; // Ukuran standar A4 agar tampilan rapi & tidak gepeng
             wrapper.style.backgroundColor = '#ffffff';
             wrapper.style.padding = '20px';
             wrapper.appendChild(clone);
             document.body.appendChild(wrapper);
 
-            // 4. Konfigurasi html2pdf
+            // 5. Konfigurasi html2pdf
             const opt = {
                 margin:       [8, 8, 8, 8],
                 filename:     `Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`,
@@ -143,14 +149,18 @@
                     scale: 2, 
                     useCORS: true, 
                     logging: false,
+                    scrollX: 0,
+                    scrollY: 0,
                     windowWidth: 700 
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // 5. Generate & Simpan PDF
+            // 6. Generate PDF lalu bersihkan kontainer sementara
             html2pdf().set(opt).from(clone).save().then(() => {
-                document.body.removeChild(wrapper);
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
+                }
             }).catch(err => {
                 console.error("Gagal mendownload PDF:", err);
                 alert("Gagal mengunduh PDF, silakan coba lagi.");
