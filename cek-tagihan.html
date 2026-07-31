@@ -121,14 +121,18 @@
             `;
         }
 
-        // FUNGSI PROSES PEMBAYARAN VIA MIDTRANS SNAP
+        // FUNGSI PROSES PEMBAYARAN VIA MIDTRANS SNAP (DIPERBAIKI UNTUK ANGKA MINUS)
         window.bayarViaMidtrans = async function(metode) {
             if (!currentSiswaData) return;
 
-            // Hitung nominal tunggakan yang harus dibayar (Total - yang sudah dibayar)
-            const nominalTunggakan = currentSiswaData.rekapTerakhir?.total || 0;
+            // Ambil nominal tunggakan dari rekapTerakhir.total
+            let rawNominal = currentSiswaData.rekapTerakhir?.total || 0;
 
-            if (nominalTunggakan <= 0) {
+            // Jika nilai di database bertanda minus (-), diubah jadi positif menggunakan Math.abs
+            const nominalTunggakan = Math.abs(Number(rawNominal));
+
+            // Cek jika memang tidak ada tagihan sama sekali
+            if (nominalTunggakan === 0) {
                 alert("Tagihan siswa ini sudah LUNAS!");
                 return;
             }
@@ -141,7 +145,7 @@
                     nis: currentSiswaData.nis,
                     nama: currentSiswaData.nama,
                     kelas: currentSiswaData.kelas,
-                    nominal: nominalTunggakan,
+                    nominal: nominalTunggakan, // Kirim nominal positif ke Midtrans
                     metode: metode
                 });
 
