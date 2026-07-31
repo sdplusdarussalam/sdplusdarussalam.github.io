@@ -110,33 +110,54 @@
             `;
         }
 
-        // FUNGSI UNDUH PDF LANGSUNG OTOMATIS (html2pdf)
+        // FUNGSI UNDUH PDF (ANTI BLANK & RAPI DI HP DAN PC)
         window.downloadPDF = function(nis, nama) {
             const element = document.getElementById('hasil-tagihan');
             if (!element) return;
 
-            // Kloning elemen agar tidak merusak tampilan utama
+            // 1. Kloning elemen asli
             const clone = element.cloneNode(true);
 
-            // Hapus tombol aksi (WA & PDF) dari file PDF yang diunduh
+            // 2. Hapus tombol aksi (WA & PDF) dari file PDF
             const actionBtns = clone.querySelector('#action-buttons');
             if (actionBtns) actionBtns.remove();
 
-            // Ubah background clone menjadi putih bersih untuk PDF
-            clone.style.backgroundColor = '#ffffff';
-            clone.style.padding = '20px';
+            // 3. Buat wrapper tersembunyi berukuran standar desktop (650px)
+            // Ini mencegah PDF menjadi blank atau terpotong jika dibuka dari layar HP yang kecil
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = '-9999px';
+            wrapper.style.top = '0';
+            wrapper.style.width = '650px'; 
+            wrapper.style.backgroundColor = '#ffffff';
+            wrapper.style.padding = '20px';
+            wrapper.appendChild(clone);
+            document.body.appendChild(wrapper);
 
-            // Konfigurasi html2pdf
+            // 4. Konfigurasi html2pdf
             const opt = {
                 margin:       [8, 8, 8, 8],
                 filename:     `Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false,
+                    windowWidth: 700 
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Proses generate dan unduh file
-            html2pdf().set(opt).from(clone).save();
+            // 5. Generate & Simpan PDF
+            html2pdf().set(opt).from(clone).save().then(() => {
+                document.body.removeChild(wrapper);
+            }).catch(err => {
+                console.error("Gagal mendownload PDF:", err);
+                alert("Gagal mengunduh PDF, silakan coba lagi.");
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
+                }
+            });
         };
 
         async function cariTagihan() {
