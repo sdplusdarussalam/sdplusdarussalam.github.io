@@ -11,7 +11,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- html2canvas & jsPDF Library (Untuk Preview & Download PDF) -->
+    <!-- html2canvas & jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -95,12 +95,12 @@
             else if (percent > 0) bgClass = "bg-orange-500";
 
             return `
-                <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 space-y-2">
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-800">
+                <div class="bg-slate-100 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+                    <div class="flex justify-between items-center text-[11px] font-bold text-slate-800">
                         <span>Progres Pembayaran</span>
-                        <span class="text-blue-900 font-extrabold text-sm">${roundedPercent}%</span>
+                        <span class="text-blue-900 font-extrabold text-xs">${roundedPercent}%</span>
                     </div>
-                    <div class="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden relative shadow-inner">
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden relative shadow-inner">
                         <div id="progress-bar-fill" 
                              class="h-full rounded-full transition-all duration-1000 ease-out ${bgClass} animate-progress-stripe" 
                              style="width: ${percent}%;" 
@@ -111,67 +111,74 @@
             `;
         }
 
-        // FUNGSI MEMBUAT DAN MEMBUKA TAMPILAN PREVIEW PDF DI TAB BARU
+        // FUNGSI PDF DENGAN RASIO A4 PRESISI (ANTI TERPOTONG)
         window.previewAndDownloadPDF = async function(nis, nama) {
             const element = document.getElementById('hasil-tagihan');
             if (!element) return;
 
-            // 1. Buka tab kosong terlebih dahulu agar tidak diblokir Pop-up Blocker browser HP
+            // Buka tab baru lebih awal
             const pdfWindow = window.open('', '_blank');
             if (pdfWindow) {
-                pdfWindow.document.write('<h3 style="font-family:sans-serif; text-align:center; margin-top:50px;">Memuat dokumen PDF... Mohon tunggu.</h3>');
+                pdfWindow.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#333;"><h2>Membuat Dokumen PDF...</h2><p>Mohon tunggu sebentar.</p></div>');
             }
 
-            // 2. Kloning elemen hasil tagihan
             const clone = element.cloneNode(true);
 
-            // 3. Hapus tombol aksi (WA & PDF)
+            // Hapus tombol aksi dari PDF
             const actionBtns = clone.querySelector('#action-buttons');
             if (actionBtns) actionBtns.remove();
 
-            // 4. Matikan animasi CSS
+            // Matikan animasi
             const progressBar = clone.querySelector('#progress-bar-fill');
             if (progressBar) progressBar.classList.remove('animate-progress-stripe');
 
-            // 5. Buat wrapper sementara agar tampilan A4 rapi
+            // KONTROL UKURAN A4 PRESISI (794px x 1123px pada 96 DPI)
             const wrapper = document.createElement('div');
             wrapper.style.position = 'fixed';
             wrapper.style.top = '0';
             wrapper.style.left = '0';
             wrapper.style.zIndex = '-9999';
-            wrapper.style.width = '650px';
+            wrapper.style.width = '794px';
+            wrapper.style.boxSizing = 'border-box';
             wrapper.style.backgroundColor = '#ffffff';
-            wrapper.style.padding = '25px';
+            wrapper.style.padding = '30px 40px';
+            
             wrapper.appendChild(clone);
             document.body.appendChild(wrapper);
 
             try {
-                // 6. Tangkap HTML menjadi gambar/kanvas
                 const canvas = await html2canvas(clone, {
                     scale: 2,
                     useCORS: true,
                     logging: false,
                     scrollX: 0,
-                    scrollY: 0
+                    scrollY: 0,
+                    windowWidth: 794
                 });
 
                 const imgData = canvas.toDataURL('image/jpeg', 0.98);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
 
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const imgWidth = pdfWidth - 20; // Margin 10mm kiri-kanan
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
+                const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+                // Hitung rasio gambar
+                const imgWidth = pdfWidth - 20; // Margin kiri-kanan @ 10mm
+                let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                // Jika melebihi tinggi A4, turunkan proporsional agar 100% muat dalam 1 halaman
+                if (imgHeight > (pdfHeight - 20)) {
+                    imgHeight = pdfHeight - 20;
+                }
 
                 pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
 
-                // 7. Ambil URL blob PDF untuk ditampilkan di tab baru
                 const pdfBlob = pdf.output('bloburl');
 
                 if (pdfWindow) {
                     pdfWindow.location.href = pdfBlob;
                 } else {
-                    // Jika pop-up diblokir total, download langsung sebagai alternatif
                     pdf.save(`Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`);
                 }
 
@@ -233,40 +240,40 @@
 
                         hasilDiv.innerHTML = `
                             <!-- HEADER REKAP -->
-                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-3 mb-3">
-                                <h3 class="text-xs text-slate-500">Rekap Tagihan Siswa</h3>
-                                <h2 class="text-base text-blue-900 font-extrabold">SD PLUS DARUSSALAM</h2>
-                                <p class="text-[11px] text-gray-500 font-normal">Tahun Pelajaran ${tahunPelajaran}</p>
+                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-2 mb-2">
+                                <h3 class="text-[10px] text-slate-500">Rekap Tagihan Siswa</h3>
+                                <h2 class="text-sm md:text-base text-blue-900 font-extrabold">SD PLUS DARUSSALAM</h2>
+                                <p class="text-[10px] text-gray-500 font-normal">Tahun Pelajaran ${tahunPelajaran}</p>
                             </div>
 
                             <!-- IDENTITAS SISWA -->
-                            <div class="bg-slate-50 p-3 rounded-lg border text-xs font-mono space-y-1 mb-4">
-                                <div class="flex"><span class="w-20 font-semibold text-gray-600">NIS</span>: <span>${nisSiswa}</span></div>
-                                <div class="flex"><span class="w-20 font-semibold text-gray-600">NAMA</span>: <span class="font-bold text-gray-800">${namaSiswa}</span></div>
-                                <div class="flex"><span class="w-20 font-semibold text-gray-600">KLS</span>: <span>${kelasSiswa}</span></div>
+                            <div class="bg-slate-50 p-2.5 rounded-lg border text-xs font-mono space-y-0.5 mb-3">
+                                <div class="flex"><span class="w-16 font-semibold text-gray-600">NIS</span>: <span>${nisSiswa}</span></div>
+                                <div class="flex"><span class="w-16 font-semibold text-gray-600">NAMA</span>: <span class="font-bold text-gray-800">${namaSiswa}</span></div>
+                                <div class="flex"><span class="w-16 font-semibold text-gray-600">KLS</span>: <span>${kelasSiswa}</span></div>
                             </div>
 
-                            <div class="space-y-4 text-xs">
+                            <div class="space-y-3 text-xs">
                                 <!-- 1. REKAPITULASI PEMBAYARAN LAMA -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">a. Rekapitulasi Pembayaran (Semester Sebelumnya)</h4>
-                                    <div class="space-y-1 font-mono">
+                                <div class="border rounded-lg p-2.5 bg-white shadow-sm">
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">a. Rekapitulasi Pembayaran (Semester Sebelumnya)</h4>
+                                    <div class="space-y-0.5 font-mono text-[11px]">
                                         <div class="flex justify-between"><span>Tabungan Lama</span><span>${fmt(rLama.tabungan)}</span></div>
                                         <div class="flex justify-between"><span>Tab. Qurban Lama</span><span>${fmt(rLama.qurban)}</span></div>
                                         <div class="flex justify-between"><span>Syahriyah Lama</span><span>${fmt(rLama.syahriyah)}</span></div>
-                                        <div class="flex justify-between pl-3 text-gray-600"><span>Catering</span><span>${fmt(rLama.catering)}</span></div>
-                                        <div class="flex justify-between pl-3 text-gray-600"><span>Kegiatan</span><span>${fmt(rLama.kegiatan)}</span></div>
-                                        <div class="flex justify-between pl-3 text-gray-600"><span>Seragam</span><span>${fmt(rLama.seragam)}</span></div>
-                                        <div class="flex justify-between pl-3 text-gray-600"><span>Buku</span><span>${fmt(rLama.buku)}</span></div>
-                                        <div class="flex justify-between pl-3 text-gray-600"><span>Lain-lain</span><span>${fmt(rLama.lain)}</span></div>
-                                        <div class="flex justify-between font-bold text-gray-900 border-t pt-1 mt-1"><span>Total</span><span>${fmt(rLama.total)}</span></div>
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Catering</span><span>${fmt(rLama.catering)}</span></div>
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Kegiatan</span><span>${fmt(rLama.kegiatan)}</span></div>
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Seragam</span><span>${fmt(rLama.seragam)}</span></div>
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Buku</span><span>${fmt(rLama.buku)}</span></div>
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Lain-lain</span><span>${fmt(rLama.lain)}</span></div>
+                                        <div class="flex justify-between font-bold text-gray-900 border-t pt-0.5 mt-0.5"><span>Total</span><span>${fmt(rLama.total)}</span></div>
                                     </div>
                                 </div>
 
                                 <!-- 2. TAGIHAN PEMBAYARAN BARU -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">b. Tagihan Pembayaran Baru</h4>
-                                    <div class="space-y-1 font-mono">
+                                <div class="border rounded-lg p-2.5 bg-white shadow-sm">
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">b. Tagihan Pembayaran Baru</h4>
+                                    <div class="space-y-0.5 font-mono text-[11px]">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(tBaru.tabungan)}</span></div>
                                         <div class="flex justify-between"><span>Tab. Qurban</span><span>${fmt(tBaru.qurban)}</span></div>
                                         <div class="flex justify-between"><span>Syahriyah</span><span>${fmt(tBaru.syahriyah)}</span></div>
@@ -275,15 +282,15 @@
                                         <div class="flex justify-between"><span>Seragam</span><span>${fmt(tBaru.seragam)}</span></div>
                                         <div class="flex justify-between"><span>Buku</span><span>${fmt(tBaru.buku)}</span></div>
                                         <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(tBaru.lain)}</span></div>
-                                        <div class="flex justify-between border-t pt-1 mt-1 text-gray-700 font-semibold"><span>Total</span><span>${fmt(tBaru.total)}</span></div>
-                                        <div class="flex justify-between font-bold text-red-600 bg-red-50 p-1.5 rounded border border-red-100 mt-2"><span>Jumlah 1 & 2</span><span>${fmt(d.jumlahTotal || tBaru.jumlahTotal)}</span></div>
+                                        <div class="flex justify-between border-t pt-0.5 mt-0.5 text-gray-700 font-semibold"><span>Total</span><span>${fmt(tBaru.total)}</span></div>
+                                        <div class="flex justify-between font-bold text-red-600 bg-red-50 p-1 rounded border border-red-100 mt-1"><span>Jumlah 1 & 2</span><span>${fmt(d.jumlahTotal || tBaru.jumlahTotal)}</span></div>
                                     </div>
                                 </div>
 
                                 <!-- 3. REKAP PEMBAYARAN TERBARU -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">c. Rekap Pembayaran Terbaru</h4>
-                                    <div class="space-y-1 font-mono">
+                                <div class="border rounded-lg p-2.5 bg-white shadow-sm">
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">c. Rekap Pembayaran Terbaru</h4>
+                                    <div class="space-y-0.5 font-mono text-[11px]">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerbaru.tabungan)}</span></div>
                                         <div class="flex justify-between"><span>Tab. Qurban</span><span>${fmt(rTerbaru.qurban)}</span></div>
                                         <div class="flex justify-between"><span>Syahriyah</span><span>${fmt(rTerbaru.syahriyah)}</span></div>
@@ -293,14 +300,14 @@
                                         <div class="flex justify-between"><span>Buku</span><span>${fmt(rTerbaru.buku)}</span></div>
                                         <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(rTerbaru.lain)}</span></div>
                                         <div class="flex justify-between"><span>Infaq</span><span>${fmt(rTerbaru.infaq)}</span></div>
-                                        <div class="flex justify-between font-bold text-gray-900 border-t pt-1 mt-1"><span>Total</span><span>${fmt(rTerbaru.total)}</span></div>
+                                        <div class="flex justify-between font-bold text-gray-900 border-t pt-0.5 mt-0.5"><span>Total</span><span>${fmt(rTerbaru.total)}</span></div>
                                     </div>
                                 </div>
 
                                 <!-- 4. REKAP PEMBAYARAN TERAKHIR (TUNGGAKAN) -->
-                                <div class="border rounded-lg p-3 bg-blue-50/40 shadow-sm">
-                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">d. Rekap Pembayaran Terakhir</h4>
-                                    <div class="space-y-1 font-mono">
+                                <div class="border rounded-lg p-2.5 bg-blue-50/40 shadow-sm">
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">d. Rekap Pembayaran Terakhir</h4>
+                                    <div class="space-y-0.5 font-mono text-[11px]">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerakhir.tabungan)}</span></div>
                                         <div class="flex justify-between"><span>Tab. Qurban</span><span>${fmt(rTerakhir.qurban)}</span></div>
                                         <div class="flex justify-between"><span>Syahriyah</span><span>${fmt(rTerakhir.syahriyah)}</span></div>
@@ -309,7 +316,7 @@
                                         <div class="flex justify-between"><span>Seragam</span><span>${fmt(rTerakhir.seragam)}</span></div>
                                         <div class="flex justify-between"><span>Buku</span><span>${fmt(rTerakhir.buku)}</span></div>
                                         <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(rTerakhir.lain)}</span></div>
-                                        <div class="flex justify-between font-bold text-red-600 border-t pt-1 mt-1 text-sm"><span>Total</span><span>${fmt(rTerakhir.total)}</span></div>
+                                        <div class="flex justify-between font-bold text-red-600 border-t pt-0.5 mt-0.5"><span>Total</span><span>${fmt(rTerakhir.total)}</span></div>
                                     </div>
                                 </div>
 
@@ -317,23 +324,23 @@
                                 ${progressBarMarkup}
 
                                 <!-- METODE PEMBAYARAN & WHATSAPP -->
-                                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
-                                    <p class="text-[11px] text-gray-700">
+                                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-1.5">
+                                    <p class="text-[10px] text-gray-700">
                                         Bapak/Ibu, silakan melakukan pembayaran lewat transfer melalui rekening:
                                     </p>
-                                    <div class="font-mono text-xs space-y-1 text-blue-950 font-semibold">
+                                    <div class="font-mono text-[11px] space-y-0.5 text-blue-950 font-semibold">
                                         <p>• Bank BRI : 6440 0103 6276 532 (a/n SD PLUS DARUSSALAM)</p>
                                         <p>• Bank JATIM : 180 2000 908 (a/n SD PLUS DARUSSALAM)</p>
                                     </div>
-                                    <p class="text-[11px] text-gray-600">Atau langsung ke sekolah. Terima kasih.</p>
+                                    <p class="text-[10px] text-gray-600">Atau langsung ke sekolah. Terima kasih.</p>
                                     
-                                    <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 pt-1">
+                                    <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 pt-1">
                                         <button onclick="previewAndDownloadPDF('${nisSiswa}', '${namaSiswa}')" 
-                                                class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                                                class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
                                             <i class="fa-solid fa-file-pdf text-sm"></i> Lihat / Download PDF
                                         </button>
                                         <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
-                                           class="w-full bg-green-600 hover:bg-green-500 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                                           class="w-full bg-green-600 hover:bg-green-500 text-white text-center py-2 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
                                             <i class="fa-brands fa-whatsapp text-sm"></i> Konfirmasi WA
                                         </a>
                                     </div>
