@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- PUSTAKA HTML2PDF UNTUK GENERATE PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <!-- CSS ANIMASI PROGRESS BAR -->
     <style>
         @keyframes progress-stripe {
@@ -27,6 +30,11 @@
             );
             background-size: 1rem 1rem;
             animation: progress-stripe 1s linear infinite;
+        }
+
+        /* Sembunyikan tombol saat dikonversi ke PDF */
+        .pdf-exclude {
+            /* Dikelola via JS sebelum cetak */
         }
     </style>
 
@@ -109,6 +117,35 @@
                 </div>
             `;
         }
+
+        // FUNGSI UNTUK MENGUNDUH HASIL TAGIHAN MENJADI FILE PDF
+        window.downloadPDF = function(nis, nama) {
+            const element = document.getElementById('hasil-tagihan');
+            const actionButtons = document.getElementById('action-buttons');
+            
+            if (!element) return;
+
+            // Sembunyikan tombol aksi agar tidak ikut tercetak ke PDF
+            if (actionButtons) actionButtons.style.display = 'none';
+
+            const cleanNama = nama.replace(/[^a-zA-Z0-9]/g, '_');
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     `Tagihan_${nis}_${cleanNama}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Proses pembuatan PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Tampilkan kembali tombol aksi setelah PDF selesai dibuat
+                if (actionButtons) actionButtons.style.display = 'flex';
+            }).catch(err => {
+                console.error("Gagal membuat PDF:", err);
+                if (actionButtons) actionButtons.style.display = 'flex';
+            });
+        };
 
         async function cariTagihan() {
             const nisnInput = document.getElementById('nisn-input');
@@ -240,7 +277,7 @@
                                 <!-- PROGRES PEMBAYARAN DINAMIS & ANIMASI -->
                                 ${progressBarMarkup}
 
-                                <!-- METODE PEMBAYARAN & WHATSAPP -->
+                                <!-- METODE PEMBAYARAN, WHATSAPP, & DOWNLOAD PDF -->
                                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
                                     <p class="text-[11px] text-gray-700">
                                         Bapak/Ibu, silakan melakukan pembayaran lewat transfer melalui rekening:
@@ -251,10 +288,17 @@
                                     </div>
                                     <p class="text-[11px] text-gray-600">Atau langsung ke sekolah. Terima kasih.</p>
                                     
-                                    <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
-                                       class="block w-full mt-3 bg-green-600 text-white text-center py-2.5 rounded-lg font-bold text-xs hover:bg-green-500 transition-colors shadow">
-                                        <i class="fa-brands fa-whatsapp mr-1 text-sm"></i> Konfirmasi Pembayaran via WhatsApp
-                                    </a>
+                                    <!-- TOMBOL AKSI (AKAN DISEMBUNYIKAN SAAT CETAK PDF) -->
+                                    <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 pt-1">
+                                        <button onclick="downloadPDF('${nisSiswa}', '${namaSiswa}')" 
+                                                class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                                            <i class="fa-solid fa-file-pdf text-sm"></i> Download PDF
+                                        </button>
+                                        <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
+                                           class="w-full bg-green-600 hover:bg-green-500 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                                            <i class="fa-brands fa-whatsapp text-sm"></i> Konfirmasi WA
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         `;
