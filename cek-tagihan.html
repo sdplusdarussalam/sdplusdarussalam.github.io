@@ -6,11 +6,8 @@
     <title>Cek Tagihan Siswa - SD Plus Darussalam</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- PUSTAKA HTML2PDF UNTUK GENERATE PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- CSS ANIMASI PROGRESS BAR & PDF OPTIMIZATION -->
+    <!-- CSS ANIMASI PROGRESS BAR -->
     <style>
         @keyframes progress-stripe {
             0% { background-position: 1rem 0; }
@@ -30,12 +27,6 @@
             );
             background-size: 1rem 1rem;
             animation: progress-stripe 1s linear infinite;
-        }
-
-        /* Aturan cetak untuk menghindari elemen terpotong */
-        .pdf-card {
-            page-break-inside: avoid;
-            break-inside: avoid;
         }
     </style>
 
@@ -96,7 +87,7 @@
             else if (percent > 0) bgClass = "bg-orange-500";
 
             return `
-                <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 space-y-2 pdf-card">
+                <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 space-y-2">
                     <div class="flex justify-between items-center text-xs font-bold text-slate-800">
                         <span>Progres Pembayaran</span>
                         <span class="text-blue-900 font-extrabold text-sm">${roundedPercent}%</span>
@@ -112,53 +103,51 @@
             `;
         }
 
-        // FUNGSI PERBAIKAN DOWNLOAD PDF
+        // FUNGSI CETAK / DOWNLOAD PDF MENGGUNAKAN NATIVE PRINT (PASTI JALAN & RAPAT)
         window.downloadPDF = function(nis, nama) {
             const originalElement = document.getElementById('hasil-tagihan');
             if (!originalElement) return;
 
-            // 1. Buat elemen tiruan khusus untuk PDF agar bebas margin/scroll tersembunyi
-            const printElement = originalElement.cloneNode(true);
+            // Kloning elemen hasil tagihan
+            const printContent = originalElement.cloneNode(true);
             
-            // Sembunyikan tombol aksi di dalam tiruan PDF
-            const actionBtns = printElement.querySelector('#action-buttons');
+            // Hapus tombol aksi di dalam versi cetak
+            const actionBtns = printContent.querySelector('#action-buttons');
             if (actionBtns) actionBtns.remove();
 
-            // Set styling kontainer khusus cetak
-            printElement.style.width = "650px";
-            printElement.style.padding = "20px";
-            printElement.style.background = "#ffffff";
-            printElement.style.position = "absolute";
-            printElement.style.left = "-9999px"; // Sembunyikan dari layar
-            printElement.style.top = "0";
+            // Buat jendela cetak baru
+            const printWindow = window.open('', '_blank', 'width=800,height=900');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Tagihan_${nis}_${nama.replace(/\s+/g, '_')}</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                    <style>
+                        @page { size: A4 portrait; margin: 10mm; }
+                        body { background: #ffffff !important; color: #000; font-family: sans-serif; }
+                        .no-print { display: none !important; }
+                    </style>
+                </head>
+                <body class="p-4 bg-white">
+                    <div class="max-w-xl mx-auto border p-6 rounded-xl shadow-none">
+                        ${printContent.innerHTML}
+                    </div>
+                    <script>
+                        // Otomatis panggil dialog Simpan sebagai PDF setelah Tailwind dimuat
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                window.close();
+                            }, 600);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
 
-            document.body.appendChild(printElement);
-
-            const cleanNama = nama.replace(/[^a-zA-Z0-9]/g, '_');
-            const opt = {
-                margin:       [0.2, 0.2, 0.2, 0.2], // Margin tipis
-                filename:     `Tagihan_${nis}_${cleanNama}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    logging: false,
-                    scrollY: 0, // Reset scroll agar tidak ada halaman kosong di atas
-                    scrollX: 0
-                },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-
-            // Proses generate & simpan PDF
-            html2pdf().set(opt).from(printElement).save().then(() => {
-                document.body.removeChild(printElement); // Hapus elemen tiruan setelah selesai
-            }).catch(err => {
-                console.error("Gagal membuat PDF:", err);
-                if (document.body.contains(printElement)) {
-                    document.body.removeChild(printElement);
-                }
-            });
+            printWindow.document.close();
         };
 
         async function cariTagihan() {
@@ -208,14 +197,14 @@
 
                         hasilDiv.innerHTML = `
                             <!-- HEADER REKAP -->
-                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-3 mb-3 pdf-card">
+                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-3 mb-3">
                                 <h3 class="text-xs text-slate-500">Rekap Tagihan Siswa</h3>
                                 <h2 class="text-base text-blue-900 font-extrabold">SD PLUS DARUSSALAM</h2>
                                 <p class="text-[11px] text-gray-500 font-normal">Tahun Pelajaran ${tahunPelajaran}</p>
                             </div>
 
                             <!-- IDENTITAS SISWA -->
-                            <div class="bg-slate-50 p-3 rounded-lg border text-xs font-mono space-y-1 mb-4 pdf-card">
+                            <div class="bg-slate-50 p-3 rounded-lg border text-xs font-mono space-y-1 mb-4">
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">NIS</span>: <span>${nisSiswa}</span></div>
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">NAMA</span>: <span class="font-bold text-gray-800">${namaSiswa}</span></div>
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">KLS</span>: <span>${kelasSiswa}</span></div>
@@ -223,7 +212,7 @@
 
                             <div class="space-y-4 text-xs">
                                 <!-- 1. REKAPITULASI PEMBAYARAN LAMA -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm pdf-card">
+                                <div class="border rounded-lg p-3 bg-white shadow-sm">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">a. Rekapitulasi Pembayaran (Semester Sebelumnya)</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan Lama</span><span>${fmt(rLama.tabungan)}</span></div>
@@ -239,7 +228,7 @@
                                 </div>
 
                                 <!-- 2. TAGIHAN PEMBAYARAN BARU -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm pdf-card">
+                                <div class="border rounded-lg p-3 bg-white shadow-sm">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">b. Tagihan Pembayaran Baru</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(tBaru.tabungan)}</span></div>
@@ -256,7 +245,7 @@
                                 </div>
 
                                 <!-- 3. REKAP PEMBAYARAN TERBARU -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm pdf-card">
+                                <div class="border rounded-lg p-3 bg-white shadow-sm">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">c. Rekap Pembayaran Terbaru</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerbaru.tabungan)}</span></div>
@@ -273,7 +262,7 @@
                                 </div>
 
                                 <!-- 4. REKAP PEMBAYARAN TERAKHIR (TUNGGAKAN) -->
-                                <div class="border rounded-lg p-3 bg-blue-50/40 shadow-sm pdf-card">
+                                <div class="border rounded-lg p-3 bg-blue-50/40 shadow-sm">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">d. Rekap Pembayaran Terakhir</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerakhir.tabungan)}</span></div>
@@ -292,7 +281,7 @@
                                 ${progressBarMarkup}
 
                                 <!-- METODE PEMBAYARAN & WHATSAPP -->
-                                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2 pdf-card">
+                                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
                                     <p class="text-[11px] text-gray-700">
                                         Bapak/Ibu, silakan melakukan pembayaran lewat transfer melalui rekening:
                                     </p>
