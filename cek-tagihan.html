@@ -11,8 +11,9 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- html2pdf.js Library (Untuk Unduh PDF Otomatis Direct Download) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- html2canvas & jsPDF Library (Untuk Preview & Download PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- CSS ANIMASI PROGRESS BAR -->
     <style>
@@ -110,64 +111,79 @@
             `;
         }
 
-        // FUNGSI UNDUH PDF FIX (ANTI BLANK DI HP & LAPTOP)
-        window.downloadPDF = function(nis, nama) {
+        // FUNGSI MEMBUAT DAN MEMBUKA TAMPILAN PREVIEW PDF DI TAB BARU
+        window.previewAndDownloadPDF = async function(nis, nama) {
             const element = document.getElementById('hasil-tagihan');
             if (!element) return;
 
-            // 1. Kloning elemen hasil tagihan
+            // 1. Buka tab kosong terlebih dahulu agar tidak diblokir Pop-up Blocker browser HP
+            const pdfWindow = window.open('', '_blank');
+            if (pdfWindow) {
+                pdfWindow.document.write('<h3 style="font-family:sans-serif; text-align:center; margin-top:50px;">Memuat dokumen PDF... Mohon tunggu.</h3>');
+            }
+
+            // 2. Kloning elemen hasil tagihan
             const clone = element.cloneNode(true);
 
-            // 2. Hapus tombol aksi (WA & PDF) dari file PDF
+            // 3. Hapus tombol aksi (WA & PDF)
             const actionBtns = clone.querySelector('#action-buttons');
             if (actionBtns) actionBtns.remove();
 
-            // 3. Matikan animasi pada progress bar agar tidak mengganggu rendering kanvas
+            // 4. Matikan animasi CSS
             const progressBar = clone.querySelector('#progress-bar-fill');
-            if (progressBar) {
-                progressBar.classList.remove('animate-progress-stripe');
-            }
+            if (progressBar) progressBar.classList.remove('animate-progress-stripe');
 
-            // 4. Buat wrapper khusus di koordinat (0,0) tetapi di belakang layar (z-index minus)
+            // 5. Buat wrapper sementara agar tampilan A4 rapi
             const wrapper = document.createElement('div');
             wrapper.style.position = 'fixed';
             wrapper.style.top = '0';
             wrapper.style.left = '0';
             wrapper.style.zIndex = '-9999';
-            wrapper.style.width = '650px'; // Ukuran standar A4 agar tampilan rapi & tidak gepeng
+            wrapper.style.width = '650px';
             wrapper.style.backgroundColor = '#ffffff';
-            wrapper.style.padding = '20px';
+            wrapper.style.padding = '25px';
             wrapper.appendChild(clone);
             document.body.appendChild(wrapper);
 
-            // 5. Konfigurasi html2pdf
-            const opt = {
-                margin:       [8, 8, 8, 8],
-                filename:     `Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
+            try {
+                // 6. Tangkap HTML menjadi gambar/kanvas
+                const canvas = await html2canvas(clone, {
+                    scale: 2,
+                    useCORS: true,
                     logging: false,
                     scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 700 
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+                    scrollY: 0
+                });
 
-            // 6. Generate PDF lalu bersihkan kontainer sementara
-            html2pdf().set(opt).from(clone).save().then(() => {
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const imgWidth = pdfWidth - 20; // Margin 10mm kiri-kanan
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+
+                // 7. Ambil URL blob PDF untuk ditampilkan di tab baru
+                const pdfBlob = pdf.output('bloburl');
+
+                if (pdfWindow) {
+                    pdfWindow.location.href = pdfBlob;
+                } else {
+                    // Jika pop-up diblokir total, download langsung sebagai alternatif
+                    pdf.save(`Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`);
+                }
+
+            } catch (err) {
+                console.error("Gagal membuat PDF:", err);
+                alert("Gagal memuat PDF, silakan coba lagi.");
+                if (pdfWindow) pdfWindow.close();
+            } finally {
                 if (document.body.contains(wrapper)) {
                     document.body.removeChild(wrapper);
                 }
-            }).catch(err => {
-                console.error("Gagal mendownload PDF:", err);
-                alert("Gagal mengunduh PDF, silakan coba lagi.");
-                if (document.body.contains(wrapper)) {
-                    document.body.removeChild(wrapper);
-                }
-            });
+            }
         };
 
         async function cariTagihan() {
@@ -312,9 +328,9 @@
                                     <p class="text-[11px] text-gray-600">Atau langsung ke sekolah. Terima kasih.</p>
                                     
                                     <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 pt-1">
-                                        <button onclick="downloadPDF('${nisSiswa}', '${namaSiswa}')" 
+                                        <button onclick="previewAndDownloadPDF('${nisSiswa}', '${namaSiswa}')" 
                                                 class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
-                                            <i class="fa-solid fa-file-pdf text-sm"></i> Download PDF
+                                            <i class="fa-solid fa-file-pdf text-sm"></i> Lihat / Download PDF
                                         </button>
                                         <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
                                            class="w-full bg-green-600 hover:bg-green-500 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
