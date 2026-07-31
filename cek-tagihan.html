@@ -10,7 +10,7 @@
     <!-- PUSTAKA HTML2PDF UNTUK GENERATE PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- CSS ANIMASI PROGRESS BAR -->
+    <!-- CSS ANIMASI PROGRESS BAR & PDF OPTIMIZATION -->
     <style>
         @keyframes progress-stripe {
             0% { background-position: 1rem 0; }
@@ -32,9 +32,10 @@
             animation: progress-stripe 1s linear infinite;
         }
 
-        /* Sembunyikan tombol saat dikonversi ke PDF */
-        .pdf-exclude {
-            /* Dikelola via JS sebelum cetak */
+        /* Aturan cetak untuk menghindari elemen terpotong */
+        .pdf-card {
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
     </style>
 
@@ -42,12 +43,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // =============================================================
-        // SAKELAR MAINTENANCE (Ubah ke true jika sedang pemeliharaan)
-        // =============================================================
         const isMaintenance = false;
 
-        // Konfigurasi Firebase
         const firebaseConfig = { 
             apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
             authDomain: "tagihan-siswa-1f2df.firebaseapp.com",
@@ -60,7 +57,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Helper untuk format mata uang / nilai angka
         function fmt(val) {
             if (val === undefined || val === null || val === "" || val === 0) return "-";
             if (typeof val === 'number') {
@@ -72,7 +68,6 @@
             return val;
         }
 
-        // Sanitisasi teks HTML untuk mencegah XSS
         function sanitizeHTML(str) {
             if (typeof str !== 'string') return str;
             return str
@@ -83,7 +78,6 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Helper penentu warna, lebar, & markup Progress Bar Animasi
         function getProgressBarHTML(progresVal) {
             let percent = 0;
             if (typeof progresVal === 'string') {
@@ -102,7 +96,7 @@
             else if (percent > 0) bgClass = "bg-orange-500";
 
             return `
-                <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 space-y-2 pdf-card">
                     <div class="flex justify-between items-center text-xs font-bold text-slate-800">
                         <span>Progres Pembayaran</span>
                         <span class="text-blue-900 font-extrabold text-sm">${roundedPercent}%</span>
@@ -110,7 +104,7 @@
                     <div class="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden relative shadow-inner">
                         <div id="progress-bar-fill" 
                              class="h-full rounded-full transition-all duration-1000 ease-out ${bgClass} animate-progress-stripe" 
-                             style="width: 0%;" 
+                             style="width: ${percent}%;" 
                              data-target-width="${percent}%">
                         </div>
                     </div>
@@ -118,32 +112,52 @@
             `;
         }
 
-        // FUNGSI UNTUK MENGUNDUH HASIL TAGIHAN MENJADI FILE PDF
+        // FUNGSI PERBAIKAN DOWNLOAD PDF
         window.downloadPDF = function(nis, nama) {
-            const element = document.getElementById('hasil-tagihan');
-            const actionButtons = document.getElementById('action-buttons');
-            
-            if (!element) return;
+            const originalElement = document.getElementById('hasil-tagihan');
+            if (!originalElement) return;
 
-            // Sembunyikan tombol aksi agar tidak ikut tercetak ke PDF
-            if (actionButtons) actionButtons.style.display = 'none';
+            // 1. Buat elemen tiruan khusus untuk PDF agar bebas margin/scroll tersembunyi
+            const printElement = originalElement.cloneNode(true);
+            
+            // Sembunyikan tombol aksi di dalam tiruan PDF
+            const actionBtns = printElement.querySelector('#action-buttons');
+            if (actionBtns) actionBtns.remove();
+
+            // Set styling kontainer khusus cetak
+            printElement.style.width = "650px";
+            printElement.style.padding = "20px";
+            printElement.style.background = "#ffffff";
+            printElement.style.position = "absolute";
+            printElement.style.left = "-9999px"; // Sembunyikan dari layar
+            printElement.style.top = "0";
+
+            document.body.appendChild(printElement);
 
             const cleanNama = nama.replace(/[^a-zA-Z0-9]/g, '_');
             const opt = {
-                margin:       [0.3, 0.3, 0.3, 0.3],
+                margin:       [0.2, 0.2, 0.2, 0.2], // Margin tipis
                 filename:     `Tagihan_${nis}_${cleanNama}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false,
+                    scrollY: 0, // Reset scroll agar tidak ada halaman kosong di atas
+                    scrollX: 0
+                },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            // Proses pembuatan PDF
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Tampilkan kembali tombol aksi setelah PDF selesai dibuat
-                if (actionButtons) actionButtons.style.display = 'flex';
+            // Proses generate & simpan PDF
+            html2pdf().set(opt).from(printElement).save().then(() => {
+                document.body.removeChild(printElement); // Hapus elemen tiruan setelah selesai
             }).catch(err => {
                 console.error("Gagal membuat PDF:", err);
-                if (actionButtons) actionButtons.style.display = 'flex';
+                if (document.body.contains(printElement)) {
+                    document.body.removeChild(printElement);
+                }
             });
         };
 
@@ -194,14 +208,14 @@
 
                         hasilDiv.innerHTML = `
                             <!-- HEADER REKAP -->
-                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-3 mb-3">
+                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-3 mb-3 pdf-card">
                                 <h3 class="text-xs text-slate-500">Rekap Tagihan Siswa</h3>
                                 <h2 class="text-base text-blue-900 font-extrabold">SD PLUS DARUSSALAM</h2>
                                 <p class="text-[11px] text-gray-500 font-normal">Tahun Pelajaran ${tahunPelajaran}</p>
                             </div>
 
                             <!-- IDENTITAS SISWA -->
-                            <div class="bg-slate-50 p-3 rounded-lg border text-xs font-mono space-y-1 mb-4">
+                            <div class="bg-slate-50 p-3 rounded-lg border text-xs font-mono space-y-1 mb-4 pdf-card">
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">NIS</span>: <span>${nisSiswa}</span></div>
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">NAMA</span>: <span class="font-bold text-gray-800">${namaSiswa}</span></div>
                                 <div class="flex"><span class="w-20 font-semibold text-gray-600">KLS</span>: <span>${kelasSiswa}</span></div>
@@ -209,7 +223,7 @@
 
                             <div class="space-y-4 text-xs">
                                 <!-- 1. REKAPITULASI PEMBAYARAN LAMA -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm">
+                                <div class="border rounded-lg p-3 bg-white shadow-sm pdf-card">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">a. Rekapitulasi Pembayaran (Semester Sebelumnya)</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan Lama</span><span>${fmt(rLama.tabungan)}</span></div>
@@ -225,7 +239,7 @@
                                 </div>
 
                                 <!-- 2. TAGIHAN PEMBAYARAN BARU -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm">
+                                <div class="border rounded-lg p-3 bg-white shadow-sm pdf-card">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">b. Tagihan Pembayaran Baru</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(tBaru.tabungan)}</span></div>
@@ -242,7 +256,7 @@
                                 </div>
 
                                 <!-- 3. REKAP PEMBAYARAN TERBARU -->
-                                <div class="border rounded-lg p-3 bg-white shadow-sm">
+                                <div class="border rounded-lg p-3 bg-white shadow-sm pdf-card">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">c. Rekap Pembayaran Terbaru</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerbaru.tabungan)}</span></div>
@@ -259,7 +273,7 @@
                                 </div>
 
                                 <!-- 4. REKAP PEMBAYARAN TERAKHIR (TUNGGAKAN) -->
-                                <div class="border rounded-lg p-3 bg-blue-50/40 shadow-sm">
+                                <div class="border rounded-lg p-3 bg-blue-50/40 shadow-sm pdf-card">
                                     <h4 class="font-bold text-gray-700 border-b pb-1 mb-2">d. Rekap Pembayaran Terakhir</h4>
                                     <div class="space-y-1 font-mono">
                                         <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerakhir.tabungan)}</span></div>
@@ -274,11 +288,11 @@
                                     </div>
                                 </div>
 
-                                <!-- PROGRES PEMBAYARAN DINAMIS & ANIMASI -->
+                                <!-- PROGRES PEMBAYARAN -->
                                 ${progressBarMarkup}
 
-                                <!-- METODE PEMBAYARAN, WHATSAPP, & DOWNLOAD PDF -->
-                                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2">
+                                <!-- METODE PEMBAYARAN & WHATSAPP -->
+                                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-2 pdf-card">
                                     <p class="text-[11px] text-gray-700">
                                         Bapak/Ibu, silakan melakukan pembayaran lewat transfer melalui rekening:
                                     </p>
@@ -288,7 +302,6 @@
                                     </div>
                                     <p class="text-[11px] text-gray-600">Atau langsung ke sekolah. Terima kasih.</p>
                                     
-                                    <!-- TOMBOL AKSI (AKAN DISEMBUNYIKAN SAAT CETAK PDF) -->
                                     <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 pt-1">
                                         <button onclick="downloadPDF('${nisSiswa}', '${namaSiswa}')" 
                                                 class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2.5 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
@@ -303,16 +316,7 @@
                             </div>
                         `;
 
-                        // Tampilkan div hasil tagihan
                         hasilDiv.classList.remove('hidden');
-
-                        // Pemicu animasi meluncurkan progress bar dari 0% ke target
-                        setTimeout(() => {
-                            const barFill = document.getElementById('progress-bar-fill');
-                            if (barFill) {
-                                barFill.style.width = barFill.getAttribute('data-target-width');
-                            }
-                        }, 50);
 
                     } else {
                         alert("Nama Ibu Kandung tidak cocok!");
@@ -329,7 +333,6 @@
             }
         }
 
-        // Inisialisasi Event Listener dan Handling Maintenance
         document.addEventListener('DOMContentLoaded', () => {
             if (isMaintenance) {
                 document.body.className = "bg-slate-100 min-h-screen flex items-center justify-center p-4";
@@ -347,25 +350,10 @@
                         <p class="text-xs text-slate-500 leading-relaxed mb-6">
                             Mohon maaf atas ketidaknyamanannya. Halaman pengecekan tagihan siswa saat ini sedang dalam proses pembaruan data dan pemeliharaan sistem.
                         </p>
-                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 text-left mb-6 space-y-2">
-                            <div class="flex items-start space-x-3 text-xs text-slate-600">
-                                <i class="fa-solid fa-circle-info text-blue-600 mt-0.5"></i>
-                                <span>Data tagihan sedang diperbarui oleh pihak tata usaha.</span>
-                            </div>
-                            <div class="flex items-start space-x-3 text-xs text-slate-600">
-                                <i class="fa-solid fa-clock text-amber-600 mt-0.5"></i>
-                                <span>Silakan coba kembali dalam beberapa saat lagi.</span>
-                            </div>
-                        </div>
                         <a href="https://wa.me/628998465724" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg">
                             <i class="fa-brands fa-whatsapp text-base"></i>
                             <span>Hubungi Admin / Tata Usaha</span>
                         </a>
-                        <div class="mt-6 pt-4 border-t border-slate-100">
-                            <p class="text-[10px] text-slate-400">
-                                &copy; SD Plus Darussalam. All rights reserved.
-                            </p>
-                        </div>
                     </div>
                 `;
                 return;
