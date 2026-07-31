@@ -15,6 +15,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+    <!-- MIDTRANS SNAP SDK (Ganti ke https://app.midtrans.com/snap/snap.js jika sudah PRODUCTION) -->
+    <script type="text/javascript"
+      src="https://app.sandbox.midtrans.com/snap/snap.js"
+      data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
+
     <!-- CSS ANIMASI PROGRESS BAR -->
     <style>
         @keyframes progress-stripe {
@@ -41,6 +46,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js";
 
         const isMaintenance = false;
 
@@ -55,6 +61,10 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const functions = getFunctions(app);
+
+        // Variabel global sementara untuk menyimpan data siswa yang sedang dicari
+        let currentSiswaData = null;
 
         function fmt(val) {
             if (val === undefined || val === null || val === "" || val === 0) return "-";
@@ -111,12 +121,60 @@
             `;
         }
 
+        // FUNGSI PROSES PEMBAYARAN VIA MIDTRANS SNAP
+        window.bayarViaMidtrans = async function(metode) {
+            if (!currentSiswaData) return;
+
+            // Hitung nominal tunggakan yang harus dibayar (Total - yang sudah dibayar)
+            const nominalTunggakan = currentSiswaData.rekapTerakhir?.total || 0;
+
+            if (nominalTunggakan <= 0) {
+                alert("Tagihan siswa ini sudah LUNAS!");
+                return;
+            }
+
+            alert("Sedang menyiapkan transaksi, mohon tunggu...");
+
+            try {
+                const createPayment = httpsCallable(functions, 'createMidtransTransaction');
+                const res = await createPayment({
+                    nis: currentSiswaData.nis,
+                    nama: currentSiswaData.nama,
+                    kelas: currentSiswaData.kelas,
+                    nominal: nominalTunggakan,
+                    metode: metode
+                });
+
+                const snapToken = res.data.token;
+
+                // Membuka Pop-up Midtrans
+                window.snap.pay(snapToken, {
+                    onSuccess: function(result) {
+                        alert("Pembayaran Berhasil! Status akan otomatis diperbarui.");
+                        location.reload();
+                    },
+                    onPending: function(result) {
+                        alert("Menunggu Pembayaran. Silakan selesaikan transaksi sesuai petunjuk.");
+                    },
+                    onError: function(result) {
+                        alert("Pembayaran Gagal atau Dibatalkan.");
+                    },
+                    onClose: function() {
+                        console.log('Pop-up pembayaran ditutup');
+                    }
+                });
+
+            } catch (err) {
+                console.error("Midtrans Error:", err);
+                alert("Gagal menghubungkan ke server pembayaran.");
+            }
+        };
+
         // FUNGSI PDF DENGAN RASIO A4 PRESISI (ANTI TERPOTONG)
         window.previewAndDownloadPDF = async function(nis, nama) {
             const element = document.getElementById('hasil-tagihan');
             if (!element) return;
 
-            // Buka tab baru lebih awal
             const pdfWindow = window.open('', '_blank');
             if (pdfWindow) {
                 pdfWindow.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#333;"><h2>Membuat Dokumen PDF...</h2><p>Mohon tunggu sebentar.</p></div>');
@@ -124,15 +182,15 @@
 
             const clone = element.cloneNode(true);
 
-            // Hapus tombol aksi dari PDF
+            // Hapus tombol aksi dan payment dari PDF
             const actionBtns = clone.querySelector('#action-buttons');
+            const paymentBox = clone.querySelector('#midtrans-payment-box');
             if (actionBtns) actionBtns.remove();
+            if (paymentBox) paymentBox.remove();
 
-            // Matikan animasi
             const progressBar = clone.querySelector('#progress-bar-fill');
             if (progressBar) progressBar.classList.remove('animate-progress-stripe');
 
-            // KONTROL UKURAN A4 PRESISI (794px x 1123px pada 96 DPI)
             const wrapper = document.createElement('div');
             wrapper.style.position = 'fixed';
             wrapper.style.top = '0';
@@ -163,17 +221,14 @@
                 const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
                 const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
 
-                // Hitung rasio gambar
-                const imgWidth = pdfWidth - 20; // Margin kiri-kanan @ 10mm
+                const imgWidth = pdfWidth - 20;
                 let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-                // Jika melebihi tinggi A4, turunkan proporsional agar 100% muat dalam 1 halaman
                 if (imgHeight > (pdfHeight - 20)) {
                     imgHeight = pdfHeight - 20;
                 }
 
                 pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
-
                 const pdfBlob = pdf.output('bloburl');
 
                 if (pdfWindow) {
@@ -223,6 +278,10 @@
                     const namaIbuDiDb = d.namaIbu ? d.namaIbu.trim().toUpperCase() : "";
 
                     if (namaIbuDiDb === namaIbu) {
+                        // Simpan data siswa ke variabel global
+                        currentSiswaData = d;
+                        currentSiswaData.nis = d.nis || nisn;
+
                         const rLama = d.rekapLama || {};
                         const tBaru = d.tagihanBaru || {};
                         const rTerbaru = d.rekapTerbaru || {};
@@ -316,23 +375,38 @@
                                         <div class="flex justify-between"><span>Seragam</span><span>${fmt(rTerakhir.seragam)}</span></div>
                                         <div class="flex justify-between"><span>Buku</span><span>${fmt(rTerakhir.buku)}</span></div>
                                         <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(rTerakhir.lain)}</span></div>
-                                        <div class="flex justify-between font-bold text-red-600 border-t pt-0.5 mt-0.5"><span>Total</span><span>${fmt(rTerakhir.total)}</span></div>
+                                        <div class="flex justify-between font-bold text-red-600 border-t pt-0.5 mt-0.5"><span>Total Sisa Tunggakan</span><span>${fmt(rTerakhir.total)}</span></div>
                                     </div>
                                 </div>
 
                                 <!-- PROGRES PEMBAYARAN -->
                                 ${progressBarMarkup}
 
-                                <!-- METODE PEMBAYARAN & WHATSAPP -->
+                                <!-- INTEGRASI PEMBAYARAN MIDTRANS (OTOMATIS) -->
+                                <div id="midtrans-payment-box" class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 space-y-2">
+                                    <p class="text-[11px] font-bold text-emerald-900 flex items-center gap-1">
+                                        <i class="fa-solid fa-bolt text-amber-500"></i> Bayar Otomatis (Langsung Terkonfirmasi):
+                                    </p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <button onclick="bayarViaMidtrans('qris')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                                            <i class="fa-solid fa-qrcode"></i> Scan QRIS
+                                        </button>
+                                        <button onclick="bayarViaMidtrans('bank_transfer')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-3 rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+                                            <i class="fa-solid fa-building-columns"></i> Virtual Account
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- METODE PEMBAYARAN MANUAL & WHATSAPP -->
                                 <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-1.5">
                                     <p class="text-[10px] text-gray-700">
-                                        Bapak/Ibu, silakan melakukan pembayaran lewat transfer melalui rekening:
+                                        Atau transfer manual melalui rekening resmi sekolah:
                                     </p>
                                     <div class="font-mono text-[11px] space-y-0.5 text-blue-950 font-semibold">
                                         <p>• Bank BRI : 6440 0103 6276 532 (a/n SD PLUS DARUSSALAM)</p>
                                         <p>• Bank JATIM : 180 2000 908 (a/n SD PLUS DARUSSALAM)</p>
                                     </div>
-                                    <p class="text-[10px] text-gray-600">Atau langsung ke sekolah. Terima kasih.</p>
+                                    <p class="text-[10px] text-gray-600">Atau bayar tunai langsung ke sekolah.</p>
                                     
                                     <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 pt-1">
                                         <button onclick="previewAndDownloadPDF('${nisSiswa}', '${namaSiswa}')" 
