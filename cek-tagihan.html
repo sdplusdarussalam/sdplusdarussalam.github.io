@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Tagihan Siswa</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Midtrans Snap SDK (Sandbox Environment) -->
+    <!-- Midtrans Snap SDK (Production Environment) -->
+    <!-- Disesuaikan dengan Client Key Production Anda -->
     <script type="text/javascript" 
-            src="https://app.sandbox.midtrans.com/snap/snap.js" 
+            src="https://app.midtrans.com/snap/snap.js" 
             data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
     
     <style>
@@ -173,7 +175,7 @@
         </div>
     </div>
 
-    <!-- Menghubungkan ke file JavaScript terpisah (payment.js) -->
+    <!-- Script Logika Pembayaran -->
     <script type="module" src="payment.js"></script>
 </body>
 </html>
