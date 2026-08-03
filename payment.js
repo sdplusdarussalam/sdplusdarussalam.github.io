@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js";
 
 // Konfigurasi Firebase
 const firebaseConfig = {
@@ -12,13 +11,16 @@ const firebaseConfig = {
     appId: "1:1234567890:web:abcdef"
 };
 
-// Inisialisasi Firebase & Cloud Functions
+// Inisialisasi Firebase Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const functions = getFunctions(app, 'asia-southeast2');
+
+// URL Endpoint Vercel API
+const VERCEL_API_URL = "https://documents-delta-gold.vercel.app/api";
 
 // Elemen DOM (UI)
 const nisInput = document.getElementById('nis-input');
+const motherInput = document.getElementById('mother-input'); // Added: Input Nama Ibu
 const searchBtn = document.getElementById('search-btn');
 const emptyState = document.getElementById('empty-state');
 const studentCard = document.getElementById('student-card');
@@ -30,6 +32,7 @@ const loadingText = document.getElementById('loading-text');
 const studentName = document.getElementById('student-name');
 const studentNis = document.getElementById('student-nis');
 const studentClass = document.getElementById('student-class');
+const studentMother = document.getElementById('student-mother'); // Added: Display Ibu
 const studentProgressText = document.getElementById('student-progress-text');
 const studentProgressBar = document.getElementById('student-progress-bar');
 const totalBill = document.getElementById('total-bill');
@@ -37,6 +40,7 @@ const payAmount = document.getElementById('pay-amount');
 const statusTagihanBadge = document.getElementById('status-tagihan-badge');
 
 let currentStudent = null;
+let currentCalculatedTotal = 0;
 
 // Fungsi Tampil/Sembunyi Loading
 const showLoading = (text = "Memproses...") => {
@@ -45,10 +49,14 @@ const showLoading = (text = "Memproses...") => {
 };
 const hideLoading = () => loadingOverlay.classList.add('hidden');
 
-// Function Pencarian Siswa di Firestore
+// Function Pencarian Siswa di Firestore (NIS + Nama Ibu)
 searchBtn.addEventListener('click', async () => {
     const nis = nisInput.value.trim();
-    if (!nis) return alert('Silakan masukkan NIS!');
+    const motherName = motherInput ? motherInput.value.trim() : '';
+
+    if (!nis || !motherName) {
+        return alert('Silakan masukkan NIS dan Nama Ibu Kandung!');
+    }
 
     showLoading("Mencari data siswa...");
 
@@ -57,8 +65,15 @@ searchBtn.addEventListener('click', async () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            currentStudent = docSnap.data();
-            renderStudentData(currentStudent, nis);
+            const data = docSnap.data();
+
+            // Validasi Nama Ibu Kandung (Abaikan huruf besar/kecil)
+            if (data.namaIbu && data.namaIbu.trim().toLowerCase() === motherName.toLowerCase()) {
+                currentStudent = data;
+                renderStudentData(currentStudent, nis);
+            } else {
+                alert('Data NIS ditemukan, tetapi Nama Ibu Kandung tidak cocok!');
+            }
         } else {
             alert('Data siswa dengan NIS tersebut tidak ditemukan.');
         }
@@ -75,16 +90,27 @@ function renderStudentData(data, nis) {
     studentName.innerText = data.nama || '-';
     studentNis.innerText = nis;
     studentClass.innerText = data.kelas || '-';
+    if (studentMother) studentMother.innerText = data.namaIbu || '-';
     
-    const total = data.rekapTerakhir?.total || 0;
-    const progres = data.progres || 0;
+    // Hitung total dari rekapLama (mengabaikan nilai null)
+    currentCalculatedTotal = 0;
+    if (data.rekapLama) {
+        Object.values(data.rekapLama).forEach(val => {
+            if (val && typeof val === 'number') {
+                currentCalculatedTotal += val;
+            }
+        });
+    }
 
-    studentProgressText.innerText = `${progres}%`;
-    studentProgressBar.style.width = `${progres}%`;
-    totalBill.innerText = `Rp ${total.toLocaleString('id-ID')}`;
-    payAmount.value = total;
+    const progresStr = data.progres || "0%";
+    const progresVal = parseInt(progresStr) || 0;
 
-    if (total <= 0) {
+    studentProgressText.innerText = progresStr;
+    studentProgressBar.style.width = progresStr;
+    totalBill.innerText = `Rp ${currentCalculatedTotal.toLocaleString('id-ID')}`;
+    payAmount.value = currentCalculatedTotal;
+
+    if (currentCalculatedTotal <= 0) {
         statusTagihanBadge.innerText = "Lunas";
         statusTagihanBadge.className = "px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200";
     } else {
@@ -97,7 +123,7 @@ function renderStudentData(data, nis) {
     paymentPanel.classList.remove('hidden');
 }
 
-// Function Transaksi Midtrans
+// Function Transaksi Midtrans via Vercel
 async function processPayment(metode) {
     if (!currentStudent) return alert("Pilih siswa terlebih dahulu!");
     
@@ -109,40 +135,49 @@ async function processPayment(metode) {
     showLoading("Menghubungkan ke Gateway Pembayaran...");
 
     try {
-        const createTransaction = httpsCallable(functions, 'createMidtransTransaction');
-        const result = await createTransaction({
-            nis: studentNis.innerText,
-            nama: currentStudent.nama,
-            kelas: currentStudent.kelas,
-            nominal: nominal,
-            metode: metode
+        // Request ke Server Vercel
+        const response = await fetch(VERCEL_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                order_id: "SPP-" + studentNis.innerText + "-" + Date.now(),
+                gross_amount: nominal,
+                customer_details: {
+                    first_name: currentStudent.nama,
+                    notes: "NIS: " + studentNis.innerText
+                }
+            })
         });
 
-        const snapToken = result.data.token;
+        const resData = await response.json();
         hideLoading();
 
-        // Popup Midtrans Snap SDK
-        window.snap.pay(snapToken, {
-            onSuccess: async function(result) {
-                alert("Pembayaran Berhasil!");
-                await updateSisaTagihan(studentNis.innerText, nominal);
-                location.reload();
-            },
-            onPending: function(result) {
-                alert("Menunggu Pembayaran. Silakan selesaikan instruksi pembayaran.");
-            },
-            onError: function(result) {
-                alert("Pembayaran gagal diproses!");
-            },
-            onClose: function() {
-                console.log('Pop-up pembayaran ditutup');
-            }
-        });
+        if (resData.token) {
+            // Popup Midtrans Snap SDK
+            window.snap.pay(resData.token, {
+                onSuccess: async function(result) {
+                    alert("Pembayaran Berhasil!");
+                    await updateSisaTagihan(studentNis.innerText, nominal);
+                    location.reload();
+                },
+                onPending: function(result) {
+                    alert("Menunggu Pembayaran. Silakan selesaikan instruksi pembayaran.");
+                },
+                onError: function(result) {
+                    alert("Pembayaran gagal diproses!");
+                },
+                onClose: function() {
+                    console.log('Pop-up pembayaran ditutup');
+                }
+            });
+        } else {
+            alert("Gagal mendapatkan token pembayaran dari Vercel server.");
+        }
 
     } catch (error) {
         hideLoading();
         console.error("Payment Error:", error);
-        alert("Gagal menghubungkan ke Server Pembayaran. Pastikan Backend Cloud Function sudah di-deploy.");
+        alert("Gagal koneksi ke Gateway Pembayaran Vercel.");
     }
 }
 
@@ -150,12 +185,10 @@ async function processPayment(metode) {
 async function updateSisaTagihan(nis, nominalBayar) {
     try {
         const siswaRef = doc(db, "siswa", nis);
-        const currentTotal = currentStudent.rekapTerakhir?.total || 0;
-        const newTotal = Math.max(0, currentTotal - nominalBayar);
+        const newTotal = Math.max(0, currentCalculatedTotal - nominalBayar);
         
         await updateDoc(siswaRef, {
-            "rekapTerakhir.total": newTotal,
-            "progres": newTotal === 0 ? 100 : currentStudent.progres
+            "progres": newTotal === 0 ? "100%" : currentStudent.progres
         });
     } catch (e) {
         console.error("Gagal update data Firestore:", e);
