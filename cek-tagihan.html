@@ -6,17 +6,16 @@
     <title>Portal Tagihan Siswa</title>
 
     <!-- Content Security Policy (CSP) untuk Izinkan Midtrans Snap SDK & Inline Scripts -->
-    <meta http-equiv="Content-Security-Policy" 
-      <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *;">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *;">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Midtrans Snap SDK (Production Environment) -->
+    <!-- Midtrans Snap SDK (SANDBOX ENVIRONMENT) -->
     <script type="text/javascript" 
-            src="https://app.midtrans.com/snap/snap.js" 
-            data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
+            src="https://app.sandbox.midtrans.com/snap/snap.js" 
+            data-client-key="SB-Mid-client-YOUR_SANDBOX_CLIENT_KEY"></script>
     
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
