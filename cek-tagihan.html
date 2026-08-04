@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Tagihan Siswa</title>
 
-    <!-- Content Security Policy (CSP) untuk Izinkan Midtrans Snap SDK & Inline Scripts -->
+    <!-- CSP yang Diperbaiki: Mengizinkan seluruh domain pendukung Midtrans & Inline Scripts -->
     <meta http-equiv="Content-Security-Policy" 
-      content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.midtrans.com https://snap-assets.midtrans.com https://api.midtrans.com;">
+          content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Midtrans Snap SDK (SANDBOX ENVIRONMENT) -->
-    <!-- Gunakan URL Production ini: -->
-<!-- Pastikan URL-nya app.midtrans.com (BUKAN app.sandbox.midtrans.com) -->
-<script type="text/javascript"
-        src="https://app.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
+    <!-- Midtrans Snap SDK Production -->
+    <script type="text/javascript"
+            src="https://app.midtrans.com/snap/snap.js"
+            data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
     
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
