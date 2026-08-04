@@ -3,182 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Tagihan Siswa</title>
+    <title>REKAP TAGIHAN SISWA - SD PLUS DARUSSALAM</title>
 
-    <!-- Content Security Policy (CSP) untuk Izinkan Midtrans Snap SDK & Inline Scripts -->
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Midtrans Snap SDK (PRODUCTION ENVIRONMENT) -->
-    <script type="text/javascript"
-            src="https://app.midtrans.com/snap/snap.js"
-            data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
-    
+
+    <!-- Firebase SDK (v10 JS Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
+            authDomain: "tagihan-siswa-1f2df.firebaseapp.com",
+            projectId: "tagihan-siswa-1f2df",
+            storageBucket: "tagihan-siswa-1f2df.firebasestorage.app",
+            messagingSenderId: "79229043495",
+            appId: "1:79229043495:web:815d8c2ca375f711c5df02",
+            measurementId: "G-CLMZTSBYRS"
+        };
+
+        // Inisialisasi Firebase & Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Helper Format Angka/Rupiah
+        function fmt(val) {
+            if (val === undefined || val === null || val === "" || val === 0 || val === "0" || val === "-") return "-";
+            if (typeof val === "number") {
+                if (val < 0) return "-" + Math.abs(val).toLocaleString("id-ID");
+                return val.toLocaleString("id-ID");
+            }
+            return val;
+        }
+
+        // Handle Event Klik Cari
+        document.getElementById('search-btn').addEventListener('click', async () => {
+            const nisInput = document.getElementById('nis-input').value.trim();
+            const motherInput = document.getElementById('mother-input').value.trim().toLowerCase();
+
+            if (!nisInput) {
+                alert("Silakan masukkan NIS Siswa!");
+                return;
+            }
+
+            // Tampilkan Indicator Loading
+            document.getElementById('loading-overlay').classList.remove('hidden');
+
+            try {
+                // Cari dokumen pada koleksi "siswa" berdasarkan field "nis"
+                const q = query(collection(db, "siswa"), where("nis", "==", nisInput));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    alert("Data NIS tidak ditemukan!");
+                    document.getElementById('loading-overlay').classList.add('hidden');
+                    return;
+                }
+
+                let studentData = null;
+                querySnapshot.forEach((docSnap) => {
+                    studentData = docSnap.data();
+                });
+
+                // Validasi Nama Ibu Kandung (jika diisi)
+                if (motherInput && studentData.ibu) {
+                    if (!studentData.ibu.toLowerCase().includes(motherInput)) {
+                        alert("Nama Ibu Kandung tidak cocok dengan NIS ini!");
+                        document.getElementById('loading-overlay').classList.add('hidden');
+                        return;
+                    }
+                }
+
+                // Tampilkan Data ke Struk Rekap
+                renderReceipt(studentData);
+
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('receipt-wrapper').classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Firestore Error:", err);
+                alert("Gagal mengambil data dari Firestore: " + err.message);
+            } finally {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        });
+
+        function renderReceipt(d) {
+            // Identitas Utama
+            document.getElementById('r-thn').innerText = d.thn_pelajaran || "2026/2027 SMT 1";
+            document.getElementById('r-nis').innerText = d.nis || "-";
+            document.getElementById('r-nama').innerText = d.nama || "-";
+            document.getElementById('r-kls').innerText = d.kls || "-";
+
+            // Rekapitulasi Pembayaran / Tabungan Lama
+            document.getElementById('r-a-tabungan').innerText = fmt(d.lama_tabungan);
+            document.getElementById('r-a-qurban').innerText = fmt(d.lama_qurban);
+            document.getElementById('r-a-syahriyah').innerText = fmt(d.lama_syahriyah);
+            document.getElementById('r-a-catering').innerText = fmt(d.lama_catering);
+            document.getElementById('r-a-kegiatan').innerText = fmt(d.lama_kegiatan);
+            document.getElementById('r-a-seragam').innerText = fmt(d.lama_seragam);
+            document.getElementById('r-a-buku').innerText = fmt(d.lama_buku);
+            document.getElementById('r-a-lain').innerText = fmt(d.lama_lain);
+            document.getElementById('r-a-total').innerText = fmt(d.lama_total);
+
+            // Tagihan Pembayaran Baru
+            document.getElementById('r-d-tabungan').innerText = fmt(d.baru_tabungan);
+            document.getElementById('r-d-qurban').innerText = fmt(d.baru_qurban);
+            document.getElementById('r-d-syahriyah').innerText = fmt(d.baru_syahriyah);
+            document.getElementById('r-d-catering').innerText = fmt(d.baru_catering);
+            document.getElementById('r-d-kegiatan').innerText = fmt(d.baru_kegiatan);
+            document.getElementById('r-d-seragam').innerText = fmt(d.baru_seragam);
+            document.getElementById('r-d-buku').innerText = fmt(d.baru_buku);
+            document.getElementById('r-d-lain').innerText = fmt(d.baru_lain);
+            document.getElementById('r-d-total').innerText = fmt(d.baru_total);
+            document.getElementById('r-d-jml12').innerText = fmt(d.baru_jml12);
+
+            // Rekap Pembayaran Terbaru
+            document.getElementById('r-tb-tabungan').innerText = fmt(d.terbaru_tabungan);
+            document.getElementById('r-tb-qurban').innerText = fmt(d.terbaru_qurban);
+            document.getElementById('r-tb-syahriyah').innerText = fmt(d.terbaru_syahriyah);
+            document.getElementById('r-tb-catering').innerText = fmt(d.terbaru_catering);
+            document.getElementById('r-tb-kegiatan').innerText = fmt(d.terbaru_kegiatan);
+            document.getElementById('r-tb-seragam').innerText = fmt(d.terbaru_seragam);
+            document.getElementById('r-tb-buku').innerText = fmt(d.terbaru_buku);
+            document.getElementById('r-tb-lain').innerText = fmt(d.terbaru_lain);
+            document.getElementById('r-tb-infaq').innerText = fmt(d.terbaru_infaq);
+            document.getElementById('r-tb-total').innerText = fmt(d.terbaru_total);
+
+            // Rekap Pembayaran Terakhir
+            document.getElementById('r-tk-tabungan').innerText = fmt(d.terakhir_tabungan);
+            document.getElementById('r-tk-qurban').innerText = fmt(d.terakhir_qurban);
+            document.getElementById('r-tk-syahriyah').innerText = fmt(d.terakhir_syahriyah);
+            document.getElementById('r-tk-catering').innerText = fmt(d.terakhir_catering);
+            document.getElementById('r-tk-kegiatan').innerText = fmt(d.terakhir_kegiatan);
+            document.getElementById('r-tk-seragam').innerText = fmt(d.terakhir_seragam);
+            document.getElementById('r-tk-buku').innerText = fmt(d.terakhir_buku);
+            document.getElementById('r-tk-lain').innerText = fmt(d.terakhir_lain);
+            document.getElementById('r-tk-total').innerText = fmt(d.terakhir_total);
+
+            // Progres
+            document.getElementById('r-progres').innerText = (d.progres !== undefined ? d.progres : "0") + "%";
+        }
+    </script>
+
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .font-mono-receipt {
+            font-family: 'Courier New', Courier, monospace;
+        }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen py-8 px-4">
 
-    <!-- Header / Navbar -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 text-white p-2 rounded-lg font-bold">
-                    <i class="fa-solid fa-school text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-slate-900 text-lg leading-tight">SPP Payment Gateway</h1>
-                    <p class="text-xs text-slate-500">Sistem Informasi Keuangan Sekolah</p>
-                </div>
-            </div>
-            <div id="user-profile-badge" class="hidden sm:flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600">
-                <i class="fa-solid fa-user-circle text-sm text-slate-400"></i>
-                <span id="header-user-name">Siswa</span>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="max-w-2xl mx-auto space-y-6">
         
-        <!-- Left Section: Search & Student Profile -->
-        <section class="lg:col-span-4 space-y-6">
-            
-            <!-- Card Cari NIS & Nama Ibu Kandung -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center">
-                    <i class="fa-solid fa-magnifying-glass text-blue-600 mr-2"></i> Cari Data Siswa
-                </h2>
-                <div class="space-y-3">
-                    <div>
-                        <label for="nis-input" class="block text-xs font-semibold text-slate-600 mb-1">Nomor Induk Siswa (NIS)</label>
-                        <input type="text" id="nis-input" placeholder="Masukkan NIS..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium">
-                    </div>
-                    <div>
-                        <label for="mother-input" class="block text-xs font-semibold text-slate-600 mb-1">Nama Ibu Kandung</label>
-                        <input type="text" id="mother-input" placeholder="Masukkan Nama Ibu Kandung..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium">
-                    </div>
-                    <button id="search-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition duration-150 flex items-center justify-center space-x-2 mt-2">
-                        <i class="fa-solid fa-search"></i>
-                        <span>Cari Data</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Card Profil Siswa -->
-            <div id="student-card" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hidden">
-                <div class="flex items-center space-x-4 mb-4">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
-                        <i class="fa-solid fa-user-graduate"></i>
-                    </div>
-                    <div>
-                        <h3 id="student-name" class="font-bold text-slate-900 leading-snug">Nama Siswa</h3>
-                        <p class="text-xs text-slate-500 font-mono">NIS: <span id="student-nis">12345</span></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 text-xs py-3 border-y border-slate-100 mb-4">
-                    <div>
-                        <span class="text-slate-400 block">Kelas</span>
-                        <span id="student-class" class="font-semibold text-slate-700">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block">Ibu Kandung</span>
-                        <span id="student-mother" class="font-semibold text-slate-700">-</span>
-                    </div>
-                    <div class="col-span-2 pt-1 border-t border-slate-50">
-                        <span class="text-slate-400 block">Status Progres</span>
-                        <span id="student-progress-text" class="font-semibold text-emerald-600">0%</span>
-                    </div>
-                </div>
-
-                <!-- Progress Bar -->
+        <!-- Form Cari NIS -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="font-bold text-slate-800 mb-4 flex items-center text-lg">
+                <i class="fa-solid fa-magnifying-glass text-emerald-600 mr-2"></i> Cari Rekap Tagihan Siswa
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div>
-                    <div class="w-full bg-slate-100 rounded-full h-2">
-                        <div id="student-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">NIS Siswa *</label>
+                    <input type="text" id="nis-input" placeholder="Masukkan NIS (contoh: 659)" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Ibu Kandung (Opsional)</label>
+                    <input type="text" id="mother-input" placeholder="Masukkan Nama Ibu..." class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
             </div>
+            <button id="search-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition duration-150 text-sm flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-search"></i>
+                <span>Tampilkan Tagihan</span>
+            </button>
+        </div>
 
-        </section>
+        <!-- Empty State -->
+        <div id="empty-state" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
+            <i class="fa-solid fa-file-invoice text-4xl text-slate-300 mb-2 block"></i>
+            <p class="text-sm text-slate-500">Silakan masukkan NIS di atas untuk menampilkan rekap tagihan.</p>
+        </div>
 
-        <!-- Right Section: Details & Payment -->
-        <section class="lg:col-span-8 space-y-6">
+        <!-- STRUK REKAP TAGIHAN -->
+        <div id="receipt-wrapper" class="bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-300 font-mono-receipt text-sm leading-relaxed hidden">
             
-            <!-- Empty State Placeholder -->
-            <div id="empty-state" class="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 text-center">
-                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                    <i class="fa-solid fa-receipt"></i>
-                </div>
-                <h3 class="font-bold text-slate-800 text-base mb-1">Belum Ada Data Dipilih</h3>
-                <p class="text-slate-500 text-xs max-w-sm mx-auto">Silakan masukkan NIS dan Nama Ibu Kandung pada kolom pencarian untuk melihat rincian tagihan.</p>
+            <!-- Header -->
+            <div class="text-center border-b border-dashed border-slate-400 pb-3 mb-3">
+                <h3 class="font-bold text-base uppercase">REKAP TAGIHAN SISWA</h3>
+                <h4 class="font-bold text-lg text-emerald-800">*SD PLUS DARUSSALAM*</h4>
+                <p class="text-xs">Tahun Pelajaran <span id="r-thn">2026/2027 SMT 1</span></p>
             </div>
 
-            <!-- Detail Tagihan & Form Bayar -->
-            <div id="payment-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6 hidden">
-                
-                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900">Rincian Tagihan SPP</h2>
-                        <p class="text-xs text-slate-500">Tinjau sisa pembayaran dan pilih metode bayar</p>
-                    </div>
-                    <span id="status-tagihan-badge" class="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full border border-amber-200">Belum Lunas</span>
-                </div>
-
-                <!-- Total Tunggakan Highlight -->
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-5 text-white flex justify-between items-center shadow-md">
-                    <div>
-                        <p class="text-xs text-blue-100">Total Sisa Tagihan</p>
-                        <h3 id="total-bill" class="text-2xl font-black tracking-tight mt-0.5">Rp 0</h3>
-                    </div>
-                    <i class="fa-solid fa-wallet text-3xl opacity-30"></i>
-                </div>
-
-                <!-- Form Input Nominal Bayar -->
-                <div class="space-y-4">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Nominal Pembayaran</label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-3 text-sm font-bold text-slate-400">Rp</span>
-                        <input type="number" id="pay-amount" placeholder="0" class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base font-bold text-slate-900">
-                    </div>
-                    <p class="text-xs text-slate-400">*Anda dapat mencicil pembayaran sesuai nominal yang dimasukkan.</p>
-                </div>
-
-                <!-- Tombol Aksi Pembayaran Midtrans -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <button id="btn-pay-qris" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow transition duration-150 flex items-center justify-center space-x-2 text-sm">
-                        <i class="fa-solid fa-qrcode"></i>
-                        <span>Bayar via QRIS / GoPay</span>
-                    </button>
-                    <button id="btn-pay-va" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow transition duration-150 flex items-center justify-center space-x-2 text-sm">
-                        <i class="fa-solid fa-building-columns"></i>
-                        <span>Transfer Bank (Virtual Account)</span>
-                    </button>
-                </div>
-
+            <!-- Profile Siswa -->
+            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-0.5">
+                <div class="flex justify-between"><span>NIS</span><span>: <strong id="r-nis">659</strong></span></div>
+                <div class="flex justify-between"><span>NAMA</span><span>: <strong id="r-nama">GWEN ANINDYA DZAHIN</strong></span></div>
+                <div class="flex justify-between"><span>KLS</span><span>: <span id="r-kls">-</span></span></div>
             </div>
 
-        </section>
+            <!-- Rekapitulasi Pembayaran Lama -->
+            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
+                <p class="font-bold underline mb-1">Rekapitulasi Pembayaran</p>
+                <div class="flex justify-between"><span>a. Tabungan Lama</span><span id="r-a-tabungan">100</span></div>
+                <div class="flex justify-between"><span>b. Tab. Qurban lama</span><span id="r-a-qurban">-</span></div>
+                <div class="flex justify-between"><span>c. Syahriyah Lama</span><span id="r-a-syahriyah">-</span></div>
+                <div class="flex justify-between pl-3"><span>Catering</span><span id="r-a-catering">16.000</span></div>
+                <div class="flex justify-between pl-3"><span>Kegiatan</span><span id="r-a-kegiatan">169.500</span></div>
+                <div class="flex justify-between pl-3"><span>Seragam</span><span id="r-a-seragam">-</span></div>
+                <div class="flex justify-between pl-3"><span>Buku</span><span id="r-a-buku">-</span></div>
+                <div class="flex justify-between pl-3"><span>Lain-lain</span><span id="r-a-lain">-</span></div>
+                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>*Total</span><span id="r-a-total">185.500*</span></div>
+            </div>
 
-    </main>
+            <!-- Tagihan Pembayaran Baru -->
+            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
+                <p class="font-bold underline mb-1">d. TAGIHAN PEMBAYARAN BARU</p>
+                <div class="flex justify-between"><span>Tabungan</span><span id="r-d-tabungan">-</span></div>
+                <div class="flex justify-between"><span>Tab. Qurban</span><span id="r-d-qurban">-</span></div>
+                <div class="flex justify-between"><span>Syahriyah</span><span id="r-d-syahriyah">-480.000</span></div>
+                <div class="flex justify-between"><span>Catering</span><span id="r-d-catering">-490.000</span></div>
+                <div class="flex justify-between"><span>Kegiatan</span><span id="r-d-kegiatan">-250.000</span></div>
+                <div class="flex justify-between"><span>Seragam</span><span id="r-d-seragam">-</span></div>
+                <div class="flex justify-between"><span>Buku</span><span id="r-d-buku">-361.900</span></div>
+                <div class="flex justify-between"><span>Lain-lain</span><span id="r-d-lain">-250.000</span></div>
+                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>Total</span><span id="r-d-total">-1.831.900</span></div>
+                <div class="flex justify-between font-bold text-red-600 pt-1"><span>*Jumlah 1 & 2</span><span id="r-d-jml12">-1.646.400*</span></div>
+            </div>
 
-    <!-- Modal Indicator Loading -->
+            <!-- Rekap Pembayaran Terbaru -->
+            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
+                <p class="font-bold underline mb-1">Rekap Pembayaran Terbaru</p>
+                <div class="flex justify-between"><span>Tabungan</span><span id="r-tb-tabungan">-</span></div>
+                <div class="flex justify-between"><span>Tab. Qurban</span><span id="r-tb-qurban">-</span></div>
+                <div class="flex justify-between"><span>Syahriyah</span><span id="r-tb-syahriyah">-</span></div>
+                <div class="flex justify-between"><span>Catering</span><span id="r-tb-catering">-</span></div>
+                <div class="flex justify-between"><span>Kegiatan</span><span id="r-tb-kegiatan">-</span></div>
+                <div class="flex justify-between"><span>Seragam</span><span id="r-tb-seragam">-</span></div>
+                <div class="flex justify-between"><span>Buku</span><span id="r-tb-buku">-</span></div>
+                <div class="flex justify-between"><span>Lain-lain</span><span id="r-tb-lain">-</span></div>
+                <div class="flex justify-between"><span>Infaq</span><span id="r-tb-infaq">-</span></div>
+                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>*Total</span><span id="r-tb-total">-*</span></div>
+            </div>
+
+            <!-- Rekap Pembayaran Terakhir -->
+            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
+                <p class="font-bold underline mb-1">Rekap Pembayaran Terakhir</p>
+                <div class="flex justify-between"><span>Tabungan</span><span id="r-tk-tabungan">100</span></div>
+                <div class="flex justify-between"><span>Tab. Qurban</span><span id="r-tk-qurban">-</span></div>
+                <div class="flex justify-between"><span>Syahriyah</span><span id="r-tk-syahriyah">-480.000</span></div>
+                <div class="flex justify-between"><span>Catering</span><span id="r-tk-catering">-474.000</span></div>
+                <div class="flex justify-between"><span>Kegiatan</span><span id="r-tk-kegiatan">-80.500</span></div>
+                <div class="flex justify-between"><span>Seragam</span><span id="r-tk-seragam">-</span></div>
+                <div class="flex justify-between"><span>Buku</span><span id="r-tk-buku">-361.900</span></div>
+                <div class="flex justify-between"><span>Lain-lain</span><span id="r-tk-lain">-250.000</span></div>
+                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>*Total</span><span id="r-tk-total">-1.646.400*</span></div>
+            </div>
+
+            <!-- Progres Pembayaran -->
+            <div class="border-b border-dashed border-slate-400 pb-3 mb-4 flex justify-between font-bold">
+                <span>Progres Pembayaran</span>
+                <span id="r-progres">0%</span>
+            </div>
+
+            <!-- Rekening Pembayaran -->
+            <div class="text-xs space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-200 font-sans">
+                <p class="font-semibold text-slate-700">Bapak/Ibu, silahkan melakukan pembayaran lewat transfer, melalui rekening:</p>
+                <p class="font-mono text-slate-800">
+                    - Bank BRI 👉🏻 <strong>644001036276532</strong> a/n SD PLUS DARUSSALAM<br>
+                    - Bank JATIM 👉🏻 <strong>1802000908</strong> a/n SD PLUS DARUSSALAM
+                </p>
+                <p class="text-slate-600 italic mt-1">Atau langsung ke sekolah. Terimakasih</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center space-y-3">
-            <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p id="loading-text" class="text-xs font-semibold text-slate-600">Memproses...</p>
+        <div class="bg-white p-5 rounded-2xl shadow-xl flex items-center space-x-3">
+            <div class="w-6 h-6 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-xs font-semibold text-slate-600">Mengambil data dari Firestore...</span>
         </div>
     </div>
 
-    <!-- Script Logika Pembayaran -->
-    <script type="module" src="payment.js"></script>
 </body>
 </html>
