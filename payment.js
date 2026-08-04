@@ -20,7 +20,7 @@ const VERCEL_API_URL = "https://documents-delta-gold.vercel.app/api";
 
 // Elemen DOM (UI)
 const nisInput = document.getElementById('nis-input');
-const motherInput = document.getElementById('mother-input'); // Added: Input Nama Ibu
+const motherInput = document.getElementById('mother-input');
 const searchBtn = document.getElementById('search-btn');
 const emptyState = document.getElementById('empty-state');
 const studentCard = document.getElementById('student-card');
@@ -32,7 +32,7 @@ const loadingText = document.getElementById('loading-text');
 const studentName = document.getElementById('student-name');
 const studentNis = document.getElementById('student-nis');
 const studentClass = document.getElementById('student-class');
-const studentMother = document.getElementById('student-mother'); // Added: Display Ibu
+const studentMother = document.getElementById('student-mother');
 const studentProgressText = document.getElementById('student-progress-text');
 const studentProgressBar = document.getElementById('student-progress-bar');
 const totalBill = document.getElementById('total-bill');
@@ -103,7 +103,6 @@ function renderStudentData(data, nis) {
     }
 
     const progresStr = data.progres || "0%";
-    const progresVal = parseInt(progresStr) || 0;
 
     studentProgressText.innerText = progresStr;
     studentProgressBar.style.width = progresStr;
@@ -135,10 +134,14 @@ async function processPayment(metode) {
     showLoading("Menghubungkan ke Gateway Pembayaran...");
 
     try {
-        // Request ke Server Vercel
+        // Request ke Server Vercel dengan mode CORS yang eksplisit
         const response = await fetch(VERCEL_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            mode: 'cors',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify({
                 order_id: "SPP-" + studentNis.innerText + "-" + Date.now(),
                 gross_amount: nominal,
@@ -152,7 +155,12 @@ async function processPayment(metode) {
         const resData = await response.json();
         hideLoading();
 
-        if (resData.token) {
+        if (response.ok && resData.token) {
+            // Cek ketersediaan SDK Snap
+            if (typeof window.snap === 'undefined') {
+                return alert("Snap SDK belum dimuat. Periksa koneksi atau atur CSP HTML Anda.");
+            }
+
             // Popup Midtrans Snap SDK
             window.snap.pay(resData.token, {
                 onSuccess: async function(result) {
@@ -171,13 +179,13 @@ async function processPayment(metode) {
                 }
             });
         } else {
-            alert("Gagal mendapatkan token pembayaran dari Vercel server.");
+            alert(`Gagal mendapatkan token: ${resData.error || resData.message || 'Error pada server Vercel'}`);
         }
 
     } catch (error) {
         hideLoading();
         console.error("Payment Error:", error);
-        alert("Gagal koneksi ke Gateway Pembayaran Vercel.");
+        alert("Gagal koneksi ke Gateway Pembayaran Vercel. Pastikan server aktif dan CORS dikonfigurasi.");
     }
 }
 
