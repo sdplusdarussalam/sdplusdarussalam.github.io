@@ -1,293 +1,1073 @@
 <!DOCTYPE html>
+
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REKAP TAGIHAN SISWA - SD PLUS DARUSSALAM</title>
 
-    <!-- Tailwind CSS -->
+    <title>Cek Tagihan Siswa - SD Plus Darussalam</title>
+
+    
+
+    <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Firebase SDK (v10 JS Modular) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    
 
-        // Konfigurasi Firebase Anda
-        const firebaseConfig = {
-            apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
-            authDomain: "tagihan-siswa-1f2df.firebaseapp.com",
-            projectId: "tagihan-siswa-1f2df",
-            storageBucket: "tagihan-siswa-1f2df.firebasestorage.app",
-            messagingSenderId: "79229043495",
-            appId: "1:79229043495:web:815d8c2ca375f711c5df02",
-            measurementId: "G-CLMZTSBYRS"
-        };
+    <!-- Font Awesome Icons -->
 
-        // Inisialisasi Firebase & Firestore
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        // Helper Format Angka/Rupiah
-        function fmt(val) {
-            if (val === undefined || val === null || val === "" || val === 0 || val === "0" || val === "-") return "-";
-            if (typeof val === "number") {
-                if (val < 0) return "-" + Math.abs(val).toLocaleString("id-ID");
-                return val.toLocaleString("id-ID");
-            }
-            return val;
-        }
 
-        // Handle Event Klik Cari
-        document.getElementById('search-btn').addEventListener('click', async () => {
-            const nisInput = document.getElementById('nis-input').value.trim();
-            const motherInput = document.getElementById('mother-input').value.trim().toLowerCase();
 
-            if (!nisInput) {
-                alert("Silakan masukkan NIS Siswa!");
-                return;
-            }
+    <!-- html2canvas & jsPDF Library -->
 
-            // Tampilkan Indicator Loading
-            document.getElementById('loading-overlay').classList.remove('hidden');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-            try {
-                // Cari dokumen pada koleksi "siswa" berdasarkan field "nis"
-                const q = query(collection(db, "siswa"), where("nis", "==", nisInput));
-                const querySnapshot = await getDocs(q);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-                if (querySnapshot.empty) {
-                    alert("Data NIS tidak ditemukan!");
-                    document.getElementById('loading-overlay').classList.add('hidden');
-                    return;
-                }
 
-                let studentData = null;
-                querySnapshot.forEach((docSnap) => {
-                    studentData = docSnap.data();
-                });
 
-                // Validasi Nama Ibu Kandung (jika diisi)
-                if (motherInput && studentData.ibu) {
-                    if (!studentData.ibu.toLowerCase().includes(motherInput)) {
-                        alert("Nama Ibu Kandung tidak cocok dengan NIS ini!");
-                        document.getElementById('loading-overlay').classList.add('hidden');
-                        return;
-                    }
-                }
+    <!-- MIDTRANS SNAP SDK (Ganti ke https://app.midtrans.com/snap/snap.js jika sudah PRODUCTION) -->
 
-                // Tampilkan Data ke Struk Rekap
-                renderReceipt(studentData);
+    <script type="text/javascript"
 
-                document.getElementById('empty-state').classList.add('hidden');
-                document.getElementById('receipt-wrapper').classList.remove('hidden');
+      src="https://app.sandbox.midtrans.com/snap/snap.js"
 
-            } catch (err) {
-                console.error("Firestore Error:", err);
-                alert("Gagal mengambil data dari Firestore: " + err.message);
-            } finally {
-                document.getElementById('loading-overlay').classList.add('hidden');
-            }
-        });
+      data-client-key="Mid-client-jtVjf3owN2pqHtTw"></script>
 
-        function renderReceipt(d) {
-            // Identitas Utama
-            document.getElementById('r-thn').innerText = d.thn_pelajaran || "2026/2027 SMT 1";
-            document.getElementById('r-nis').innerText = d.nis || "-";
-            document.getElementById('r-nama').innerText = d.nama || "-";
-            document.getElementById('r-kls').innerText = d.kls || "-";
 
-            // Rekapitulasi Pembayaran / Tabungan Lama
-            document.getElementById('r-a-tabungan').innerText = fmt(d.lama_tabungan);
-            document.getElementById('r-a-qurban').innerText = fmt(d.lama_qurban);
-            document.getElementById('r-a-syahriyah').innerText = fmt(d.lama_syahriyah);
-            document.getElementById('r-a-catering').innerText = fmt(d.lama_catering);
-            document.getElementById('r-a-kegiatan').innerText = fmt(d.lama_kegiatan);
-            document.getElementById('r-a-seragam').innerText = fmt(d.lama_seragam);
-            document.getElementById('r-a-buku').innerText = fmt(d.lama_buku);
-            document.getElementById('r-a-lain').innerText = fmt(d.lama_lain);
-            document.getElementById('r-a-total').innerText = fmt(d.lama_total);
 
-            // Tagihan Pembayaran Baru
-            document.getElementById('r-d-tabungan').innerText = fmt(d.baru_tabungan);
-            document.getElementById('r-d-qurban').innerText = fmt(d.baru_qurban);
-            document.getElementById('r-d-syahriyah').innerText = fmt(d.baru_syahriyah);
-            document.getElementById('r-d-catering').innerText = fmt(d.baru_catering);
-            document.getElementById('r-d-kegiatan').innerText = fmt(d.baru_kegiatan);
-            document.getElementById('r-d-seragam').innerText = fmt(d.baru_seragam);
-            document.getElementById('r-d-buku').innerText = fmt(d.baru_buku);
-            document.getElementById('r-d-lain').innerText = fmt(d.baru_lain);
-            document.getElementById('r-d-total').innerText = fmt(d.baru_total);
-            document.getElementById('r-d-jml12').innerText = fmt(d.baru_jml12);
-
-            // Rekap Pembayaran Terbaru
-            document.getElementById('r-tb-tabungan').innerText = fmt(d.terbaru_tabungan);
-            document.getElementById('r-tb-qurban').innerText = fmt(d.terbaru_qurban);
-            document.getElementById('r-tb-syahriyah').innerText = fmt(d.terbaru_syahriyah);
-            document.getElementById('r-tb-catering').innerText = fmt(d.terbaru_catering);
-            document.getElementById('r-tb-kegiatan').innerText = fmt(d.terbaru_kegiatan);
-            document.getElementById('r-tb-seragam').innerText = fmt(d.terbaru_seragam);
-            document.getElementById('r-tb-buku').innerText = fmt(d.terbaru_buku);
-            document.getElementById('r-tb-lain').innerText = fmt(d.terbaru_lain);
-            document.getElementById('r-tb-infaq').innerText = fmt(d.terbaru_infaq);
-            document.getElementById('r-tb-total').innerText = fmt(d.terbaru_total);
-
-            // Rekap Pembayaran Terakhir
-            document.getElementById('r-tk-tabungan').innerText = fmt(d.terakhir_tabungan);
-            document.getElementById('r-tk-qurban').innerText = fmt(d.terakhir_qurban);
-            document.getElementById('r-tk-syahriyah').innerText = fmt(d.terakhir_syahriyah);
-            document.getElementById('r-tk-catering').innerText = fmt(d.terakhir_catering);
-            document.getElementById('r-tk-kegiatan').innerText = fmt(d.terakhir_kegiatan);
-            document.getElementById('r-tk-seragam').innerText = fmt(d.terakhir_seragam);
-            document.getElementById('r-tk-buku').innerText = fmt(d.terakhir_buku);
-            document.getElementById('r-tk-lain').innerText = fmt(d.terakhir_lain);
-            document.getElementById('r-tk-total').innerText = fmt(d.terakhir_total);
-
-            // Progres
-            document.getElementById('r-progres').innerText = (d.progres !== undefined ? d.progres : "0") + "%";
-        }
-    </script>
+    <!-- CSS ANIMASI PROGRESS BAR -->
 
     <style>
-        .font-mono-receipt {
-            font-family: 'Courier New', Courier, monospace;
+
+        @keyframes progress-stripe {
+
+            0% { background-position: 1rem 0; }
+
+            100% { background-position: 0 0; }
+
         }
+
+
+
+        .animate-progress-stripe {
+
+            background-image: linear-gradient(
+
+                45deg,
+
+                rgba(255, 255, 255, 0.25) 25%,
+
+                transparent 25%,
+
+                transparent 50%,
+
+                rgba(255, 255, 255, 0.25) 50%,
+
+                rgba(255, 255, 255, 0.25) 75%,
+
+                transparent 75%,
+
+                transparent
+
+            );
+
+            background-size: 1rem 1rem;
+
+            animation: progress-stripe 1s linear infinite;
+
+        }
+
     </style>
-</head>
-<body class="bg-slate-100 font-sans text-slate-800 min-h-screen py-8 px-4">
 
-    <div class="max-w-2xl mx-auto space-y-6">
-        
-        <!-- Form Cari NIS -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="font-bold text-slate-800 mb-4 flex items-center text-lg">
-                <i class="fa-solid fa-magnifying-glass text-emerald-600 mr-2"></i> Cari Rekap Tagihan Siswa
-            </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">NIS Siswa *</label>
-                    <input type="text" id="nis-input" placeholder="Masukkan NIS (contoh: 659)" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js";
+
+
+
+        const isMaintenance = false;
+
+
+
+        const firebaseConfig = { 
+
+            apiKey: "AIzaSyAaMqHz_QvEpN_d-ns7vblfMs1EWZ6PJEk",
+
+            authDomain: "tagihan-siswa-1f2df.firebaseapp.com",
+
+            projectId: "tagihan-siswa-1f2df",
+
+            storageBucket: "tagihan-siswa-1f2df.firebasestorage.app",
+
+            messagingSenderId: "79229043495",
+
+            appId: "1:79229043495:web:815d8c2ca375f711c5df02"
+
+        };
+
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+        const functions = getFunctions(app);
+
+
+
+        // Variabel global sementara untuk menyimpan data siswa yang sedang dicari
+
+        let currentSiswaData = null;
+
+
+
+        function fmt(val) {
+
+            if (val === undefined || val === null || val === "" || val === 0) return "-";
+
+            if (typeof val === 'number') {
+
+                if (val < 0) {
+
+                    return "-" + new Intl.NumberFormat('id-ID').format(Math.abs(val));
+
+                }
+
+                return new Intl.NumberFormat('id-ID').format(val);
+
+            }
+
+            return val;
+
+        }
+
+
+
+        function sanitizeHTML(str) {
+
+            if (typeof str !== 'string') return str;
+
+            return str
+
+                .replace(/&/g, "&amp;")
+
+                .replace(/</g, "&lt;")
+
+                .replace(/>/g, "&gt;")
+
+                .replace(/"/g, "&quot;")
+
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+
+        function getProgressBarHTML(progresVal) {
+
+            let percent = 0;
+
+            if (typeof progresVal === 'string') {
+
+                percent = parseFloat(progresVal.replace('%', '')) || 0;
+
+            } else if (typeof progresVal === 'number') {
+
+                percent = progresVal <= 1 ? progresVal * 100 : progresVal;
+
+            }
+
+
+
+            percent = Math.min(100, Math.max(0, percent));
+
+            const roundedPercent = Math.round(percent);
+
+
+
+            let bgClass = "bg-red-500";
+
+            if (percent === 100) bgClass = "bg-emerald-500";
+
+            else if (percent >= 75) bgClass = "bg-lime-500";
+
+            else if (percent >= 40) bgClass = "bg-amber-400";
+
+            else if (percent > 0) bgClass = "bg-orange-500";
+
+
+
+            return `
+
+                <div class="bg-slate-100 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+
+                    <div class="flex justify-between items-center text-[11px] font-bold text-slate-800">
+
+                        <span>Progres Pembayaran</span>
+
+                        <span class="text-blue-900 font-extrabold text-xs">${roundedPercent}%</span>
+
+                    </div>
+
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden relative shadow-inner">
+
+                        <div id="progress-bar-fill" 
+
+                             class="h-full rounded-full transition-all duration-1000 ease-out ${bgClass} animate-progress-stripe" 
+
+                             style="width: ${percent}%;" 
+
+                             data-target-width="${percent}%">
+
+                        </div>
+
+                    </div>
+
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Ibu Kandung (Opsional)</label>
-                    <input type="text" id="mother-input" placeholder="Masukkan Nama Ibu..." class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                </div>
-            </div>
-            <button id="search-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition duration-150 text-sm flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-search"></i>
-                <span>Tampilkan Tagihan</span>
-            </button>
-        </div>
 
-        <!-- Empty State -->
-        <div id="empty-state" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
-            <i class="fa-solid fa-file-invoice text-4xl text-slate-300 mb-2 block"></i>
-            <p class="text-sm text-slate-500">Silakan masukkan NIS di atas untuk menampilkan rekap tagihan.</p>
-        </div>
+            `;
 
-        <!-- STRUK REKAP TAGIHAN -->
-        <div id="receipt-wrapper" class="bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-300 font-mono-receipt text-sm leading-relaxed hidden">
+        }
+
+
+
+        // FUNGSI PROSES PEMBAYARAN VIA MIDTRANS SNAP (DIPERBAIKI UNTUK ANGKA MINUS)
+
+        window.bayarViaMidtrans = async function(metode) {
+
+            if (!currentSiswaData) return;
+
+
+
+            // Ambil nominal tunggakan dari rekapTerakhir.total
+
+            let rawNominal = currentSiswaData.rekapTerakhir?.total || 0;
+
+
+
+            // Jika nilai di database bertanda minus (-), diubah jadi positif menggunakan Math.abs
+
+            const nominalTunggakan = Math.abs(Number(rawNominal));
+
+
+
+            // Cek jika memang tidak ada tagihan sama sekali
+
+            if (nominalTunggakan === 0) {
+
+                alert("Tagihan siswa ini sudah LUNAS!");
+
+                return;
+
+            }
+
+
+
+            alert("Sedang menyiapkan transaksi, mohon tunggu...");
+
+
+
+            try {
+
+                const createPayment = httpsCallable(functions, 'createMidtransTransaction');
+
+                const res = await createPayment({
+
+                    nis: currentSiswaData.nis,
+
+                    nama: currentSiswaData.nama,
+
+                    kelas: currentSiswaData.kelas,
+
+                    nominal: nominalTunggakan, // Kirim nominal positif ke Midtrans
+
+                    metode: metode
+
+                });
+
+
+
+                const snapToken = res.data.token;
+
+
+
+                // Membuka Pop-up Midtrans
+
+                window.snap.pay(snapToken, {
+
+                    onSuccess: function(result) {
+
+                        alert("Pembayaran Berhasil! Status akan otomatis diperbarui.");
+
+                        location.reload();
+
+                    },
+
+                    onPending: function(result) {
+
+                        alert("Menunggu Pembayaran. Silakan selesaikan transaksi sesuai petunjuk.");
+
+                    },
+
+                    onError: function(result) {
+
+                        alert("Pembayaran Gagal atau Dibatalkan.");
+
+                    },
+
+                    onClose: function() {
+
+                        console.log('Pop-up pembayaran ditutup');
+
+                    }
+
+                });
+
+
+
+            } catch (err) {
+
+                console.error("Midtrans Error:", err);
+
+                alert("Gagal menghubungkan ke server pembayaran.");
+
+            }
+
+        };
+
+
+
+        // FUNGSI PDF DENGAN RASIO A4 PRESISI (ANTI TERPOTONG)
+
+        window.previewAndDownloadPDF = async function(nis, nama) {
+
+            const element = document.getElementById('hasil-tagihan');
+
+            if (!element) return;
+
+
+
+            const pdfWindow = window.open('', '_blank');
+
+            if (pdfWindow) {
+
+                pdfWindow.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#333;"><h2>Membuat Dokumen PDF...</h2><p>Mohon tunggu sebentar.</p></div>');
+
+            }
+
+
+
+            const clone = element.cloneNode(true);
+
+
+
+            // Hapus tombol aksi dan payment dari PDF
+
+            const actionBtns = clone.querySelector('#action-buttons');
+
+            const paymentBox = clone.querySelector('#midtrans-payment-box');
+
+            if (actionBtns) actionBtns.remove();
+
+            if (paymentBox) paymentBox.remove();
+
+
+
+            const progressBar = clone.querySelector('#progress-bar-fill');
+
+            if (progressBar) progressBar.classList.remove('animate-progress-stripe');
+
+
+
+            const wrapper = document.createElement('div');
+
+            wrapper.style.position = 'fixed';
+
+            wrapper.style.top = '0';
+
+            wrapper.style.left = '0';
+
+            wrapper.style.zIndex = '-9999';
+
+            wrapper.style.width = '794px';
+
+            wrapper.style.boxSizing = 'border-box';
+
+            wrapper.style.backgroundColor = '#ffffff';
+
+            wrapper.style.padding = '30px 40px';
+
             
-            <!-- Header -->
-            <div class="text-center border-b border-dashed border-slate-400 pb-3 mb-3">
-                <h3 class="font-bold text-base uppercase">REKAP TAGIHAN SISWA</h3>
-                <h4 class="font-bold text-lg text-emerald-800">*SD PLUS DARUSSALAM*</h4>
-                <p class="text-xs">Tahun Pelajaran <span id="r-thn">2026/2027 SMT 1</span></p>
-            </div>
 
-            <!-- Profile Siswa -->
-            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-0.5">
-                <div class="flex justify-between"><span>NIS</span><span>: <strong id="r-nis">659</strong></span></div>
-                <div class="flex justify-between"><span>NAMA</span><span>: <strong id="r-nama">GWEN ANINDYA DZAHIN</strong></span></div>
-                <div class="flex justify-between"><span>KLS</span><span>: <span id="r-kls">-</span></span></div>
-            </div>
+            wrapper.appendChild(clone);
 
-            <!-- Rekapitulasi Pembayaran Lama -->
-            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
-                <p class="font-bold underline mb-1">Rekapitulasi Pembayaran</p>
-                <div class="flex justify-between"><span>a. Tabungan Lama</span><span id="r-a-tabungan">100</span></div>
-                <div class="flex justify-between"><span>b. Tab. Qurban lama</span><span id="r-a-qurban">-</span></div>
-                <div class="flex justify-between"><span>c. Syahriyah Lama</span><span id="r-a-syahriyah">-</span></div>
-                <div class="flex justify-between pl-3"><span>Catering</span><span id="r-a-catering">16.000</span></div>
-                <div class="flex justify-between pl-3"><span>Kegiatan</span><span id="r-a-kegiatan">169.500</span></div>
-                <div class="flex justify-between pl-3"><span>Seragam</span><span id="r-a-seragam">-</span></div>
-                <div class="flex justify-between pl-3"><span>Buku</span><span id="r-a-buku">-</span></div>
-                <div class="flex justify-between pl-3"><span>Lain-lain</span><span id="r-a-lain">-</span></div>
-                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>*Total</span><span id="r-a-total">185.500*</span></div>
-            </div>
+            document.body.appendChild(wrapper);
 
-            <!-- Tagihan Pembayaran Baru -->
-            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
-                <p class="font-bold underline mb-1">d. TAGIHAN PEMBAYARAN BARU</p>
-                <div class="flex justify-between"><span>Tabungan</span><span id="r-d-tabungan">-</span></div>
-                <div class="flex justify-between"><span>Tab. Qurban</span><span id="r-d-qurban">-</span></div>
-                <div class="flex justify-between"><span>Syahriyah</span><span id="r-d-syahriyah">-480.000</span></div>
-                <div class="flex justify-between"><span>Catering</span><span id="r-d-catering">-490.000</span></div>
-                <div class="flex justify-between"><span>Kegiatan</span><span id="r-d-kegiatan">-250.000</span></div>
-                <div class="flex justify-between"><span>Seragam</span><span id="r-d-seragam">-</span></div>
-                <div class="flex justify-between"><span>Buku</span><span id="r-d-buku">-361.900</span></div>
-                <div class="flex justify-between"><span>Lain-lain</span><span id="r-d-lain">-250.000</span></div>
-                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>Total</span><span id="r-d-total">-1.831.900</span></div>
-                <div class="flex justify-between font-bold text-red-600 pt-1"><span>*Jumlah 1 & 2</span><span id="r-d-jml12">-1.646.400*</span></div>
-            </div>
 
-            <!-- Rekap Pembayaran Terbaru -->
-            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
-                <p class="font-bold underline mb-1">Rekap Pembayaran Terbaru</p>
-                <div class="flex justify-between"><span>Tabungan</span><span id="r-tb-tabungan">-</span></div>
-                <div class="flex justify-between"><span>Tab. Qurban</span><span id="r-tb-qurban">-</span></div>
-                <div class="flex justify-between"><span>Syahriyah</span><span id="r-tb-syahriyah">-</span></div>
-                <div class="flex justify-between"><span>Catering</span><span id="r-tb-catering">-</span></div>
-                <div class="flex justify-between"><span>Kegiatan</span><span id="r-tb-kegiatan">-</span></div>
-                <div class="flex justify-between"><span>Seragam</span><span id="r-tb-seragam">-</span></div>
-                <div class="flex justify-between"><span>Buku</span><span id="r-tb-buku">-</span></div>
-                <div class="flex justify-between"><span>Lain-lain</span><span id="r-tb-lain">-</span></div>
-                <div class="flex justify-between"><span>Infaq</span><span id="r-tb-infaq">-</span></div>
-                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>*Total</span><span id="r-tb-total">-*</span></div>
-            </div>
 
-            <!-- Rekap Pembayaran Terakhir -->
-            <div class="border-b border-dashed border-slate-400 pb-3 mb-3 space-y-1">
-                <p class="font-bold underline mb-1">Rekap Pembayaran Terakhir</p>
-                <div class="flex justify-between"><span>Tabungan</span><span id="r-tk-tabungan">100</span></div>
-                <div class="flex justify-between"><span>Tab. Qurban</span><span id="r-tk-qurban">-</span></div>
-                <div class="flex justify-between"><span>Syahriyah</span><span id="r-tk-syahriyah">-480.000</span></div>
-                <div class="flex justify-between"><span>Catering</span><span id="r-tk-catering">-474.000</span></div>
-                <div class="flex justify-between"><span>Kegiatan</span><span id="r-tk-kegiatan">-80.500</span></div>
-                <div class="flex justify-between"><span>Seragam</span><span id="r-tk-seragam">-</span></div>
-                <div class="flex justify-between"><span>Buku</span><span id="r-tk-buku">-361.900</span></div>
-                <div class="flex justify-between"><span>Lain-lain</span><span id="r-tk-lain">-250.000</span></div>
-                <div class="flex justify-between font-bold pt-1 border-t border-slate-200"><span>*Total</span><span id="r-tk-total">-1.646.400*</span></div>
-            </div>
+            try {
 
-            <!-- Progres Pembayaran -->
-            <div class="border-b border-dashed border-slate-400 pb-3 mb-4 flex justify-between font-bold">
-                <span>Progres Pembayaran</span>
-                <span id="r-progres">0%</span>
-            </div>
+                const canvas = await html2canvas(clone, {
 
-            <!-- Rekening Pembayaran -->
-            <div class="text-xs space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-200 font-sans">
-                <p class="font-semibold text-slate-700">Bapak/Ibu, silahkan melakukan pembayaran lewat transfer, melalui rekening:</p>
-                <p class="font-mono text-slate-800">
-                    - Bank BRI 👉🏻 <strong>644001036276532</strong> a/n SD PLUS DARUSSALAM<br>
-                    - Bank JATIM 👉🏻 <strong>1802000908</strong> a/n SD PLUS DARUSSALAM
+                    scale: 2,
+
+                    useCORS: true,
+
+                    logging: false,
+
+                    scrollX: 0,
+
+                    scrollY: 0,
+
+                    windowWidth: 794
+
+                });
+
+
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+                const { jsPDF } = window.jspdf;
+
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
+
+                const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+
+
+                const imgWidth = pdfWidth - 20;
+
+                let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+
+
+                if (imgHeight > (pdfHeight - 20)) {
+
+                    imgHeight = pdfHeight - 20;
+
+                }
+
+
+
+                pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+
+                const pdfBlob = pdf.output('bloburl');
+
+
+
+                if (pdfWindow) {
+
+                    pdfWindow.location.href = pdfBlob;
+
+                } else {
+
+                    pdf.save(`Tagihan_${nis}_${nama.replace(/\s+/g, '_')}.pdf`);
+
+                }
+
+
+
+            } catch (err) {
+
+                console.error("Gagal membuat PDF:", err);
+
+                alert("Gagal memuat PDF, silakan coba lagi.");
+
+                if (pdfWindow) pdfWindow.close();
+
+            } finally {
+
+                if (document.body.contains(wrapper)) {
+
+                    document.body.removeChild(wrapper);
+
+                }
+
+            }
+
+        };
+
+
+
+        async function cariTagihan() {
+
+            const nisnInput = document.getElementById('nisn-input');
+
+            const ibuInput = document.getElementById('ibu-input');
+
+            const btnCari = document.getElementById('btn-cari');
+
+            const hasilDiv = document.getElementById('hasil-tagihan');
+
+
+
+            if (!nisnInput || !ibuInput || !btnCari || !hasilDiv) return;
+
+
+
+            const nisn = nisnInput.value.trim();
+
+            const namaIbu = ibuInput.value.trim().toUpperCase();
+
+
+
+            hasilDiv.classList.add('hidden');
+
+
+
+            if (!nisn || !namaIbu) {
+
+                alert("Mohon isi NIS dan Nama Ibu Kandung!");
+
+                return;
+
+            }
+
+
+
+            const originalBtnText = btnCari.innerText;
+
+            btnCari.disabled = true;
+
+            btnCari.innerText = "Memproses...";
+
+
+
+            try {
+
+                const docSnap = await getDoc(doc(db, "siswa", nisn));
+
+
+
+                if (docSnap.exists()) {
+
+                    const d = docSnap.data();
+
+                    const namaIbuDiDb = d.namaIbu ? d.namaIbu.trim().toUpperCase() : "";
+
+
+
+                    if (namaIbuDiDb === namaIbu) {
+
+                        // Simpan data siswa ke variabel global
+
+                        currentSiswaData = d;
+
+                        currentSiswaData.nis = d.nis || nisn;
+
+
+
+                        const rLama = d.rekapLama || {};
+
+                        const tBaru = d.tagihanBaru || {};
+
+                        const rTerbaru = d.rekapTerbaru || {};
+
+                        const rTerakhir = d.rekapTerakhir || {};
+
+
+
+                        const namaSiswa = sanitizeHTML(d.nama || '-');
+
+                        const nisSiswa = sanitizeHTML(d.nis || nisn);
+
+                        const kelasSiswa = sanitizeHTML(d.kelas || '-');
+
+                        const tahunPelajaran = sanitizeHTML(d.tahunPelajaran || '2026/2027 SMT 1');
+
+
+
+                        const pesanWA = `Halo Admin SDPD, saya telah melakukan pembayaran untuk siswa ${namaSiswa} (NIS: ${nisSiswa}). Berikut bukti transfernya.`;
+
+                        const waUrl = `https://wa.me/628998465724?text=${encodeURIComponent(pesanWA)}`;
+
+
+
+                        const progressBarMarkup = getProgressBarHTML(d.progres);
+
+
+
+                        hasilDiv.innerHTML = `
+
+                            <!-- HEADER REKAP -->
+
+                            <div class="text-center font-bold text-gray-800 uppercase tracking-wide border-b pb-2 mb-2">
+
+                                <h3 class="text-[10px] text-slate-500">Rekap Tagihan Siswa</h3>
+
+                                <h2 class="text-sm md:text-base text-blue-900 font-extrabold">SD PLUS DARUSSALAM</h2>
+
+                                <p class="text-[10px] text-gray-500 font-normal">Tahun Pelajaran ${tahunPelajaran}</p>
+
+                            </div>
+
+
+
+                            <!-- IDENTITAS SISWA -->
+
+                            <div class="bg-slate-50 p-2.5 rounded-lg border text-xs font-mono space-y-0.5 mb-3">
+
+                                <div class="flex"><span class="w-16 font-semibold text-gray-600">NIS</span>: <span>${nisSiswa}</span></div>
+
+                                <div class="flex"><span class="w-16 font-semibold text-gray-600">NAMA</span>: <span class="font-bold text-gray-800">${namaSiswa}</span></div>
+
+                                <div class="flex"><span class="w-16 font-semibold text-gray-600">KLS</span>: <span>${kelasSiswa}</span></div>
+
+                            </div>
+
+
+
+                            <div class="space-y-3 text-xs">
+
+                                <!-- 1. REKAPITULASI PEMBAYARAN LAMA -->
+
+                                <div class="border rounded-lg p-2.5 bg-white shadow-sm">
+
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">a. Rekapitulasi Pembayaran (Semester Sebelumnya)</h4>
+
+                                    <div class="space-y-0.5 font-mono text-[11px]">
+
+                                        <div class="flex justify-between"><span>Tabungan Lama</span><span>${fmt(rLama.tabungan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Tab. Qurban Lama</span><span>${fmt(rLama.qurban)}</span></div>
+
+                                        <div class="flex justify-between"><span>Syahriyah Lama</span><span>${fmt(rLama.syahriyah)}</span></div>
+
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Catering</span><span>${fmt(rLama.catering)}</span></div>
+
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Kegiatan</span><span>${fmt(rLama.kegiatan)}</span></div>
+
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Seragam</span><span>${fmt(rLama.seragam)}</span></div>
+
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Buku</span><span>${fmt(rLama.buku)}</span></div>
+
+                                        <div class="flex justify-between pl-2 text-gray-600"><span>Lain-lain</span><span>${fmt(rLama.lain)}</span></div>
+
+                                        <div class="flex justify-between font-bold text-gray-900 border-t pt-0.5 mt-0.5"><span>Total</span><span>${fmt(rLama.total)}</span></div>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- 2. TAGIHAN PEMBAYARAN BARU -->
+
+                                <div class="border rounded-lg p-2.5 bg-white shadow-sm">
+
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">b. Tagihan Pembayaran Baru</h4>
+
+                                    <div class="space-y-0.5 font-mono text-[11px]">
+
+                                        <div class="flex justify-between"><span>Tabungan</span><span>${fmt(tBaru.tabungan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Tab. Qurban</span><span>${fmt(tBaru.qurban)}</span></div>
+
+                                        <div class="flex justify-between"><span>Syahriyah</span><span>${fmt(tBaru.syahriyah)}</span></div>
+
+                                        <div class="flex justify-between"><span>Catering</span><span>${fmt(tBaru.catering)}</span></div>
+
+                                        <div class="flex justify-between"><span>Kegiatan</span><span>${fmt(tBaru.kegiatan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Seragam</span><span>${fmt(tBaru.seragam)}</span></div>
+
+                                        <div class="flex justify-between"><span>Buku</span><span>${fmt(tBaru.buku)}</span></div>
+
+                                        <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(tBaru.lain)}</span></div>
+
+                                        <div class="flex justify-between border-t pt-0.5 mt-0.5 text-gray-700 font-semibold"><span>Total</span><span>${fmt(tBaru.total)}</span></div>
+
+                                        <div class="flex justify-between font-bold text-red-600 bg-red-50 p-1 rounded border border-red-100 mt-1"><span>Jumlah 1 & 2</span><span>${fmt(d.jumlahTotal || tBaru.jumlahTotal)}</span></div>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- 3. REKAP PEMBAYARAN TERBARU -->
+
+                                <div class="border rounded-lg p-2.5 bg-white shadow-sm">
+
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">c. Rekap Pembayaran Terbaru</h4>
+
+                                    <div class="space-y-0.5 font-mono text-[11px]">
+
+                                        <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerbaru.tabungan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Tab. Qurban</span><span>${fmt(rTerbaru.qurban)}</span></div>
+
+                                        <div class="flex justify-between"><span>Syahriyah</span><span>${fmt(rTerbaru.syahriyah)}</span></div>
+
+                                        <div class="flex justify-between"><span>Catering</span><span>${fmt(rTerbaru.catering)}</span></div>
+
+                                        <div class="flex justify-between"><span>Kegiatan</span><span>${fmt(rTerbaru.kegiatan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Seragam</span><span>${fmt(rTerbaru.seragam)}</span></div>
+
+                                        <div class="flex justify-between"><span>Buku</span><span>${fmt(rTerbaru.buku)}</span></div>
+
+                                        <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(rTerbaru.lain)}</span></div>
+
+                                        <div class="flex justify-between"><span>Infaq</span><span>${fmt(rTerbaru.infaq)}</span></div>
+
+                                        <div class="flex justify-between font-bold text-gray-900 border-t pt-0.5 mt-0.5"><span>Total</span><span>${fmt(rTerbaru.total)}</span></div>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- 4. REKAP PEMBAYARAN TERAKHIR (TUNGGAKAN) -->
+
+                                <div class="border rounded-lg p-2.5 bg-blue-50/40 shadow-sm">
+
+                                    <h4 class="font-bold text-gray-700 border-b pb-1 mb-1.5 text-[11px]">d. Rekap Pembayaran Terakhir</h4>
+
+                                    <div class="space-y-0.5 font-mono text-[11px]">
+
+                                        <div class="flex justify-between"><span>Tabungan</span><span>${fmt(rTerakhir.tabungan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Tab. Qurban</span><span>${fmt(rTerakhir.qurban)}</span></div>
+
+                                        <div class="flex justify-between"><span>Syahriyah</span><span>${fmt(rTerakhir.syahriyah)}</span></div>
+
+                                        <div class="flex justify-between"><span>Catering</span><span>${fmt(rTerakhir.catering)}</span></div>
+
+                                        <div class="flex justify-between"><span>Kegiatan</span><span>${fmt(rTerakhir.kegiatan)}</span></div>
+
+                                        <div class="flex justify-between"><span>Seragam</span><span>${fmt(rTerakhir.seragam)}</span></div>
+
+                                        <div class="flex justify-between"><span>Buku</span><span>${fmt(rTerakhir.buku)}</span></div>
+
+                                        <div class="flex justify-between"><span>Lain-lain</span><span>${fmt(rTerakhir.lain)}</span></div>
+
+                                        <div class="flex justify-between font-bold text-red-600 border-t pt-0.5 mt-0.5"><span>Total Sisa Tunggakan</span><span>${fmt(rTerakhir.total)}</span></div>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- PROGRES PEMBAYARAN -->
+
+                                ${progressBarMarkup}
+
+
+
+                                <!-- INTEGRASI PEMBAYARAN MIDTRANS (OTOMATIS) -->
+
+                                <div id="midtrans-payment-box" class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 space-y-2">
+
+                                    <p class="text-[11px] font-bold text-emerald-900 flex items-center gap-1">
+
+                                        <i class="fa-solid fa-bolt text-amber-500"></i> Bayar Otomatis (Langsung Terkonfirmasi):
+
+                                    </p>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+                                        <button onclick="bayarViaMidtrans('qris')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+
+                                            <i class="fa-solid fa-qrcode"></i> Scan QRIS
+
+                                        </button>
+
+                                        <button onclick="bayarViaMidtrans('bank_transfer')" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-2 px-3 rounded-lg text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+
+                                            <i class="fa-solid fa-building-columns"></i> Virtual Account
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- METODE PEMBAYARAN MANUAL & WHATSAPP -->
+
+                                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-1.5">
+
+                                    <p class="text-[10px] text-gray-700">
+
+                                        Atau transfer manual melalui rekening resmi sekolah:
+
+                                    </p>
+
+                                    <div class="font-mono text-[11px] space-y-0.5 text-blue-950 font-semibold">
+
+                                        <p>• Bank BRI : 6440 0103 6276 532 (a/n SD PLUS DARUSSALAM)</p>
+
+                                        <p>• Bank JATIM : 180 2000 908 (a/n SD PLUS DARUSSALAM)</p>
+
+                                    </div>
+
+                                    <p class="text-[10px] text-gray-600">Atau bayar tunai langsung ke sekolah.</p>
+
+                                    
+
+                                    <div id="action-buttons" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 pt-1">
+
+                                        <button onclick="previewAndDownloadPDF('${nisSiswa}', '${namaSiswa}')" 
+
+                                                class="w-full bg-red-600 hover:bg-red-700 text-white text-center py-2 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+
+                                            <i class="fa-solid fa-file-pdf text-sm"></i> Lihat / Download PDF
+
+                                        </button>
+
+                                        <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
+
+                                           class="w-full bg-green-600 hover:bg-green-500 text-white text-center py-2 rounded-lg font-bold text-xs transition-colors shadow flex items-center justify-center gap-1.5">
+
+                                            <i class="fa-brands fa-whatsapp text-sm"></i> Konfirmasi WA
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+
+
+                        hasilDiv.classList.remove('hidden');
+
+
+
+                    } else {
+
+                        alert("Nama Ibu Kandung tidak cocok!");
+
+                    }
+
+                } else {
+
+                    alert("NIS tidak ditemukan di database!");
+
+                }
+
+            } catch (e) { 
+
+                console.error("Firestore Error:", e);
+
+                alert("Terjadi kesalahan koneksi ke server."); 
+
+            } finally {
+
+                btnCari.disabled = false;
+
+                btnCari.innerText = originalBtnText;
+
+            }
+
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            if (isMaintenance) {
+
+                document.body.className = "bg-slate-100 min-h-screen flex items-center justify-center p-4";
+
+                document.body.innerHTML = `
+
+                    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-200">
+
+                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner animate-pulse">
+
+                            <i class="fa-solid fa-wrench text-3xl"></i>
+
+                        </div>
+
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">
+
+                            Sistem Maintenance
+
+                        </span>
+
+                        <h1 class="text-xl font-bold text-slate-800 mb-2">
+
+                            Layanan Cek Tagihan Sedang Pemeliharaan
+
+                        </h1>
+
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">
+
+                            Mohon maaf atas ketidaknyamanannya. Halaman pengecekan tagihan siswa saat ini sedang dalam proses pembaruan data dan pemeliharaan sistem.
+
+                        </p>
+
+                        <a href="https://wa.me/628998465724" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all shadow-md hover:shadow-lg">
+
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+
+                            <span>Hubungi Admin / Tata Usaha</span>
+
+                        </a>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+
+            const btnCari = document.getElementById('btn-cari');
+
+            const formInputs = document.querySelectorAll('#nisn-input, #ibu-input');
+
+
+
+            if (btnCari) {
+
+                btnCari.addEventListener('click', cariTagihan);
+
+            }
+
+
+
+            formInputs.forEach(input => {
+
+                input.addEventListener('keypress', (e) => {
+
+                    if (e.key === 'Enter') {
+
+                        e.preventDefault();
+
+                        cariTagihan();
+
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+
+</head>
+
+<body class="relative min-h-screen flex flex-col items-center justify-center p-4 bg-cover bg-center bg-no-repeat" style="background-image: url('bangunan-sekolah.jpg');">
+
+    
+
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0"></div>
+
+
+
+    <div class="relative z-10 w-full max-w-xl bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/20 overflow-hidden my-4">
+
+        
+
+        <div class="bg-blue-900 text-white p-5 text-center border-b-4 border-yellow-500">
+
+            <h1 class="font-bold text-base md:text-lg tracking-wide uppercase">SD Plus Darussalam</h1>
+
+            <p class="text-[10px] text-gray-200 tracking-wider uppercase mt-0.5">Sistem Verifikasi Pembayaran Syahriah</p>
+
+        </div>
+
+
+
+        <div class="p-6 md:p-8 space-y-6">
+
+            <div>
+
+                <h2 class="text-lg font-bold text-gray-800 text-center">Cek Tagihan Siswa</h2>
+
+                <p class="text-xs text-gray-500 text-center mt-1">
+
+                    Silakan masukkan kombinasi 3 digit NIS aktif siswa beserta Nama Ibu Kandung sesuai data Dapodik sekolah.
+
                 </p>
-                <p class="text-slate-600 italic mt-1">Atau langsung ke sekolah. Terimakasih</p>
+
+            </div>
+
+
+
+            <div class="space-y-4">
+
+                <div>
+
+                    <label for="nisn-input" class="block text-[11px] font-bold text-gray-600 uppercase mb-1 tracking-wider">Nomor NIS Siswa</label>
+
+                    <input type="text" id="nisn-input" placeholder="Contoh: 123" class="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 font-mono tracking-widest">
+
+                </div>
+
+                <div>
+
+                    <label for="ibu-input" class="block text-[11px] font-bold text-gray-600 uppercase mb-1 tracking-wider">Nama Ibu Kandung</label>
+
+                    <input type="text" id="ibu-input" placeholder="Masukkan nama lengkap ibu kandung" class="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 uppercase">
+
+                </div>
+
+                
+
+                <button id="btn-cari" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-lg text-xs transition-colors shadow-sm tracking-wide uppercase">
+
+                    Mulai Pencarian Data
+
+                </button>
+
+            </div>
+
+
+
+            <!-- HASIL PENCARIAN -->
+
+            <div id="hasil-tagihan" class="bg-white p-5 rounded-lg border border-gray-200 hidden shadow-md transition-all">
+
+            </div>
+
+
+
+            <div class="text-center pt-2 border-t border-gray-100">
+
+                <a href="index.html" class="text-xs text-blue-900 hover:text-blue-700 font-bold inline-flex items-center gap-1 transition-colors">
+
+                    ← Kembali ke Beranda Utama
+
+                </a>
+
             </div>
 
         </div>
 
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-5 rounded-2xl shadow-xl flex items-center space-x-3">
-            <div class="w-6 h-6 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-            <span class="text-xs font-semibold text-slate-600">Mengambil data dari Firestore...</span>
-        </div>
-    </div>
+
 
 </body>
+
 </html>
