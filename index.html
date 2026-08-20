@@ -19,8 +19,6 @@
         }
 
         /* --- ANIMASI SCROLL REVEAL & TRANSISI --- */
-        
-        /* State Awal Elemen Sebelum Terlihat di Scroll (Tersembunyi & Agak Turun) */
         .reveal {
             opacity: 0;
             transform: translateY(24px);
@@ -28,18 +26,16 @@
             will-change: opacity, transform;
         }
 
-        /* State Aktif Elemen Ketika Masuk Layar (Tampak & Kembali ke Posisi Asli) */
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Transisi Global untuk Micro-Interactions */
         * {
             transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
         }
 
-        /* Transisi Accordion Menu Halus */
+        /* Accordion Menu */
         .accordion-content {
             display: grid;
             grid-template-rows: 0fr;
@@ -54,7 +50,7 @@
             overflow: hidden;
         }
 
-        /* Efek Floating Card Saat Hover */
+        /* Floating Card */
         .card-hover {
             will-change: transform;
         }
@@ -63,7 +59,7 @@
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
         }
 
-        /* Custom Scrollbar Elegan */
+        /* Scrollbar Custom */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -105,16 +101,39 @@
                     <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     Navigasi Utama
                 </h2>
+                <!-- Tombol Reset Kembali ke Beranda -->
+                <button onclick="showHomeView()" class="w-full text-left font-bold text-blue-900 hover:bg-blue-50 p-2 rounded-lg mb-2 text-xs uppercase tracking-wider flex items-center gap-2 border border-blue-100">
+                    <span>🏠</span> Beranda Utama
+                </button>
                 <div id="menu-container" class="bg-slate-50/70 border border-slate-200/80 p-3 rounded-lg space-y-1.5 max-h-[70vh] overflow-y-auto shadow-inner"></div>
             </aside>
 
-            <!-- KONTEN TENGAH: BERITA UTAMA -->
-            <section class="lg:col-span-2 order-1 lg:order-2 border-b lg:border-b-0 lg:border-r lg:border-l lg:px-6 border-slate-200/80 pb-6 lg:pb-0 space-y-8">
-                <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
-                    <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
-                    Berita Terbaru
-                </h2>
-                <div id="loading-berita" class="text-slate-400 py-8 text-center text-sm font-medium animate-pulse">Memuat berita terbaru...</div>
+            <!-- KONTEN TENGAH: BERITA UTAMA / EMBED VIEW -->
+            <section id="content-center" class="lg:col-span-2 order-1 lg:order-2 border-b lg:border-b-0 lg:border-r lg:border-l lg:px-6 border-slate-200/80 pb-6 lg:pb-0 space-y-8">
+                
+                <!-- TAMPILAN 1: BERITA & INFORMASI (DEFAULT) -->
+                <div id="berita-view" class="space-y-6">
+                    <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
+                        <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                        Berita Terbaru
+                    </h2>
+                    <div id="loading-berita" class="text-slate-400 py-8 text-center text-sm font-medium animate-pulse">Memuat berita terbaru...</div>
+                    <div id="berita-list-container"></div>
+                </div>
+
+                <!-- TAMPILAN 2: EMBED VIEWER (TERSEMBUNYI SAAT AWAL) -->
+                <div id="embed-view" class="hidden space-y-4">
+                    <div class="flex justify-between items-center border-b-2 border-blue-900 pb-2">
+                        <h2 id="embed-title" class="text-sm font-bold text-blue-950 uppercase tracking-wider">Halaman Dokumen</h2>
+                        <a id="embed-external-link" href="#" target="_blank" rel="noopener noreferrer" class="text-xs bg-blue-900 text-white px-2.5 py-1 rounded hover:bg-blue-800 transition-colors flex items-center gap-1">
+                            <span>Tab Baru</span> ↗
+                        </a>
+                    </div>
+                    <div class="w-full h-[650px] bg-slate-100 rounded-lg overflow-hidden border border-slate-200 shadow-inner">
+                        <iframe id="embed-iframe" src="" class="w-full h-full border-0"></iframe>
+                    </div>
+                </div>
+
             </section>
 
             <!-- SIDEBAR KANAN: VIDEO & PENGUMUMAN -->
@@ -173,9 +192,9 @@ const menuData = [
         nama: "PROGRAM",
         sub: [
             { nama: "Jadwal Pelajaran", link: "https://docs.google.com/spreadsheets/d/1Dgj3SJZ2k1XLClckV0bTPa3u7xfKUksCK30IqFpIR_s/edit?gid=1745300353#gid=1745300353", eksternal: false },
-            { nama: "Ekstrakurikuler", link: "https://docs.google.com/spreadsheets/d/1pR3W50Z24fD__v_Qds6MFsv5LR_BON0N6JceerOm86E/edit?usp=sharing", eksternal: true },
+            { nama: "Ekstrakurikuler", link: "https://docs.google.com/spreadsheets/d/1pR3W50Z24fD__v_Qds6MFsv5LR_BON0N6JceerOm86E/edit?usp=sharing", eksternal: false },
             { nama: "Agenda Kegiatan", link: "https://bit.ly/kegiatan-1tahun", eksternal: true },
-            { nama: "Prosedur Sekolah (proses)", link: "#", eksternal: true }
+            { nama: "Prosedur Sekolah (proses)", link: "#", eksternal: false }
         ]
     },
     {
@@ -210,7 +229,7 @@ const menuData = [
                     {
                         nama: "Jiharka",
                         items: [
-                            { nama: "Tahsin Jiharka", link: "https://www.youtube.com/playlist?list=PLSagZuOw7YgI", eksternal: false },
+                            { nama: "Tahsin Jiharka", link: "https://www.youtube.com/playlist?list=PLSagZuOw7YgI", eksternal: true },
                             { nama: "Tahfidz Jiharka", link: "https://drive.google.com/drive/folders/1RciYtS8kQx8rm0ws0_iNZqi4mXRyzqqZ?usp=sharing", eksternal: true }
                         ]
                     }
@@ -234,7 +253,7 @@ const menuData = [
     {
         nama: "CAPAIAN",
         sub: [
-            { nama: "Tahfidz", link: "https://bit.ly/hafalan-siswa", eksternal: true },
+            { nama: "Capaian Tahfidz", link: "https://docs.google.com/spreadsheets/d/1arBDOw7puRCb9FE-Pm6VII6jd9hJzQmfB7KfHOu6RAI/edit?gid=970171807#gid=970171807", eksternal: false },
             { nama: "Prestasi", link: "https://bit.ly/capaian-prestasi", eksternal: true },
             { nama: "Tinggi Badan", link: "https://bit.ly/tinggi-siswa", eksternal: true },
             { nama: "Poin Kedisiplinan", link: "https://bit.ly/BUKU-BK-SDPD", eksternal: true }
@@ -260,9 +279,9 @@ const menuData = [
     {
         nama: "MEDSOS",
         sub: [
-            { nama: "YouTube: Darussalamberkah", link: "https://www.youtube.com/@DARUSSALAMBERKAH/featured", eksternal: false },
-            { nama: "Facebook", link: "https://www.facebook.com/sdplus.darussalam.geneng", eksternal: false },
-            { nama: "Instagram", link: "https://www.instagram.com/sd_plus_darussalam/", eksternal: false }
+            { nama: "YouTube: Darussalamberkah", link: "https://www.youtube.com/@DARUSSALAMBERKAH/featured", eksternal: true },
+            { nama: "Facebook", link: "https://www.facebook.com/sdplus.darussalam.geneng", eksternal: true },
+            { nama: "Instagram", link: "https://www.instagram.com/sd_plus_darussalam/", eksternal: true }
         ]
     }
 ];
@@ -288,7 +307,6 @@ async function fetchSheetData(sheetName) {
             if (colName) {
                 const cell = row.c[index];
                 let cellValue = '';
-                
                 if (cell) {
                     if (cell.f !== null && cell.f !== undefined) {
                         cellValue = cell.f;
@@ -296,7 +314,6 @@ async function fetchSheetData(sheetName) {
                         cellValue = cell.v;
                     }
                 }
-                
                 obj[colName] = String(cellValue).replaceAll('\n', '<br>');
             }
         });
@@ -304,7 +321,7 @@ async function fetchSheetData(sheetName) {
     }).filter(item => item.judul && item.judul.trim() !== "");
 }
 
-// 3. FUNGSI OBSERVER UNTUK ANIMASI SCROLL REVEAL
+// 3. FUNGSI SCROLL REVEAL OBSERVER
 function initScrollObserver() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -313,22 +330,58 @@ function initScrollObserver() {
             }
         });
     }, {
-        threshold: 0.1, // Elemen aktif jika 10% bagian sudah muncul di layar
+        threshold: 0.1,
         rootMargin: "0px 0px -40px 0px"
     });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 }
 
-// INSIALISASI SAAT DOM SIAP
+// 4. PENANGAN PENAMPIL SHEET / EMBED INTERIOR WEB
+function handleLinkClick(url, title, eksternal) {
+    if (!url || url === '#') return;
+
+    // Jika dipaksa eksternal (misal Youtube / Bitly)
+    if (eksternal) {
+        window.open(url, '_blank');
+        return;
+    }
+
+    // Cek Apakah Google Sheet
+    if (url.includes('docs.google.com/spreadsheets')) {
+        let embedUrl = url;
+        
+        // Ubah format URL edit/view biasa ke format htmlembed
+        if (url.includes('/edit')) {
+            embedUrl = url.replace('/edit', '/htmlembed') + '&widget=false&chrome=false';
+        }
+
+        document.getElementById('embed-title').textContent = title;
+        document.getElementById('embed-iframe').src = embedUrl;
+        document.getElementById('embed-external-link').href = url;
+
+        document.getElementById('berita-view').classList.add('hidden');
+        document.getElementById('embed-view').classList.remove('hidden');
+    } else {
+        window.location.href = url;
+    }
+}
+
+function showHomeView() {
+    document.getElementById('embed-iframe').src = '';
+    document.getElementById('embed-view').classList.add('hidden');
+    document.getElementById('berita-view').classList.remove('hidden');
+}
+
+// INSIALISASI DOM
 document.addEventListener("DOMContentLoaded", async () => {
     renderMenu();
-    initScrollObserver(); // Jalankan observer awal
+    initScrollObserver();
 
     try {
         const listBerita = await fetchSheetData('Berita');
         renderBerita(listBerita);
-        initScrollObserver(); // Re-observe berita baru
+        initScrollObserver();
     } catch (err) {
         console.error("Gagal memuat berita:", err);
         document.getElementById('loading-berita').innerHTML = "Gagal memuat berita terbaru.";
@@ -337,35 +390,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const listPengumuman = await fetchSheetData('Pengumuman');
         renderPengumuman(listPengumuman);
-        initScrollObserver(); // Re-observe pengumuman baru
+        initScrollObserver();
     } catch (err) {
         console.error("Gagal memuat pengumuman:", err);
         document.getElementById('loading-pengumuman').innerHTML = "Gagal memuat pengumuman.";
     }
 });
 
-// 4. FUNGSI RENDERING DENGAN CLASS .reveal
-
+// 5. RENDERING BERITA DENGAN DUKUNGAN BANYAK FOTO
 function renderBerita(data) {
-    const sectionBerita = document.querySelector('section.lg\\:col-span-2');
-    sectionBerita.innerHTML = `
-        <h2 class="text-sm font-bold text-blue-950 border-b-2 border-blue-900 pb-2 uppercase tracking-wider flex items-center gap-2 reveal">
-            <svg class="w-4 h-4 text-blue-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
-            Berita Terbaru
-        </h2>`;
+    const container = document.getElementById('berita-list-container');
+    document.getElementById('loading-berita').classList.add('hidden');
+    container.innerHTML = '';
     
     if (data.length === 0 || !data[0].judul) {
-        sectionBerita.innerHTML += `<p class="text-slate-400 py-6 text-center text-sm">Belum ada berita terbaru saat ini.</p>`;
+        container.innerHTML = `<p class="text-slate-400 py-6 text-center text-sm">Belum ada berita terbaru saat ini.</p>`;
         return;
     }
 
     [...data].reverse().forEach((berita, index) => {
         const idBerita = berita.id ? berita.id : `berita-${index}`;
+        
+        // Memilah foto banyak (dipisahkan koma pada kolom spreadsheet)
+        let daftarGambar = [];
+        if (Array.isArray(berita.gambar)) {
+            daftarGambar = berita.gambar;
+        } else if (typeof berita.gambar === 'string' && berita.gambar.trim() !== '') {
+            daftarGambar = berita.gambar.split(',').map(img => img.trim());
+        } else {
+            daftarGambar = ['Berita-1.jpg'];
+        }
+
+        // Susun Grid Foto
+        const htmlGaleri = `
+            <div class="grid grid-cols-1 ${daftarGambar.length > 1 ? 'sm:grid-cols-2' : ''} gap-2 rounded-lg overflow-hidden">
+                ${daftarGambar.map(imgUrl => `
+                    <img src="${imgUrl}" alt="${berita.judul}" class="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform duration-300">
+                `).join('')}
+            </div>
+        `;
+
         const itemHtml = `
             <div class="card-hover bg-white p-4 rounded-xl border border-slate-100 space-y-4 border-b border-slate-200/80 pb-6 mt-4 reveal">
-                <div class="overflow-hidden rounded-lg">
-                    <img src="${berita.gambar || 'Berita-1.jpg'}" alt="${berita.judul}" class="w-full h-60 object-cover hover:scale-105 transition-transform duration-500">
-                </div>
+                ${htmlGaleri}
+
                 <h3 onclick="toggleBerita('${idBerita}')" class="text-xl font-bold text-slate-800 hover:text-blue-900 cursor-pointer transition-colors leading-snug">${berita.judul}</h3>
                 <p id="konten-pendek-${idBerita}" class="text-slate-600 leading-relaxed text-sm text-justify">${berita.kontenPendek || ''}</p>
                 
@@ -379,13 +447,12 @@ function renderBerita(data) {
                 </button>
             </div>
         `;
-        sectionBerita.innerHTML += itemHtml;
+        container.innerHTML += itemHtml;
     });
 }
 
 function renderPengumuman(data) {
     const containerPengumuman = document.getElementById('pengumuman-container');
-    
     containerPengumuman.innerHTML = `
         <h2 class="text-sm font-bold mb-3 text-gray-700 border-b-2 border-amber-400 pb-2 uppercase tracking-wider flex items-center gap-2">
             <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -399,10 +466,7 @@ function renderPengumuman(data) {
     const dataValid = data.filter(p => p.judul && p.judul.toString().trim() !== "");
 
     if (dataValid.length === 0) {
-        containerPengumuman.innerHTML += `
-            <p class="text-slate-400 text-xs py-4 text-center italic bg-slate-50/50 rounded-lg border border-dashed border-slate-200">Tidak ada pengumuman baru.</p>
-            </div>
-        `;
+        containerPengumuman.innerHTML += `<p class="text-slate-400 text-xs py-4 text-center italic bg-slate-50/50 rounded-lg border border-dashed border-slate-200">Tidak ada pengumuman baru.</p></div>`;
         return;
     }
 
@@ -415,14 +479,9 @@ function renderPengumuman(data) {
                 const tahun = parseInt(bagian[0]);
                 const bulan = parseInt(bagian[1]); 
                 const hari = parseInt(bagian[2]);
-                const namaBulan = [
-                    "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-                ];
+                const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 return `${hari} ${namaBulan[bulan]} ${tahun}`;
-            } catch (e) {
-                return stringTgl;
-            }
+            } catch (e) { return stringTgl; }
         }
         return stringTgl;
     }
@@ -434,14 +493,7 @@ function renderPengumuman(data) {
             <div class="card-hover bg-white hover:bg-amber-50/30 border border-slate-200/60 hover:border-amber-300 p-3.5 rounded-lg shadow-2xs transition-all duration-300 cursor-pointer reveal">
                 <div class="border-l-3 border-amber-400 pl-3">
                     <p class="font-semibold text-slate-800 text-xs leading-relaxed mb-1 hover:text-amber-700 transition-colors">${p.judul}</p>
-                    ${tanggalRapi ? `
-                        <div class="flex items-center text-[10px] text-slate-400 gap-1 font-medium">
-                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span>${tanggalRapi}</span>
-                        </div>
-                    ` : ''}
+                    ${tanggalRapi ? `<div class="flex items-center text-[10px] text-slate-400 gap-1 font-medium"><span>${tanggalRapi}</span></div>` : ''}
                 </div>
             </div>
         `;
@@ -486,10 +538,10 @@ function renderMenu() {
                                                         <div id="deep-sub-${index}-${nestedIndex}-${catIndex}" class="accordion-content">
                                                             <div class="accordion-inner pl-2 space-y-0.5 border-l border-dotted border-slate-200">
                                                                 ${cat.items.map(subItem => `
-                                                                    <a href="${subItem.link}" 
-                                                                       ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                                                    <a href="javascript:void(0)" 
+                                                                       onclick="handleLinkClick('${subItem.link}', '${subItem.nama}', ${subItem.eksternal})" 
                                                                        class="text-slate-500 hover:text-blue-800 hover:translate-x-1 text-[10.5px] block py-0.5 transition-all">
-                                                                        - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
+                                                                        - ${subItem.nama} ${subItem.eksternal ? '↗' : ''}
                                                                     </a>
                                                                 `).join('')}
                                                             </div>
@@ -510,10 +562,10 @@ function renderMenu() {
                                         <div id="nested-sub-${index}-${nestedIndex}" class="accordion-content">
                                             <div class="accordion-inner pl-2.5 space-y-0.5 border-l border-dashed border-slate-200">
                                                 ${nestedItem.items.map(subItem => `
-                                                    <a href="${subItem.link}" 
-                                                       ${subItem.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                                                    <a href="javascript:void(0)" 
+                                                       onclick="handleLinkClick('${subItem.link}', '${subItem.nama}', ${subItem.eksternal})" 
                                                        class="text-slate-500 hover:text-blue-800 hover:translate-x-1 text-[11px] block py-0.5 transition-all">
-                                                        - ${subItem.nama} ${subItem.eksternal && subItem.link !== '#' ? '↗' : ''}
+                                                        - ${subItem.nama} ${subItem.eksternal ? '↗' : ''}
                                                     </a>
                                                 `).join('')}
                                             </div>
@@ -534,10 +586,10 @@ function renderMenu() {
                 <div id="sub-${index}" class="accordion-content">
                     <div class="accordion-inner pl-2.5 mt-1 space-y-0.5 border-l-2 border-slate-200">
                         ${item.sub.map(sub => `
-                            <a href="${sub.link}" 
-                               ${sub.eksternal ? 'target="_blank" rel="noopener noreferrer"' : ''} 
+                            <a href="javascript:void(0)" 
+                               onclick="handleLinkClick('${sub.link}', '${sub.nama}', ${sub.eksternal})" 
                                class="text-slate-600 hover:text-blue-800 hover:translate-x-1 text-xs block py-1 transition-all">
-                                 • ${sub.nama} ${sub.eksternal && sub.link !== '#' ? '↗' : ''}
+                                 • ${sub.nama} ${sub.eksternal ? '↗' : ''}
                             </a>
                         `).join('')}
                     </div>
@@ -548,7 +600,7 @@ function renderMenu() {
     });
 }
 
-// 5. INTERAKSI TOGGLE
+// TOGGLE INTERAKSI ACCORDION
 function toggleMenu(index) {
     const subMenu = document.getElementById(`sub-${index}`);
     const arrow = document.getElementById(`arrow-${index}`);
