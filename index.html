@@ -341,17 +341,14 @@ function initScrollObserver() {
 function handleLinkClick(url, title, eksternal) {
     if (!url || url === '#') return;
 
-    // Jika dipaksa eksternal (misal Youtube / Bitly)
     if (eksternal) {
         window.open(url, '_blank');
         return;
     }
 
-    // Cek Apakah Google Sheet
     if (url.includes('docs.google.com/spreadsheets')) {
         let embedUrl = url;
         
-        // Ubah format URL edit/view biasa ke format htmlembed
         if (url.includes('/edit')) {
             embedUrl = url.replace('/edit', '/htmlembed') + '&widget=false&chrome=false';
         }
@@ -397,7 +394,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// 5. RENDERING BERITA DENGAN DUKUNGAN BANYAK FOTO
+// 5. RENDERING BERITA DENGAN DUKUNGAN BANYAK FOTO (SOLUSI GAMBAR UTUH / TIDAK TERPOTONG)
 function renderBerita(data) {
     const container = document.getElementById('berita-list-container');
     document.getElementById('loading-berita').classList.add('hidden');
@@ -411,7 +408,6 @@ function renderBerita(data) {
     [...data].reverse().forEach((berita, index) => {
         const idBerita = berita.id ? berita.id : `berita-${index}`;
         
-        // Memilah foto banyak (dipisahkan koma pada kolom spreadsheet)
         let daftarGambar = [];
         if (Array.isArray(berita.gambar)) {
             daftarGambar = berita.gambar;
@@ -421,11 +417,13 @@ function renderBerita(data) {
             daftarGambar = ['Berita-1.jpg'];
         }
 
-        // Susun Grid Foto
+        // PERBAIKAN: Menggunakan object-contain, max-h-80, dan background lembut
         const htmlGaleri = `
-            <div class="grid grid-cols-1 ${daftarGambar.length > 1 ? 'sm:grid-cols-2' : ''} gap-2 rounded-lg overflow-hidden">
+            <div class="grid grid-cols-1 ${daftarGambar.length > 1 ? 'sm:grid-cols-2' : ''} gap-2 rounded-lg overflow-hidden bg-slate-100 p-1 border border-slate-200/60">
                 ${daftarGambar.map(imgUrl => `
-                    <img src="${imgUrl}" alt="${berita.judul}" class="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform duration-300">
+                    <div class="w-full flex justify-center items-center overflow-hidden rounded-md">
+                        <img src="${imgUrl}" alt="${berita.judul}" class="w-full max-h-80 object-contain hover:scale-105 transition-transform duration-300">
+                    </div>
                 `).join('')}
             </div>
         `;
@@ -449,6 +447,25 @@ function renderBerita(data) {
         `;
         container.innerHTML += itemHtml;
     });
+}
+
+function toggleBerita(id) {
+    const lengkap = document.getElementById(`konten-lengkap-${id}`);
+    const pendek = document.getElementById(`konten-pendek-${id}`);
+    const btnText = document.querySelector(`#btn-baca-${id} span:first-child`);
+    const btnArrow = document.getElementById(`btn-arrow-${id}`);
+
+    if (lengkap.classList.contains('hidden')) {
+        lengkap.classList.remove('hidden');
+        pendek.classList.add('hidden');
+        if (btnText) btnText.textContent = 'Sembunyikan';
+        if (btnArrow) btnArrow.textContent = '↑';
+    } else {
+        lengkap.classList.add('hidden');
+        pendek.classList.remove('hidden');
+        if (btnText) btnText.textContent = 'Baca Selengkapnya';
+        if (btnArrow) btnArrow.textContent = '→';
+    }
 }
 
 function renderPengumuman(data) {
@@ -589,7 +606,7 @@ function renderMenu() {
                             <a href="javascript:void(0)" 
                                onclick="handleLinkClick('${sub.link}', '${sub.nama}', ${sub.eksternal})" 
                                class="text-slate-600 hover:text-blue-800 hover:translate-x-1 text-xs block py-1 transition-all">
-                                 • ${sub.nama} ${sub.eksternal ? '↗' : ''}
+                                • ${sub.nama} ${sub.eksternal ? '↗' : ''}
                             </a>
                         `).join('')}
                     </div>
@@ -604,43 +621,27 @@ function renderMenu() {
 function toggleMenu(index) {
     const subMenu = document.getElementById(`sub-${index}`);
     const arrow = document.getElementById(`arrow-${index}`);
-    if (subMenu && arrow) {
-        const isOpen = subMenu.classList.toggle('open');
-        arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    if (subMenu) {
+        subMenu.classList.toggle('open');
+        if (arrow) arrow.style.transform = subMenu.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 }
 
 function toggleNestedMenu(parentIndex, nestedIndex) {
-    const nestedSubMenu = document.getElementById(`nested-sub-${parentIndex}-${nestedIndex}`);
-    const nestedArrow = document.getElementById(`nested-arrow-${parentIndex}-${nestedIndex}`);
-    if (nestedSubMenu && nestedArrow) {
-        const isOpen = nestedSubMenu.classList.toggle('open');
-        nestedArrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    const nestedSub = document.getElementById(`nested-sub-${parentIndex}-${nestedIndex}`);
+    const arrow = document.getElementById(`nested-arrow-${parentIndex}-${nestedIndex}`);
+    if (nestedSub) {
+        nestedSub.classList.toggle('open');
+        if (arrow) arrow.style.transform = nestedSub.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 }
 
 function toggleDeepNestedMenu(parentIndex, nestedIndex, catIndex) {
-    const deepSubMenu = document.getElementById(`deep-sub-${parentIndex}-${nestedIndex}-${catIndex}`);
-    const deepArrow = document.getElementById(`deep-arrow-${parentIndex}-${nestedIndex}-${catIndex}`);
-    if (deepSubMenu && deepArrow) {
-        const isOpen = deepSubMenu.classList.toggle('open');
-        deepArrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-}
-
-function toggleBerita(id) {
-    const lengkap = document.getElementById(`konten-lengkap-${id}`);
-    const pendek = document.getElementById(`konten-pendek-${id}`);
-    const btn = document.getElementById(`btn-baca-${id}`);
-    const arrow = document.getElementById(`btn-arrow-${id}`);
-    
-    if (lengkap && pendek && btn) {
-        const isHidden = lengkap.classList.contains('hidden');
-        lengkap.classList.toggle('hidden');
-        pendek.classList.toggle('hidden');
-        
-        btn.querySelector('span').textContent = isHidden ? "Sembunyikan" : "Baca Selengkapnya";
-        if (arrow) arrow.textContent = isHidden ? "←" : "→";
+    const deepSub = document.getElementById(`deep-sub-${parentIndex}-${nestedIndex}-${catIndex}`);
+    const arrow = document.getElementById(`deep-arrow-${parentIndex}-${nestedIndex}-${catIndex}`);
+    if (deepSub) {
+        deepSub.classList.toggle('open');
+        if (arrow) arrow.style.transform = deepSub.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 }
 </script>
