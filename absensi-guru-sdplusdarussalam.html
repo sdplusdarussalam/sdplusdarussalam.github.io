@@ -438,15 +438,14 @@
 <body>
 
   <!-- =====================================================================
-       BAGIAN KONFIGURASI
+       BAGIAN KONFIGURASI (SUDAH TERISI URL APPS SCRIPT ANDA)
        ===================================================================== -->
   <script>
     const NAMA_SEKOLAH = "SD Plus Darussalam";
     const PIN_ADMIN = "$dpd";
 
-    // URL Web App Google Apps Script untuk kirim otomatis ke Google Drive & Spreadsheet
-    // Biarkan kosong ("") jika ingin menyimpan hanya di localStorage browser
-    const APPS_SCRIPT_URL = "";
+    // URL Web App Google Apps Script untuk mengirim foto ke Drive & data ke Spreadsheet
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydhPXJ821OI4-R4hk__WUkwLFemH4NEUPBXCcG-2xQYBAigFtUDlR0LIhfIKQVgKRKGw/exec";
 
     const AKTIFKAN_VALIDASI_RADIUS = false;
     const KOORDINAT_SEKOLAH = {
@@ -1027,7 +1026,6 @@
       const canvas = document.getElementById("hiddenCanvas");
       const ctx = canvas.getContext("2d");
 
-      // Kompres ukuran: lebar maksimal 640px dengan mempertahankan rasio aspek
       const maxWidth = 640;
       const scale = Math.min(1, maxWidth / video.videoWidth);
       const targetWidth = Math.round(video.videoWidth * scale);
@@ -1091,7 +1089,6 @@
         currentY += lineHeight - 2;
       });
 
-      // Kompres kualitas JPEG 0.7
       capturedImageBase64 = canvas.toDataURL("image/jpeg", 0.7);
 
       document.getElementById("photoPreview").src = capturedImageBase64;
@@ -1199,7 +1196,6 @@
       try {
         localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(records));
       } catch (err) {
-        // Tetap lanjutkan jika penyimpanan lokal penuh namun data sudah terkirim ke cloud
       }
 
       const pesanSukses = cloudResult.sent
