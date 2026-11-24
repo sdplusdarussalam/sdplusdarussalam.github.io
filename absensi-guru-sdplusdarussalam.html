@@ -4,6 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Presensi Guru - SD Plus Darussalam</title>
+
+  <!-- Ikon browser & layar utama -->
+  <link rel="icon" type="image/png" href="https://sdplusdarussalam.web.id/icon.png" />
+
+  <!-- Wajib untuk iPhone / iPad (Safari) -->
+  <link rel="apple-touch-icon" href="https://sdplusdarussalam.web.id/icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Presensi Guru" />
+
+  <!-- Manifest PWA (Android & browser modern) -->
+  <link rel="manifest" href="https://sdplusdarussalam.web.id/manifest.json" />
+  <meta name="theme-color" content="#0f62fe" />
+
   <style>
     :root {
       --primary: #0f62fe;
@@ -438,7 +452,7 @@
 <body>
 
   <!-- =====================================================================
-       BAGIAN KONFIGURASI (SUDAH TERISI URL APPS SCRIPT ANDA)
+       BAGIAN KONFIGURASI
        ===================================================================== -->
   <script>
     const NAMA_SEKOLAH = "SD Plus Darussalam";
@@ -455,19 +469,30 @@
     const RADIUS_MAKSIMAL_METER = 100;
 
     const DAFTAR_GURU = [
-      { username: "sdpd1",  nama: "Jiddan" },
-      { username: "sdpd2",  nama: "Nama Guru 2" },
-      { username: "sdpd3",  nama: "Nama Guru 3" },
-      { username: "sdpd4",  nama: "Nama Guru 4" },
-      { username: "sdpd5",  nama: "Nama Guru 5" },
-      { username: "sdpd6",  nama: "Nama Guru 6" },
-      { username: "sdpd7",  nama: "Nama Guru 7" },
-      { username: "sdpd8",  nama: "Nama Guru 8" },
-      { username: "sdpd9",  nama: "Nama Guru 9" },
-      { username: "sdpd10", nama: "Nama Guru 10" },
-      { username: "sdpd11", nama: "Nama Guru 11" },
-      { username: "sdpd12", nama: "Nama Guru 12" },
-      { username: "sdpd13", nama: "Nama Guru 13" }
+      { username: "SDPD1",  nama: "IKE DWI LESTARI" },
+      { username: "SDPD2",  nama: "FAIZAH NIESA" },
+      { username: "SDPD3",  nama: "CHOIROTUN NAFI'AH, S.Pd.I" },
+      { username: "SDPD4",  nama: "LINDA KRISTIANA, AMD" },
+      { username: "SDPD5",  nama: "EMY ERNAWATI, S.Sos" },
+      { username: "SDPD6",  nama: "WURI HANDAYANI, S.PD." },
+      { username: "SDPD7",  nama: "DEWI SIFAK FAUJIYAH S.E" },
+      { username: "SDPD8",  nama: "NUR RUWAIDA, S.Pd" },
+      { username: "SDPD9",  nama: "ANNISA NUR AZIZAH, S.Pd" },
+      { username: "SDPD10", nama: "MOHAMMAD IRVAN BAYU SAPUTRA, S.Pd" },
+      { username: "SDPD11", nama: "IQBAL KHOIRUL RAMADHAN, S.Pd" },
+      { username: "SDPD12", nama: "SRI HARTATIK, S.Pd.I" },
+      { username: "SDPD13", nama: "AGNES ADHI YAKSA, S.Pd" },
+      { username: "SDPD14", nama: "WULAN PUJI LESTARI, S.Pd" },
+      { username: "SDPD15", nama: "AYU ARISKHA WULAN SARI" },
+      { username: "SDPD16", nama: "LUTFIA RENIYANTI KUSUMA, S.Pd" },
+      { username: "SDPD17", nama: "MUH. SYAFA' SANTOSO HANDAYANI, S.Pd" },
+      { username: "SDPD18", nama: "RADHEA NUR UHADA AJMALI, S.Pd" },
+      { username: "SDPD19", nama: "ANIS RISALATUL HUSNA, S.Pd" },
+      { username: "SDPD20", nama: "FARADILLA ARDHEANE GUSTIN, S.Pd" },
+      { username: "SDPD21", nama: "DIFA FAUZIYA RIZKA KHOIRUDDIN, S.Pd" },
+      { username: "SDPD22", nama: "NIA WULANDARI, S.Pd" },
+      { username: "SDPD23", nama: "RODHATUL ALAWIYAH Ash, M.Pd." },
+      { username: "SDPD24", nama: "NURUL MARATUS SHOLIKHAH, S.Pd., Gr" }
     ];
   </script>
 
@@ -500,7 +525,7 @@
           <input
             type="text"
             id="inputUsername"
-            placeholder="Contoh: sdpd1"
+            placeholder="Contoh: SDPD1"
             autocomplete="off"
             autocapitalize="none"
             required
