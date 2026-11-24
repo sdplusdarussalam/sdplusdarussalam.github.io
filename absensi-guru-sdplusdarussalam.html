@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Presensi Guru - SD Plus Darussalam</title>
+  <style>
+    :root {
+      --primary: #0f62fe;
+      --primary-dark: #0043ce;
+      --success: #198038;
+      --success-dark: #0e6027;
+      --warning: #f1c21b;
+      --danger: #da1e28;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #161616;
+      --muted: #6f6f6f;
+      --border: #e0e0e0;
+      --radius: 16px;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      padding: 16px;
+    }
+
+    .container.admin-wide {
+      max-width: 960px;
+    }
+
+    .topbar {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary) 0%, #007d79 100%);
+      color: #fff;
+      padding: 18px 20px;
+      border-radius: 0 0 24px 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .topbar-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .school-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .school-sub {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s, background-color 0.2s;
+      text-align: center;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: var(--success-dark);
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+
+    .btn-danger-outline {
+      background: #fff;
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      border-radius: 9px;
+      width: auto;
+    }
+
+    .btn-ghost-light {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      border-radius: 10px;
+      width: auto;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .greeting {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .clock-box {
+      background: linear-gradient(135deg, #edf5ff 0%, #e5f6f5 100%);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin: 14px 0;
+      border: 1px solid #d0e2ff;
+    }
+
+    .clock-time {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+    }
+
+    .clock-date {
+      font-size: 0.9rem;
+      color: #393939;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .status-box {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      line-height: 1.45;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .status-info {
+      background: #edf5ff;
+      color: #0043ce;
+      border: 1px solid #a6c8ff;
+    }
+
+    .status-success {
+      background: #defbe6;
+      color: #0e6027;
+      border: 1px solid #6fdc8c;
+    }
+
+    .status-warning {
+      background: #fcf4d6;
+      color: #684e00;
+      border: 1px solid #f1c21b;
+    }
+
+    .status-danger {
+      background: #fff1f1;
+      color: #a2191f;
+      border: 1px solid #ffb3b8;
+    }
+
+    .today-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .summary-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .summary-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .summary-val {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .camera-wrapper {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      aspect-ratio: 3 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video,
+    #photoPreview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    video {
+      transform: scaleX(-1);
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    th,
+    td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f4f7fb;
+      font-weight: 700;
+      color: #333;
+      white-space: nowrap;
+    }
+
+    .thumb-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .thumb-img {
+      width: 44px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .thumb-img:hover {
+      transform: scale(1.06);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 99px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .badge-in {
+      background: #defbe6;
+      color: #0e6027;
+    }
+
+    .badge-out {
+      background: #edf5ff;
+      color: #0043ce;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 18px;
+      position: relative;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-content img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .text-muted {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .mt-2 { margin-top: 8px; }
+    .mb-2 { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================================
+       BAGIAN KONFIGURASI
+       ===================================================================== -->
+  <script>
+    const NAMA_SEKOLAH = "SD Plus Darussalam";
+    const PIN_ADMIN = "$dpd";
+
+    // URL Web App Google Apps Script untuk kirim otomatis ke Google Drive & Spreadsheet
+    // Biarkan kosong ("") jika ingin menyimpan hanya di localStorage browser
+    const APPS_SCRIPT_URL = "";
+
+    const AKTIFKAN_VALIDASI_RADIUS = false;
+    const KOORDINAT_SEKOLAH = {
+      lat: -7.456120,
+      lng: 111.432150
+    };
+    const RADIUS_MAKSIMAL_METER = 100;
+
+    const DAFTAR_GURU = [
+      { username: "sdpd1",  nama: "Jiddan" },
+      { username: "sdpd2",  nama: "Nama Guru 2" },
+      { username: "sdpd3",  nama: "Nama Guru 3" },
+      { username: "sdpd4",  nama: "Nama Guru 4" },
+      { username: "sdpd5",  nama: "Nama Guru 5" },
+      { username: "sdpd6",  nama: "Nama Guru 6" },
+      { username: "sdpd7",  nama: "Nama Guru 7" },
+      { username: "sdpd8",  nama: "Nama Guru 8" },
+      { username: "sdpd9",  nama: "Nama Guru 9" },
+      { username: "sdpd10", nama: "Nama Guru 10" },
+      { username: "sdpd11", nama: "Nama Guru 11" },
+      { username: "sdpd12", nama: "Nama Guru 12" },
+      { username: "sdpd13", nama: "Nama Guru 13" }
+    ];
+  </script>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="school-title" id="headerSchoolName">Presensi Guru</div>
+        <div class="school-sub">Sistem Kehadiran Digital Berbasis Lokasi</div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn btn-ghost-light" id="btnOpenAdmin">Mode Admin</button>
+        <button type="button" class="btn btn-ghost-light hidden" id="btnLogout">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="pageLogin">
+    <div class="card">
+      <div class="card-title">Masuk Aplikasi Presensi</div>
+      <p class="text-muted mb-2">Masukkan username yang telah diberikan oleh operator sekolah.</p>
+
+      <div id="loginError" class="status-box status-danger hidden">
+        <span>⚠️</span>
+        <span id="loginErrorText">Username tidak terdaftar.</span>
+      </div>
+
+      <form id="formLogin">
+        <div class="form-group">
+          <label for="inputUsername">Username Guru</label>
+          <input
+            type="text"
+            id="inputUsername"
+            placeholder="Contoh: sdpd1"
+            autocomplete="off"
+            autocapitalize="none"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Masuk</button>
+      </form>
+    </div>
+
+    <div class="status-box status-info">
+      <span>ℹ️</span>
+      <div>
+        Pastikan izin <strong>Kamera</strong> dan <strong>Lokasi (GPS)</strong> diaktifkan pada browser HP Anda agar presensi berjalan lancar.
+      </div>
+    </div>
+  </main>
+
+  <main class="container hidden" id="pagePresensi">
+    <div class="card">
+      <div class="greeting" id="greetingText">Selamat datang, Guru</div>
+      <div class="text-muted mt-2">Silakan lakukan presensi sesuai jadwal kehadiran Anda.</div>
+
+      <div class="clock-box">
+        <div class="clock-time" id="realtimeClock">00:00:00 WIB</div>
+        <div class="clock-date" id="realtimeDate">Memuat tanggal...</div>
+      </div>
+
+      <div id="locationStatusBox" class="status-box status-info">
+        <span id="locationIcon">📡</span>
+        <div style="flex: 1;">
+          <div id="locationStatusTitle"><strong>Sedang mengambil lokasi GPS...</strong></div>
+          <div id="locationStatusDetail" class="mt-2" style="font-size: 0.8rem;">Mohon tunggu sebentar.</div>
+          <button type="button" id="btnRefreshLocation" class="btn btn-outline btn-sm mt-2">Perbarui Lokasi</button>
+        </div>
+      </div>
+
+      <div id="radiusWarningBox" class="status-box status-warning hidden">
+        <span>⚠️</span>
+        <div id="radiusWarningText">Anda berada di luar area sekolah.</div>
+      </div>
+
+      <div class="today-summary">
+        <div class="summary-item">
+          <div class="summary-label">Masuk Hari Ini</div>
+          <div class="summary-val" id="todayInStatus">-</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Pulang Hari Ini</div>
+          <div class="summary-val" id="todayOutStatus">-</div>
+        </div>
+      </div>
+
+      <div class="grid-2" id="actionButtonsGroup">
+        <button type="button" class="btn btn-success" id="btnPresensiMasuk">
+          📥 Presensi Masuk
+        </button>
+        <button type="button" class="btn btn-primary" id="btnPresensiPulang">
+          📤 Presensi Pulang
+        </button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="cameraSection">
+      <div class="card-title">
+        <span id="cameraTitle">Ambil Foto Selfie</span>
+        <button type="button" class="btn btn-danger-outline btn-sm" id="btnCancelCamera">Batal</button>
+      </div>
+
+      <div id="cameraErrorBox" class="status-box status-danger hidden">
+        <span>📷</span>
+        <div id="cameraErrorText">Gagal mengakses kamera.</div>
+      </div>
+
+      <div id="liveVideoContainer">
+        <div class="camera-wrapper">
+          <video id="videoElement" autoplay playsinline muted></video>
+        </div>
+        <button type="button" class="btn btn-primary" id="btnCapturePhoto">📸 Ambil Foto</button>
+      </div>
+
+      <div id="photoPreviewContainer" class="hidden">
+        <div class="camera-wrapper">
+          <img id="photoPreview" alt="Hasil Foto Presensi" />
+        </div>
+        <div class="grid-2">
+          <button type="button" class="btn btn-outline" id="btnRetakePhoto">🔄 Foto Ulang</button>
+          <button type="button" class="btn btn-success" id="btnSubmitPresensi">✅ Kirim Presensi</button>
+        </div>
+      </div>
+
+      <canvas id="hiddenCanvas" class="hidden"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Riwayat Presensi Saya</div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Masuk</th>
+              <th>Pulang</th>
+              <th>Foto</th>
+            </tr>
+          </thead>
+          <tbody id="teacherHistoryBody">
+            <tr>
+              <td colspan="4" class="text-muted" style="text-align:center;">Belum ada data presensi.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <main class="container admin-wide hidden" id="pageAdmin">
+    <div class="card">
+      <div class="card-title">
+        <span>Rekap Presensi Seluruh Guru</span>
+        <button type="button" class="btn btn-outline btn-sm" id="btnCloseAdmin">← Kembali</button>
+      </div>
+
+      <div class="grid-2 mb-2">
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="filterDate">Filter Tanggal</label>
+          <input type="date" id="filterDate" />
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="filterTeacher">Filter Nama Guru</label>
+          <select id="filterTeacher">
+            <option value="">Semua Guru</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap;">
+        <button type="button" class="btn btn-outline btn-sm" id="btnResetFilter">Reset Filter</button>
+        <button type="button" class="btn btn-success btn-sm" id="btnExportCSV">📥 Unduh Rekap (CSV)</button>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Guru</th>
+              <th>Tanggal</th>
+              <th>Jam Masuk</th>
+              <th>Jam Pulang</th>
+              <th>Lokasi</th>
+              <th>Foto</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="6" class="text-muted" style="text-align:center;">Tidak ada data presensi.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal" id="modalAdminPin">
+    <div class="modal-content">
+      <div class="card-title">Verifikasi Mode Admin</div>
+      <p class="text-muted mb-2">Masukkan PIN Admin untuk melihat rekap seluruh guru.</p>
+      <div id="pinError" class="status-box status-danger hidden">
+        <span>⚠️</span>
+        <span>PIN Admin salah!</span>
+      </div>
+      <form id="formAdminPin">
+        <div class="form-group">
+          <input type="password" id="inputAdminPin" placeholder="Masukkan PIN Admin" required />
+        </div>
+        <div class="grid-2">
+          <button type="button" class="btn btn-outline" id="btnCancelPin">Batal</button>
+          <button type="submit" class="btn btn-primary">Masuk Admin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalPhotoViewer">
+    <div class="modal-content">
+      <div class="card-title">
+        <span id="modalPhotoTitle">Detail Foto Presensi</span>
+        <button type="button" class="btn btn-danger-outline btn-sm" id="btnClosePhotoModal">Tutup</button>
+      </div>
+      <img id="modalPhotoImg" src="" alt="Foto Presensi Diperbesar" />
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_SESSION_KEY = "presensi_guru_session_v1";
+    const STORAGE_DATA_KEY = "presensi_guru_records_v1";
+
+    let currentUser = null;
+    let currentLocation = {
+      ready: false,
+      lat: null,
+      lng: null,
+      address: "Alamat tidak tersedia",
+      distanceMeters: null
+    };
+    let activeAttendanceType = null;
+    let cameraStream = null;
+    let capturedImageBase64 = null;
+
+    const pageLogin = document.getElementById("pageLogin");
+    const pagePresensi = document.getElementById("pagePresensi");
+    const pageAdmin = document.getElementById("pageAdmin");
+    const btnLogout = document.getElementById("btnLogout");
+    const btnOpenAdmin = document.getElementById("btnOpenAdmin");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("headerSchoolName").textContent = "Presensi Guru - " + NAMA_SEKOLAH;
+      startRealtimeClock();
+      populateAdminTeacherFilter();
+      checkSavedSession();
+      setupEventListeners();
+    });
+
+    function getWIBDateParts(dateObj = new Date()) {
+      const optionsDate = {
+        timeZone: "Asia/Jakarta",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      };
+      const optionsTime = {
+        timeZone: "Asia/Jakarta",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      };
+
+      const tanggalLengkap = new Intl.DateTimeFormat("id-ID", optionsDate).format(dateObj);
+      const jamMenitDetik = new Intl.DateTimeFormat("id-ID", optionsTime)
+        .format(dateObj)
+        .replace(/\./g, ":");
+
+      const isoDate = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Jakarta",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(dateObj);
+
+      return {
+        isoDate,
+        tanggalLengkap,
+        jamWIB: `${jamMenitDetik} WIB`
+      };
+    }
+
+    function startRealtimeClock() {
+      const updateClock = () => {
+        const now = getWIBDateParts();
+        document.getElementById("realtimeClock").textContent = now.jamWIB;
+        document.getElementById("realtimeDate").textContent = now.tanggalLengkap;
+      };
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    function checkSavedSession() {
+      const saved = localStorage.getItem(STORAGE_SESSION_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const validGuru = DAFTAR_GURU.find(
+            (g) => g.username.trim().toLowerCase() === parsed.username.trim().toLowerCase()
+          );
+          if (validGuru) {
+            currentUser = validGuru;
+            showPresensiPage();
+            return;
+          }
+        } catch (e) {
+          localStorage.removeItem(STORAGE_SESSION_KEY);
+        }
+      }
+      showLoginPage();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const inputVal = document.getElementById("inputUsername").value.trim().toLowerCase();
+      const errorBox = document.getElementById("loginError");
+
+      const guruDitemukan = DAFTAR_GURU.find(
+        (guru) => guru.username.trim().toLowerCase() === inputVal
+      );
+
+      if (!guruDitemukan) {
+        errorBox.classList.remove("hidden");
+        return;
+      }
+
+      errorBox.classList.add("hidden");
+      currentUser = {
+        username: guruDitemukan.username.trim().toLowerCase(),
+        nama: guruDitemukan.nama
+      };
+
+      localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(currentUser));
+      document.getElementById("inputUsername").value = "";
+      showPresensiPage();
+    }
+
+    function handleLogout() {
+      stopCamera();
+      localStorage.removeItem(STORAGE_SESSION_KEY);
+      currentUser = null;
+      showLoginPage();
+    }
+
+    function showLoginPage() {
+      pageLogin.classList.remove("hidden");
+      pagePresensi.classList.add("hidden");
+      pageAdmin.classList.add("hidden");
+      btnLogout.classList.add("hidden");
+    }
+
+    function showPresensiPage() {
+      pageLogin.classList.add("hidden");
+      pageAdmin.classList.add("hidden");
+      pagePresensi.classList.remove("hidden");
+      btnLogout.classList.remove("hidden");
+
+      document.getElementById("greetingText").textContent = `Selamat datang, ${currentUser.nama}`;
+      updateTodayAttendanceStatus();
+      renderTeacherHistory();
+      fetchUserLocation();
+    }
+
+    function fetchUserLocation() {
+      const box = document.getElementById("locationStatusBox");
+      const icon = document.getElementById("locationIcon");
+      const title = document.getElementById("locationStatusTitle");
+      const detail = document.getElementById("locationStatusDetail");
+      const radiusBox = document.getElementById("radiusWarningBox");
+
+      box.className = "status-box status-info";
+      icon.textContent = "📡";
+      title.innerHTML = "<strong>Sedang mengambil lokasi GPS...</strong>";
+      detail.textContent = "Pastikan GPS/Lokasi di HP aktif.";
+      radiusBox.classList.add("hidden");
+
+      if (!navigator.geolocation) {
+        box.className = "status-box status-danger";
+        icon.textContent = "❌";
+        title.innerHTML = "<strong>Browser tidak mendukung GPS.</strong>";
+        detail.textContent = "Gunakan Google Chrome atau Safari versi terbaru.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          currentLocation.ready = true;
+          currentLocation.lat = lat;
+          currentLocation.lng = lng;
+          currentLocation.address = "Memuat nama jalan/alamat...";
+
+          if (AKTIFKAN_VALIDASI_RADIUS) {
+            const jarak = calculateDistanceMeters(
+              lat,
+              lng,
+              KOORDINAT_SEKOLAH.lat,
+              KOORDINAT_SEKOLAH.lng
+            );
+            currentLocation.distanceMeters = Math.round(jarak);
+
+            if (jarak > RADIUS_MAKSIMAL_METER) {
+              radiusBox.classList.remove("hidden");
+              document.getElementById("radiusWarningText").innerHTML =
+                `<strong>Anda berada di luar area sekolah!</strong> Jarak Anda sekitar ${Math.round(jarak)} meter dari ${NAMA_SEKOLAH} (batas maksimal ${RADIUS_MAKSIMAL_METER} meter).`;
+            } else {
+              radiusBox.classList.add("hidden");
+            }
+          }
+
+          box.className = "status-box status-success";
+          icon.textContent = "📍";
+          title.innerHTML = "<strong>Lokasi berhasil ditemukan</strong>";
+          detail.textContent = `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)} (Mengambil alamat...)`;
+
+          try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=id`;
+            const response = await fetch(url, {
+              headers: { "Accept": "application/json" }
+            });
+            if (response.ok) {
+              const data = await response.json();
+              if (data && data.display_name) {
+                currentLocation.address = data.display_name;
+                detail.textContent = `${data.display_name} (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+              } else {
+                currentLocation.address = `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                detail.textContent = currentLocation.address;
+              }
+            } else {
+              throw new Error("Gagal memuat alamat");
+            }
+          } catch (err) {
+            currentLocation.address = `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            detail.textContent = `${currentLocation.address} (Alamat gagal dimuat, tetap bisa presensi)`;
+          }
+        },
+        (error) => {
+          currentLocation.ready = false;
+          box.className = "status-box status-danger";
+          icon.textContent = "⚠️";
+          title.innerHTML = "<strong>Gagal mendapatkan lokasi GPS</strong>";
+
+          if (error.code === error.PERMISSION_DENIED) {
+            detail.innerHTML =
+              "Izin lokasi ditolak. <strong>Cara mengaktifkan:</strong> Ketuk ikon gembok/pengaturan di bilah alamat browser → Izin → Aktifkan Lokasi, lalu tekan Perbarui Lokasi.";
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            detail.textContent = "Sinyal GPS tidak tersedia. Pastikan fitur Lokasi/GPS di pengaturan HP menyala.";
+          } else {
+            detail.textContent = "Waktu permintaan lokasi habis. Coba pindah ke area terbuka lalu tekan Perbarui Lokasi.";
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    async function startPresensiFlow(jenis) {
+      if (!currentLocation.ready) {
+        alert("Lokasi GPS belum ditemukan. Mohon aktifkan GPS dan tunggu hingga lokasi berhasil didapat.");
+        fetchUserLocation();
+        return;
+      }
+
+      if (AKTIFKAN_VALIDASI_RADIUS && currentLocation.distanceMeters > RADIUS_MAKSIMAL_METER) {
+        const lanjut = confirm(
+          `Peringatan: Anda berada di luar area sekolah (${currentLocation.distanceMeters}m dari lokasi sekolah). Tetap lanjutkan presensi?`
+        );
+        if (!lanjut) return;
+      }
+
+      activeAttendanceType = jenis;
+      document.getElementById("cameraTitle").textContent = `Selfie Presensi ${jenis}`;
+      document.getElementById("cameraSection").classList.remove("hidden");
+      document.getElementById("actionButtonsGroup").classList.add("hidden");
+      document.getElementById("liveVideoContainer").classList.remove("hidden");
+      document.getElementById("photoPreviewContainer").classList.add("hidden");
+      document.getElementById("cameraErrorBox").classList.add("hidden");
+
+      await startFrontCamera();
+    }
+
+    async function startFrontCamera() {
+      stopCamera();
+      const video = document.getElementById("videoElement");
+      const errBox = document.getElementById("cameraErrorBox");
+      const errText = document.getElementById("cameraErrorText");
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        errBox.classList.remove("hidden");
+        errText.textContent = "Browser tidak mendukung akses kamera langsung. Pastikan membuka halaman lewat HTTPS atau localhost.";
+        return;
+      }
+
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 720 },
+            height: { ideal: 960 }
+          },
+          audio: false
+        });
+        video.srcObject = cameraStream;
+      } catch (err) {
+        errBox.classList.remove("hidden");
+        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+          errText.innerHTML =
+            "Izin kamera ditolak. <strong>Cara mengaktifkan:</strong> Ketuk ikon gembok di bilah alamat browser → Izin → Aktifkan Kamera, lalu muat ulang halaman.";
+        } else {
+          errText.textContent = "Kamera depan tidak ditemukan atau sedang digunakan aplikasi lain.";
+        }
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+        cameraStream = null;
+      }
+    }
+
+    function captureAndWatermarkPhoto() {
+      const video = document.getElementById("videoElement");
+      if (!video.videoWidth || !video.videoHeight) {
+        alert("Kamera belum siap, silakan tunggu sebentar.");
+        return;
+      }
+
+      const canvas = document.getElementById("hiddenCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // Kompres ukuran: lebar maksimal 640px dengan mempertahankan rasio aspek
+      const maxWidth = 640;
+      const scale = Math.min(1, maxWidth / video.videoWidth);
+      const targetWidth = Math.round(video.videoWidth * scale);
+      const targetHeight = Math.round(video.videoHeight * scale);
+
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      ctx.save();
+      ctx.translate(targetWidth, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+      ctx.restore();
+
+      const waktuSekarang = getWIBDateParts();
+      const namaAsli = currentUser.nama;
+      const jenisText = `Presensi ${activeAttendanceType}`;
+      const waktuText = `${waktuSekarang.tanggalLengkap} - ${waktuSekarang.jamWIB}`;
+      const koordinatText = `Koordinat: ${currentLocation.lat.toFixed(6)}, ${currentLocation.lng.toFixed(6)}`;
+      const alamatText = currentLocation.address;
+
+      ctx.font = "13px sans-serif";
+      const padding = 14;
+      const maxTextWidth = targetWidth - padding * 2;
+      const alamatLines = wrapCanvasText(ctx, alamatText, maxTextWidth).slice(0, 3);
+
+      const lineHeight = 18;
+      const totalLines = 4 + alamatLines.length;
+      const boxHeight = totalLines * lineHeight + padding * 1.6;
+      const boxY = targetHeight - boxHeight;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.68)";
+      ctx.fillRect(0, boxY, targetWidth, boxHeight);
+
+      let currentY = boxY + padding + 10;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 17px sans-serif";
+      ctx.fillText(namaAsli, padding, currentY);
+      currentY += lineHeight + 2;
+
+      ctx.fillStyle = activeAttendanceType === "Masuk" ? "#6fdc8c" : "#78a9ff";
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillText(jenisText.toUpperCase(), padding, currentY);
+      currentY += lineHeight;
+
+      ctx.fillStyle = "#f4f4f4";
+      ctx.font = "13px sans-serif";
+      ctx.fillText(waktuText, padding, currentY);
+      currentY += lineHeight;
+
+      ctx.fillStyle = "#d0e2ff";
+      ctx.font = "12px monospace";
+      ctx.fillText(koordinatText, padding, currentY);
+      currentY += lineHeight;
+
+      ctx.fillStyle = "#e0e0e0";
+      ctx.font = "12px sans-serif";
+      alamatLines.forEach((line) => {
+        ctx.fillText(line, padding, currentY);
+        currentY += lineHeight - 2;
+      });
+
+      // Kompres kualitas JPEG 0.7
+      capturedImageBase64 = canvas.toDataURL("image/jpeg", 0.7);
+
+      document.getElementById("photoPreview").src = capturedImageBase64;
+      document.getElementById("liveVideoContainer").classList.add("hidden");
+      document.getElementById("photoPreviewContainer").classList.remove("hidden");
+      stopCamera();
+    }
+
+    function wrapCanvasText(ctx, text, maxWidth) {
+      const words = text.split(" ");
+      const lines = [];
+      let currentLine = "";
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = currentLine + words[i] + " ";
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && i > 0) {
+          lines.push(currentLine.trim());
+          currentLine = words[i] + " ";
+        } else {
+          currentLine = testLine;
+        }
+      }
+      lines.push(currentLine.trim());
+      return lines;
+    }
+
+    function getAllAttendanceRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_DATA_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function sendToGoogleSheetAndDrive(record) {
+      if (!APPS_SCRIPT_URL) return { sent: false };
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            username: record.username,
+            nama: record.nama,
+            jenis: record.jenis,
+            isoDate: record.isoDate,
+            tanggal: record.tanggal,
+            jam: record.jam,
+            latitude: record.latitude,
+            longitude: record.longitude,
+            alamat: record.alamat,
+            fotoBase64: record.foto
+          })
+        });
+        return { sent: true };
+      } catch (err) {
+        return { sent: false, error: err.message };
+      }
+    }
+
+    async function saveAttendanceRecord() {
+      if (!capturedImageBase64 || !currentUser) return;
+
+      const btnSubmit = document.getElementById("btnSubmitPresensi");
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = "⏳ Mengirim...";
+
+      const now = getWIBDateParts();
+      const records = getAllAttendanceRecords();
+
+      const sudahAda = records.some(
+        (r) =>
+          r.username === currentUser.username &&
+          r.isoDate === now.isoDate &&
+          r.jenis === activeAttendanceType
+      );
+
+      if (sudahAda) {
+        alert(`Anda sudah melakukan Presensi ${activeAttendanceType} hari ini.`);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "✅ Kirim Presensi";
+        closeCameraSection();
+        return;
+      }
+
+      const newRecord = {
+        id: Date.now().toString(),
+        username: currentUser.username,
+        nama: currentUser.nama,
+        jenis: activeAttendanceType,
+        isoDate: now.isoDate,
+        tanggal: now.tanggalLengkap,
+        jam: now.jamWIB,
+        latitude: currentLocation.lat,
+        longitude: currentLocation.lng,
+        alamat: currentLocation.address,
+        foto: capturedImageBase64
+      };
+
+      const cloudResult = await sendToGoogleSheetAndDrive(newRecord);
+      records.push(newRecord);
+
+      try {
+        localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(records));
+      } catch (err) {
+        // Tetap lanjutkan jika penyimpanan lokal penuh namun data sudah terkirim ke cloud
+      }
+
+      const pesanSukses = cloudResult.sent
+        ? `Presensi ${activeAttendanceType} berhasil dikirim ke Spreadsheet & Google Drive!`
+        : `Presensi ${activeAttendanceType} berhasil disimpan!`;
+
+      alert(pesanSukses);
+
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "✅ Kirim Presensi";
+      closeCameraSection();
+      updateTodayAttendanceStatus();
+      renderTeacherHistory();
+    }
+
+    function closeCameraSection() {
+      stopCamera();
+      capturedImageBase64 = null;
+      activeAttendanceType = null;
+      document.getElementById("cameraSection").classList.add("hidden");
+      document.getElementById("actionButtonsGroup").classList.remove("hidden");
+    }
+
+    function updateTodayAttendanceStatus() {
+      const now = getWIBDateParts();
+      const records = getAllAttendanceRecords();
+
+      const todayRecords = records.filter(
+        (r) => r.username === currentUser.username && r.isoDate === now.isoDate
+      );
+
+      const masukRec = todayRecords.find((r) => r.jenis === "Masuk");
+      const pulangRec = todayRecords.find((r) => r.jenis === "Pulang");
+
+      const btnMasuk = document.getElementById("btnPresensiMasuk");
+      const btnPulang = document.getElementById("btnPresensiPulang");
+
+      if (masukRec) {
+        document.getElementById("todayInStatus").textContent = masukRec.jam;
+        btnMasuk.disabled = true;
+        btnMasuk.textContent = "✅ Sudah Masuk";
+      } else {
+        document.getElementById("todayInStatus").textContent = "Belum";
+        btnMasuk.disabled = false;
+        btnMasuk.textContent = "📥 Presensi Masuk";
+      }
+
+      if (pulangRec) {
+        document.getElementById("todayOutStatus").textContent = pulangRec.jam;
+        btnPulang.disabled = true;
+        btnPulang.textContent = "✅ Sudah Pulang";
+      } else {
+        document.getElementById("todayOutStatus").textContent = "Belum";
+        btnPulang.disabled = false;
+        btnPulang.textContent = "📤 Presensi Pulang";
+      }
+    }
+
+    function groupRecordsByDateAndUser(records) {
+      const map = {};
+
+      records.forEach((rec) => {
+        const key = `${rec.username}_${rec.isoDate}`;
+        if (!map[key]) {
+          map[key] = {
+            username: rec.username,
+            nama: rec.nama,
+            isoDate: rec.isoDate,
+            tanggal: rec.tanggal,
+            masuk: null,
+            pulang: null
+          };
+        }
+        if (rec.jenis === "Masuk") {
+          map[key].masuk = rec;
+        } else if (rec.jenis === "Pulang") {
+          map[key].pulang = rec;
+        }
+      });
+
+      return Object.values(map).sort((a, b) => b.isoDate.localeCompare(a.isoDate));
+    }
+
+    function renderTeacherHistory() {
+      const tbody = document.getElementById("teacherHistoryBody");
+      const allRecords = getAllAttendanceRecords().filter(
+        (r) => r.username === currentUser.username
+      );
+      const grouped = groupRecordsByDateAndUser(allRecords);
+
+      if (grouped.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-muted" style="text-align:center;">Belum ada riwayat presensi.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = grouped
+        .map((row) => {
+          const jamMasuk = row.masuk ? `<span class="badge badge-in">${row.masuk.jam}</span>` : "-";
+          const jamPulang = row.pulang ? `<span class="badge badge-out">${row.pulang.jam}</span>` : "-";
+
+          let fotoHtml = `<div class="thumb-group">`;
+          if (row.masuk) {
+            fotoHtml += `<img src="${row.masuk.foto}" class="thumb-img" title="Foto Masuk" onclick="openPhotoModal('${row.masuk.id}')" />`;
+          }
+          if (row.pulang) {
+            fotoHtml += `<img src="${row.pulang.foto}" class="thumb-img" title="Foto Pulang" onclick="openPhotoModal('${row.pulang.id}')" />`;
+          }
+          fotoHtml += `</div>`;
+
+          return `
+            <tr>
+              <td>${row.tanggal}</td>
+              <td>${jamMasuk}</td>
+              <td>${jamPulang}</td>
+              <td>${fotoHtml}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    function populateAdminTeacherFilter() {
+      const select = document.getElementById("filterTeacher");
+      DAFTAR_GURU.forEach((guru) => {
+        const opt = document.createElement("option");
+        opt.value = guru.username;
+        opt.textContent = guru.nama;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById("adminTableBody");
+      const filterDate = document.getElementById("filterDate").value;
+      const filterTeacher = document.getElementById("filterTeacher").value;
+
+      let records = getAllAttendanceRecords();
+
+      if (filterDate) {
+        records = records.filter((r) => r.isoDate === filterDate);
+      }
+      if (filterTeacher) {
+        records = records.filter((r) => r.username === filterTeacher);
+      }
+
+      const grouped = groupRecordsByDateAndUser(records);
+
+      if (grouped.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align:center;">Tidak ada data presensi yang cocok.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = grouped
+        .map((row) => {
+          const jamMasuk = row.masuk ? row.masuk.jam : "-";
+          const jamPulang = row.pulang ? row.pulang.jam : "-";
+          const refLoc = row.masuk || row.pulang;
+          const lokasiText = refLoc
+            ? `<div style="max-width:220px; font-size:0.78rem;">${refLoc.alamat}<br><span class="text-muted">(${refLoc.latitude.toFixed(5)}, ${refLoc.longitude.toFixed(5)})</span></div>`
+            : "-";
+
+          let fotoHtml = `<div class="thumb-group">`;
+          if (row.masuk) {
+            fotoHtml += `<img src="${row.masuk.foto}" class="thumb-img" title="Masuk: ${row.nama}" onclick="openPhotoModal('${row.masuk.id}')" />`;
+          }
+          if (row.pulang) {
+            fotoHtml += `<img src="${row.pulang.foto}" class="thumb-img" title="Pulang: ${row.nama}" onclick="openPhotoModal('${row.pulang.id}')" />`;
+          }
+          fotoHtml += `</div>`;
+
+          return `
+            <tr>
+              <td><strong>${row.nama}</strong></td>
+              <td>${row.tanggal}</td>
+              <td>${jamMasuk}</td>
+              <td>${jamPulang}</td>
+              <td>${lokasiText}</td>
+              <td>${fotoHtml}</td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    function exportAdminCSV() {
+      const filterDate = document.getElementById("filterDate").value;
+      const filterTeacher = document.getElementById("filterTeacher").value;
+
+      let records = getAllAttendanceRecords();
+      if (filterDate) records = records.filter((r) => r.isoDate === filterDate);
+      if (filterTeacher) records = records.filter((r) => r.username === filterTeacher);
+
+      const grouped = groupRecordsByDateAndUser(records);
+
+      if (grouped.length === 0) {
+        alert("Tidak ada data untuk diunduh.");
+        return;
+      }
+
+      const headers = [
+        "Nama Guru",
+        "Tanggal",
+        "Jam Masuk",
+        "Lokasi Masuk",
+        "Koordinat Masuk",
+        "Jam Pulang",
+        "Lokasi Pulang",
+        "Koordinat Pulang"
+      ];
+
+      const escapeCSV = (str) => `"${String(str || "-").replace(/"/g, '""')}"`;
+
+      const rows = grouped.map((row) => [
+        escapeCSV(row.nama),
+        escapeCSV(row.tanggal),
+        escapeCSV(row.masuk ? row.masuk.jam : "-"),
+        escapeCSV(row.masuk ? row.masuk.alamat : "-"),
+        escapeCSV(row.masuk ? `${row.masuk.latitude}, ${row.masuk.longitude}` : "-"),
+        escapeCSV(row.pulang ? row.pulang.jam : "-"),
+        escapeCSV(row.pulang ? row.pulang.alamat : "-"),
+        escapeCSV(row.pulang ? `${row.pulang.latitude}, ${row.pulang.longitude}` : "-")
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      const fileSuffix = filterDate ? filterDate : getWIBDateParts().isoDate;
+      link.href = url;
+      link.download = `Rekap_Presensi_Guru_${fileSuffix}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    window.openPhotoModal = function (recordId) {
+      const records = getAllAttendanceRecords();
+      const rec = records.find((r) => r.id === recordId);
+      if (!rec) return;
+
+      document.getElementById("modalPhotoTitle").textContent = `${rec.nama} - Presensi ${rec.jenis}`;
+      document.getElementById("modalPhotoImg").src = rec.foto;
+      document.getElementById("modalPhotoViewer").classList.add("active");
+    };
+
+    function setupEventListeners() {
+      document.getElementById("formLogin").addEventListener("submit", handleLogin);
+      btnLogout.addEventListener("click", handleLogout);
+      document.getElementById("btnRefreshLocation").addEventListener("click", fetchUserLocation);
+
+      document.getElementById("btnPresensiMasuk").addEventListener("click", () => startPresensiFlow("Masuk"));
+      document.getElementById("btnPresensiPulang").addEventListener("click", () => startPresensiFlow("Pulang"));
+
+      document.getElementById("btnCancelCamera").addEventListener("click", closeCameraSection);
+      document.getElementById("btnCapturePhoto").addEventListener("click", captureAndWatermarkPhoto);
+      document.getElementById("btnRetakePhoto").addEventListener("click", async () => {
+        document.getElementById("photoPreviewContainer").classList.add("hidden");
+        document.getElementById("liveVideoContainer").classList.remove("hidden");
+        await startFrontCamera();
+      });
+      document.getElementById("btnSubmitPresensi").addEventListener("click", saveAttendanceRecord);
+
+      document.getElementById("btnClosePhotoModal").addEventListener("click", () => {
+        document.getElementById("modalPhotoViewer").classList.remove("active");
+      });
+
+      btnOpenAdmin.addEventListener("click", () => {
+        document.getElementById("pinError").classList.add("hidden");
+        document.getElementById("inputAdminPin").value = "";
+        document.getElementById("modalAdminPin").classList.add("active");
+        setTimeout(() => document.getElementById("inputAdminPin").focus(), 100);
+      });
+
+      document.getElementById("btnCancelPin").addEventListener("click", () => {
+        document.getElementById("modalAdminPin").classList.remove("active");
+      });
+
+      document.getElementById("formAdminPin").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const pinInput = document.getElementById("inputAdminPin").value.trim();
+        if (pinInput === PIN_ADMIN) {
+          document.getElementById("modalAdminPin").classList.remove("active");
+          pageLogin.classList.add("hidden");
+          pagePresensi.classList.add("hidden");
+          pageAdmin.classList.remove("hidden");
+          renderAdminTable();
+        } else {
+          document.getElementById("pinError").classList.remove("hidden");
+        }
+      });
+
+      document.getElementById("btnCloseAdmin").addEventListener("click", () => {
+        pageAdmin.classList.add("hidden");
+        if (currentUser) {
+          showPresensiPage();
+        } else {
+          showLoginPage();
+        }
+      });
+
+      document.getElementById("filterDate").addEventListener("change", renderAdminTable);
+      document.getElementById("filterTeacher").addEventListener("change", renderAdminTable);
+      document.getElementById("btnResetFilter").addEventListener("click", () => {
+        document.getElementById("filterDate").value = "";
+        document.getElementById("filterTeacher").value = "";
+        renderAdminTable();
+      });
+      document.getElementById("btnExportCSV").addEventListener("click", exportAdminCSV);
+    }
+  </script>
+</body>
+</html>
