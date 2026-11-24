@@ -1,0 +1,21 @@
+{
+  "name": "Presensi Guru - SD Plus Darussalam",
+  "short_name": "Presensi Guru",
+  "start_url": "https://sdplusdarussalam.web.id/absensi-guru-sdplusdarussalam",
+  "scope": "https://sdplusdarussalam.web.id/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0f62fe",
+  "icons": [
+    {
+      "src": "https://sdplusdarussalam.web.id/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://sdplusdarussalam.web.id/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
